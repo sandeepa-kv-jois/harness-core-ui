@@ -869,3 +869,6 @@ editName: Edit {{name}}
 selectName: Select {{name}}
 override: Override
 plusNewName: + New {{name}}
+
+# Chaos Module
+chaosText: Chaos
