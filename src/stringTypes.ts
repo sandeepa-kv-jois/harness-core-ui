@@ -120,7 +120,7 @@ export interface StringsMap {
   'common.changeIntelligence': string
   'common.changesUnsaved': string
   'common.channel': string
-  'common.chaosText': string
+  'common.chaos': string
   'common.clearSelection': string
   'common.clientId': string
   'common.clientSecret': string
@@ -5040,6 +5040,7 @@ export interface StringsMap {
   'cf.testTheFlag.testFlagTargetHeading': string
   'cf.testTheFlag.verify': string
   'cf.testTheFlag.verifyText': string
+  'chaos.chaoshub': string
   'ci.advancedLabel': string
   'ci.annotations': string
   'ci.artifactoryConnectorLabel': string
