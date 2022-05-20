@@ -21,6 +21,7 @@ import type { Title, UseDocumentTitleReturn } from '@common/hooks/useDocumentTit
 import type { ExtendedMonacoEditorProps } from '@common/components/MonacoEditor/MonacoEditor'
 import type { ExtendedMonacoDiffEditorProps } from '@common/components/MonacoDiffEditor/MonacoDiffEditor'
 import type { YamlBuilderProps } from '@common/interfaces/YAMLBuilderProps'
+import type { TitleProps } from '@common/components/Title/ScopedTitle'
 import type { GitOpsCustomMicroFrontendProps } from '@cd/interfaces/GitOps.types'
 
 export interface Scope {
@@ -35,6 +36,7 @@ export interface CommonComponents {
   RbacMenuItem: React.ComponentType<RbacMenuItemProps>
   MonacoEditor: React.ForwardRefExoticComponent<ExtendedMonacoEditorProps & React.RefAttributes<ReactMonacoEditor>>
   YAMLBuilder: React.FC<YamlBuilderProps>
+  ScopedTitle: React.FC<TitleProps>
   MonacoDiffEditor: React.ForwardRefExoticComponent<
     ExtendedMonacoDiffEditorProps & React.RefAttributes<MonacoDiffEditor>
   >

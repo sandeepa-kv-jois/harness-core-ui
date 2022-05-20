@@ -22,6 +22,7 @@ import MonacoEditor from '@common/components/MonacoEditor/MonacoEditor'
 import MonacoDiffEditor from '@common/components/MonacoDiffEditor/MonacoDiffEditor'
 import YAMLBuilder from '@common/components/YAMLBuilder/YamlBuilder'
 import { global401HandlerUtils } from '@common/utils/global401HandlerUtils'
+import ScopedTitle from '@common/components/Title/ScopedTitle'
 import ChildAppError from './ChildAppError'
 import type { ChildAppProps, Scope } from './index'
 
@@ -86,7 +87,8 @@ export class ChildAppMounter<T = never> extends React.Component<
             NGBreadcrumbs,
             MonacoEditor,
             YAMLBuilder,
-            MonacoDiffEditor
+            MonacoDiffEditor,
+            ScopedTitle
           }}
           hooks={{
             useDocumentTitle
