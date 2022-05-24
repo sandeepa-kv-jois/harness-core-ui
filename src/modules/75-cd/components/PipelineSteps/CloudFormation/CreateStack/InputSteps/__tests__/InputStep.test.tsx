@@ -80,7 +80,7 @@ const renderComponent = (data: any) => {
 }
 
 describe('Test cloudformation create stack template input set', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     jest.clearAllMocks()
   })
   test('should render with no data', () => {
@@ -106,12 +106,12 @@ describe('Test cloudformation create stack template input set', () => {
     expect(container).toMatchSnapshot()
   })
 
-  test('should render with basic data', () => {
+  test('should render with timeout data', () => {
     const data = {
       type: StepType.CloudFormationCreateStack,
       name: 'testCreate',
       identifier: 'testID',
-      timeout: '10m',
+      timeout: RUNTIME_INPUT_VALUE,
       spec: {
         provisionerIdentifier: 'testID',
         configuration: {
@@ -125,11 +125,11 @@ describe('Test cloudformation create stack template input set', () => {
         }
       }
     }
-    const { container } = renderComponent(data)
-    expect(container).toMatchSnapshot()
+    const { getByPlaceholderText } = renderComponent(data)
+    expect(getByPlaceholderText('Enter w/d/h/m/s/ms')).toBeTruthy()
   })
 
-  test('should render with runtime data', async () => {
+  test('should edit timeout data', async () => {
     const data = {
       type: StepType.CloudFormationCreateStack,
       name: 'testCreate',
@@ -148,20 +148,27 @@ describe('Test cloudformation create stack template input set', () => {
         }
       }
     }
-    const { container, getByPlaceholderText } = renderComponent(data)
+    const { getByPlaceholderText } = renderComponent(data)
 
     const timeout = getByPlaceholderText('Enter w/d/h/m/s/ms')
     act(() => {
       userEvent.type(timeout, '10m')
     })
     expect(timeout).toHaveDisplayValue('10m')
-    expect(container).toMatchSnapshot()
   })
 
-  test('should render with runtime data and make connector api request', () => {
-    jest
-      .spyOn(cdServices, 'useGetConnector')
-      .mockImplementation(() => ({ loading: false, data: { data: {} }, mutate: jest.fn(), refetch: jest.fn() } as any))
+  test('should render with connectorRef data and make connector api request', () => {
+    jest.spyOn(cdServices, 'useGetConnector').mockImplementation(
+      () =>
+        ({
+          loading: false,
+          data: {
+            data: {}
+          },
+          mutate: jest.fn(),
+          refetch: jest.fn()
+        } as any)
+    )
     const data = {
       type: StepType.CloudFormationCreateStack,
       name: 'testCreate',
@@ -180,11 +187,11 @@ describe('Test cloudformation create stack template input set', () => {
         }
       }
     }
-    const { container } = renderComponent(data)
-    expect(container).toMatchSnapshot()
+    const { getByTestId } = renderComponent(data)
+    expect(getByTestId('cr-field-test.spec.configuration.connectorRef')).toBeTruthy()
   })
 
-  test('should render with runtime data and make region api request', async () => {
+  test('should render with region data and make region api request', async () => {
     jest
       .spyOn(Portal, 'useListAwsRegions')
       .mockImplementation(() => ({ loading: false, data: regionMock, mutate: jest.fn(), refetch: jest.fn() } as any))
@@ -206,7 +213,7 @@ describe('Test cloudformation create stack template input set', () => {
         }
       }
     }
-    const { container, getByPlaceholderText, getByText } = renderComponent(data)
+    const { getByPlaceholderText, getByText } = renderComponent(data)
 
     const region = await getByPlaceholderText('pipeline.regionPlaceholder')
     await waitFor(() => expect(region).toBeTruthy())
@@ -217,10 +224,9 @@ describe('Test cloudformation create stack template input set', () => {
     userEvent.click(selectedRegion)
 
     expect(region).toHaveDisplayValue(['GovCloud (US-West)'])
-    expect(container).toMatchSnapshot()
   })
 
-  test('should render with runtime data and make role api request', () => {
+  test('should render with role data and make role api request', async () => {
     jest
       .spyOn(cdServices, 'useGetIamRolesForAws')
       .mockImplementation(() => ({ loading: false, data: rolesMock, mutate: jest.fn(), refetch: jest.fn() } as any))
@@ -244,7 +250,8 @@ describe('Test cloudformation create stack template input set', () => {
       }
     }
     const { container } = renderComponent(data)
-    expect(container).toMatchSnapshot()
+    const roleArn = queryByAttribute('name', container, 'test.spec.configuration.roleArn')
+    expect(roleArn).toBeTruthy()
   })
 
   test('should render with runtime data and make capabilities api request', () => {
@@ -270,9 +277,8 @@ describe('Test cloudformation create stack template input set', () => {
         }
       }
     }
-    const { container } = renderComponent(data)
-
-    expect(container).toMatchSnapshot()
+    const { getByTestId } = renderComponent(data)
+    expect(getByTestId('test.spec.configuration.capabilities')).toBeTruthy()
   })
 
   test('should render with runtime data show tags component', () => {
@@ -305,7 +311,6 @@ describe('Test cloudformation create stack template input set', () => {
       userEvent.type(tags!, `[ { key: 'value' }, { keyTwo: 'value two' } ]`)
     })
     expect(tags).toHaveDisplayValue(`[ { key: 'value' }, { keyTwo: 'value two' } ]`)
-    expect(container).toMatchSnapshot()
   })
 
   test('should render with runtime data and make aws statues api request', async () => {
@@ -330,7 +335,7 @@ describe('Test cloudformation create stack template input set', () => {
         }
       }
     }
-    const { container } = renderComponent(data)
-    expect(container).toMatchSnapshot()
+    const { getByTestId } = renderComponent(data)
+    expect(getByTestId('test.spec.configuration.skipOnStackStatuses')).toBeTruthy()
   })
 })

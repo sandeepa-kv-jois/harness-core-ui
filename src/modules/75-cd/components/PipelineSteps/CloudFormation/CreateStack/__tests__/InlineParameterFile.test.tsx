@@ -25,7 +25,7 @@ const renderComponent = (props: any) => {
 }
 
 describe('Test cloudformation inline parameter with no data', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     jest.clearAllMocks()
   })
   test('should render with no data', () => {
@@ -68,7 +68,14 @@ describe('Test cloudformation inline parameter with no data', () => {
           paramKey: 'test',
           paramType: 'String'
         }
-      })
+      }),
+      data: {
+        status: 'SUCCESS',
+        data: {
+          paramKey: 'test',
+          paramType: 'String'
+        }
+      }
     } as any)
     const props = {
       onClose: () => undefined,
@@ -94,13 +101,11 @@ describe('Test cloudformation inline parameter with no data', () => {
   })
 
   test('api request errors', async () => {
-    jest.spyOn(cdServices, 'useCFParametersForAws').mockReturnValue({
+    jest.spyOn(cdServices, 'useCFParametersForAws').mockReturnValueOnce({
       loading: false,
       refetch: jest.fn(),
       mutate: jest.fn(),
-      error: {
-        message: 'this errored'
-      }
+      error: { message: 'useCFParametersForAws error' }
     } as any)
     const props = {
       onClose: () => undefined,
@@ -125,31 +130,6 @@ describe('Test cloudformation inline parameter with no data', () => {
     expect(container).toMatchSnapshot()
   })
 
-  test('should render with git data and render existing values', async () => {
-    const props = {
-      onClose: () => undefined,
-      onSubmit: () => undefined,
-      isOpen: true,
-      initialValues: [
-        {
-          name: 'test',
-          value: 'test'
-        }
-      ],
-      awsConnectorRef: 'test',
-      type: 'git',
-      region: 'ireland',
-      git: {
-        gitConnectorRef: 'test',
-        isBranch: true,
-        filePath: 'file/path',
-        branch: 'main'
-      }
-    }
-    const { container } = renderComponent(props)
-    expect(container).toMatchSnapshot()
-  })
-
   test('should error when trying to retrieve data with no git values', async () => {
     const props = {
       onClose: () => undefined,
@@ -171,12 +151,12 @@ describe('Test cloudformation inline parameter with no data', () => {
         branch: 'main'
       }
     }
-    const { container, getByText } = renderComponent(props)
+    const { getByText } = renderComponent(props)
     const getParams = getByText('cd.cloudFormation.retrieveNames')
     act(() => {
       userEvent.click(getParams)
     })
-    expect(container).toMatchSnapshot()
+    expect(getByText('cd.cloudFormation.errors.getParam')).toBeTruthy()
   })
 
   test('should render and remove/add values', async () => {
@@ -205,7 +185,6 @@ describe('Test cloudformation inline parameter with no data', () => {
     act(() => {
       userEvent.click(remove)
     })
-    expect(container).toMatchSnapshot()
 
     const add = getByTestId('add-header')
     act(() => {

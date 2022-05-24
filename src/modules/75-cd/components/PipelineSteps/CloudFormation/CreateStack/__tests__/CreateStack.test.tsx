@@ -118,18 +118,17 @@ describe('Test Cloudformation create stack', () => {
         }
       }
     }
-    const { container, getByTestId } = renderComponent(data)
+    const { getByTestId } = renderComponent(data)
     await waitFor(() => expect(getByTestId('remoteTemplate')).toBeTruthy())
     act(() => {
       userEvent.click(getByTestId('remoteTemplate'))
     })
-    expect(getByTestId('remoteClose')).toBeTruthy()
 
+    await waitFor(() => expect(getByTestId('remoteClose')).toBeTruthy())
     const remoteClose = getByTestId('remoteClose')
     act(() => {
       userEvent.click(remoteClose)
     })
-    expect(container).toMatchSnapshot()
   })
 
   test('should be able to edit inputs', async () => {
@@ -187,7 +186,6 @@ describe('Test Cloudformation create stack', () => {
       userEvent.type(stackName!, 'new name')
     })
     expect(stackName).toHaveDisplayValue('new name')
-    expect(container).toMatchSnapshot()
   })
 
   test('should be able to open optional dropdown and remove param', async () => {
@@ -238,18 +236,16 @@ describe('Test Cloudformation create stack', () => {
         }
       }
     }
-    const { container, getByText, getByTestId } = renderComponent(data)
+    const { getByText, getByTestId } = renderComponent(data)
     await waitFor(() => expect(getByText('common.optionalConfig')).toBeTruthy())
     act(() => {
       userEvent.click(getByText('common.optionalConfig'))
     })
 
-    const removeParamButton = getByTestId('remove-param-0')
+    await waitFor(() => expect(getByTestId('remove-param-0')))
     act(() => {
-      userEvent.click(removeParamButton)
+      userEvent.click(getByTestId('remove-param-0'))
     })
-
-    expect(container).toMatchSnapshot()
   })
 
   test('should be able to open remote param modal', async () => {
@@ -300,18 +296,16 @@ describe('Test Cloudformation create stack', () => {
         }
       }
     }
-    const { container, getByText, getByTestId } = renderComponent(data)
+    const { getByText, getByTestId } = renderComponent(data)
     await waitFor(() => expect(getByText('common.optionalConfig')).toBeTruthy())
     act(() => {
       userEvent.click(getByText('common.optionalConfig'))
     })
 
-    const remoteParamButton = getByTestId('remoteParamFiles')
+    await waitFor(() => expect(getByTestId('remoteParamFiles')).toBeTruthy())
     act(() => {
-      userEvent.click(remoteParamButton)
+      userEvent.click(getByTestId('remoteParamFiles'))
     })
-
-    expect(container).toMatchSnapshot()
   })
 
   test('should be able to open and open inline param modal', async () => {
@@ -362,23 +356,21 @@ describe('Test Cloudformation create stack', () => {
         }
       }
     }
-    const { container, getByText, getByTestId } = renderComponent(data)
+    const { getByText, getByTestId } = renderComponent(data)
     await waitFor(() => expect(getByText('common.optionalConfig')).toBeTruthy())
     act(() => {
       userEvent.click(getByText('common.optionalConfig'))
     })
 
-    const inlineParamButton = getByTestId('inlineParamFiles')
+    await waitFor(() => expect(getByTestId('inlineParamFiles')).toBeTruthy())
     act(() => {
-      userEvent.click(inlineParamButton)
+      userEvent.click(getByTestId('inlineParamFiles'))
     })
 
-    const inlineParamClose = getByTestId('inlineParamClose')
+    await waitFor(() => expect(getByTestId('inlineParamClose')).toBeTruthy())
     act(() => {
-      userEvent.click(inlineParamClose)
+      userEvent.click(getByTestId('inlineParamClose'))
     })
-
-    expect(container).toMatchSnapshot()
   })
 
   test('should error on submit with invalid data', async () => {
@@ -491,7 +483,7 @@ describe('Test Cloudformation create stack', () => {
     expect(container).toMatchSnapshot()
   })
 
-  test('should show api capabilities error', async () => {
+  test('should show api capabilities error', () => {
     useCFCapabilitiesForAws(true)
     const data = {
       initialValues: {
@@ -513,8 +505,8 @@ describe('Test Cloudformation create stack', () => {
         }
       }
     }
-    const { container } = renderComponent(data)
-    expect(container).toMatchSnapshot()
+    const { getAllByText } = renderComponent(data)
+    expect(getAllByText('useCFCapabilitiesForAws error')).toBeTruthy()
   })
 
   test('should show api capabilities loading state', async () => {
@@ -565,8 +557,8 @@ describe('Test Cloudformation create stack', () => {
         }
       }
     }
-    const { container } = renderComponent(data)
-    expect(container).toMatchSnapshot()
+    const { getAllByText } = renderComponent(data)
+    expect(getAllByText('useListAwsRegions error')).toBeTruthy()
   })
 
   test('should show api regions loading state', async () => {
@@ -617,8 +609,8 @@ describe('Test Cloudformation create stack', () => {
         }
       }
     }
-    const { container } = renderComponent(data)
-    expect(container).toMatchSnapshot()
+    const { getAllByText } = renderComponent(data)
+    expect(getAllByText('useCFStatesForAws error')).toBeTruthy()
   })
 
   test('should show api aws statues loading states', async () => {
@@ -669,8 +661,8 @@ describe('Test Cloudformation create stack', () => {
         }
       }
     }
-    const { container } = renderComponent(data)
-    expect(container).toMatchSnapshot()
+    const { getAllByText } = renderComponent(data)
+    expect(getAllByText('useGetIamRolesForAws error')).toBeTruthy()
   })
 
   test('should render runtime components', async () => {

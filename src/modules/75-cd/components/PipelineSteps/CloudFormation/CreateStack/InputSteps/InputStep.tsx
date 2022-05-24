@@ -195,6 +195,7 @@ function CreateStackInputStepRef<T extends CreateStackData = CreateStackData>(
               expressions,
               allowableTypes
             }}
+            data-testid={`${path}.spec.provisionerIdentifier`}
           />
         </div>
       )}
@@ -295,6 +296,7 @@ function CreateStackInputStepRef<T extends CreateStackData = CreateStackData>(
                 /* istanbul ignore next */
                 setSelectedCapabilities(values as MultiSelectOption[])
               }}
+              data-testid={`${path}.spec.configuration.capabilities`}
             />
           </Layout.Vertical>
         )
@@ -350,6 +352,7 @@ function CreateStackInputStepRef<T extends CreateStackData = CreateStackData>(
                 /* istanbul ignore next */
                 setSelectedStackStatus(values as MultiSelectOption[])
               }}
+              data-testid={`${path}.spec.configuration.skipOnStackStatuses`}
             />
           </Layout.Vertical>
         )

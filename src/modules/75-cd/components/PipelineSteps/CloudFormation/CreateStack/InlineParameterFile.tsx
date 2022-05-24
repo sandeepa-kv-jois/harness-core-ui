@@ -98,8 +98,8 @@ export const InlineParameterFile = ({
         if (result?.data) {
           setRemoteParams(map(result?.data, param => ({ label: param.paramKey!, value: param.paramKey! })))
         }
-      } catch (e) {
-        showError(e?.message)
+      } catch (err) {
+        showError(err?.message)
       }
     }
   }
@@ -186,8 +186,14 @@ export const InlineParameterFile = ({
                             value={
                               find(remoteParams, ['value', param.name]) || { label: param.name, value: param.name }
                             }
+                            data-testid="test"
                           />
-                          <FormInput.Text name={`parameterOverrides[${index}].value`} label="" placeholder="Value" />
+                          <FormInput.Text
+                            data-testid={`parameterOverrides[${index}].value`}
+                            name={`parameterOverrides[${index}].value`}
+                            label=""
+                            placeholder="Value"
+                          />
                           <Button
                             minimal
                             icon="main-trash"
