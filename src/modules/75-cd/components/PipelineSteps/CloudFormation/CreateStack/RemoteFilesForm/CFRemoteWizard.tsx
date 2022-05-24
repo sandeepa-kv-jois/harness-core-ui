@@ -52,6 +52,12 @@ const DIALOG_PROPS = {
   }
 }
 
+interface StepChangeData<SharedObject> {
+  prevStep?: number
+  nextStep?: number
+  prevStepData: SharedObject
+}
+
 interface CFRemoteWizardProps {
   readonly: boolean
   allowableTypes: MultiTypeInputType[]
@@ -85,6 +91,13 @@ const CFRemoteWizard = ({
     setShowNewConnector(false)
     onClose()
   }
+
+  const onStepChange = (arg: StepChangeData<any>): void => {
+    if (arg?.prevStep && arg?.nextStep && arg.prevStep > arg.nextStep && arg.nextStep <= 2) {
+      setShowNewConnector(false)
+    }
+  }
+
   const newConnector = (): JSX.Element => {
     const connectorType = ConnectorMap[selectedConnector]
     const buildPayload = getBuildPayload(connectorType as ConnectorTypes)
@@ -129,17 +142,22 @@ const CFRemoteWizard = ({
     )
   }
   /* istanbul ignore next */
-  const onSubmit = (values: any) => {
+  const onSubmit = (values: any, prevStepData: any) => {
     const config = values?.spec?.configuration
+    const newConnId = prevStepData?.identifier
     if (isNumber(index)) {
       let paths = config?.parameters?.store?.spec?.paths
       paths = getMultiTypeFromValue(paths[0]) === MultiTypeInputType.RUNTIME ? paths[0] : paths
+      const connectorRef =
+        config?.parameters?.store?.spec?.connectorRef?.value || config?.parameters?.store?.spec?.connectorRef
       const data = {
         identifier: config?.parameters?.identifier,
         store: {
           ...config?.parameters?.store,
           spec: {
             ...config?.parameters?.store?.spec,
+            // if a new connector is created override the previous
+            connectorRef: newConnId || connectorRef,
             paths
           }
         }
@@ -148,10 +166,14 @@ const CFRemoteWizard = ({
     } else {
       let paths = config?.templateFile?.spec?.store?.spec?.paths
       paths = getMultiTypeFromValue(paths[0]) === MultiTypeInputType.RUNTIME ? paths[0] : paths
+      const connectorRef =
+        config.templateFile.spec.store.spec?.connectorRef?.value || config.templateFile.spec.store.spec?.connectorRef
       const data = {
-        ...values.spec.configuration.templateFile.spec.store,
+        ...config.templateFile.spec.store,
         spec: {
-          ...values.spec.configuration.templateFile.spec.store.spec,
+          ...config.templateFile.spec.store.spec,
+          // if a new connector is created override the previous
+          connectorRef: newConnId || connectorRef,
           paths
         }
       }
@@ -171,6 +193,7 @@ const CFRemoteWizard = ({
         <StepWizard
           title={fileStoreTitle}
           className={css.configWizard}
+          onStepChange={onStepChange}
           icon="service-cloudformation"
           iconProps={{
             size: 50
@@ -181,7 +204,6 @@ const CFRemoteWizard = ({
             allowableTypes={allowableTypes}
             name={connectorStepTitle}
             setShowNewConnector={setShowNewConnector}
-            showNewConnector={showNewConnector}
             selectedConnector={selectedConnector}
             setSelectedConnector={setSelectedConnector}
             initialValues={initialValues}

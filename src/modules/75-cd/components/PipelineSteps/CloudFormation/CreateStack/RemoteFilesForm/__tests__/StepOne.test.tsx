@@ -81,7 +81,6 @@ describe('Test cloudformation remote wizard step one', () => {
           allowableTypes={[MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]}
           index={undefined}
           regions={[]}
-          showNewConnector={false}
           setShowNewConnector={() => undefined}
           selectedConnector={''}
           setSelectedConnector={() => undefined}
@@ -131,7 +130,6 @@ describe('Test cloudformation remote wizard step one', () => {
           allowableTypes={[MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]}
           index={undefined}
           regions={[]}
-          showNewConnector={false}
           setShowNewConnector={() => undefined}
           selectedConnector={''}
           setSelectedConnector={() => undefined}
@@ -181,7 +179,6 @@ describe('Test cloudformation remote wizard step one', () => {
           allowableTypes={[MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]}
           index={undefined}
           regions={[]}
-          showNewConnector={false}
           setShowNewConnector={() => undefined}
           selectedConnector={'Github'}
           setSelectedConnector={() => undefined}
@@ -231,7 +228,6 @@ describe('Test cloudformation remote wizard step one', () => {
           allowableTypes={[MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]}
           index={undefined}
           regions={[]}
-          showNewConnector={false}
           setShowNewConnector={() => undefined}
           selectedConnector={'Github'}
           setSelectedConnector={() => undefined}
@@ -295,7 +291,6 @@ describe('Test cloudformation remote wizard step one', () => {
           allowableTypes={[MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]}
           index={0}
           regions={[]}
-          showNewConnector={false}
           setShowNewConnector={() => undefined}
           selectedConnector={'Github'}
           setSelectedConnector={() => undefined}
@@ -344,7 +339,6 @@ describe('Test cloudformation remote wizard step one', () => {
           allowableTypes={[MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]}
           index={0}
           regions={[]}
-          showNewConnector={false}
           setShowNewConnector={() => undefined}
           selectedConnector={'S3'}
           setSelectedConnector={() => undefined}
@@ -393,7 +387,6 @@ describe('Test cloudformation remote wizard step one', () => {
           allowableTypes={[MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]}
           index={0}
           regions={[]}
-          showNewConnector={false}
           setShowNewConnector={() => undefined}
           selectedConnector={'S3'}
           setSelectedConnector={() => undefined}
@@ -443,7 +436,6 @@ describe('Test cloudformation remote wizard step one', () => {
           allowableTypes={[MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]}
           index={0}
           regions={[]}
-          showNewConnector={false}
           setShowNewConnector={() => undefined}
           selectedConnector={'Github'}
           setSelectedConnector={() => undefined}
@@ -482,7 +474,6 @@ describe('Test cloudformation remote wizard step one', () => {
           allowableTypes={[MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]}
           index={0}
           regions={[]}
-          showNewConnector={false}
           setShowNewConnector={() => undefined}
           selectedConnector={''}
           setSelectedConnector={() => undefined}

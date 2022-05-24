@@ -528,7 +528,7 @@ exports[`Test Cloudformation create stack should be able to edit inputs 1`] = `
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup"
@@ -1188,7 +1188,7 @@ exports[`Test Cloudformation create stack should be able to open and close remot
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -1562,6 +1562,7 @@ exports[`Test Cloudformation create stack should be able to open and close remot
                 >
                   <div
                     class="bp3-form-group"
+                    style="color: rgb(11, 11, 13);"
                   >
                     <label
                       class="bp3-label"
@@ -2608,7 +2609,7 @@ exports[`Test Cloudformation create stack should be able to open and edit option
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -3000,6 +3001,7 @@ exports[`Test Cloudformation create stack should be able to open and edit option
                 >
                   <div
                     class="bp3-form-group"
+                    style="color: rgb(11, 11, 13);"
                   >
                     <label
                       class="bp3-label"
@@ -4046,7 +4048,7 @@ exports[`Test Cloudformation create stack should be able to open and open inline
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -4420,6 +4422,7 @@ exports[`Test Cloudformation create stack should be able to open and open inline
                 >
                   <div
                     class="bp3-form-group"
+                    style="color: rgb(11, 11, 13);"
                   >
                     <label
                       class="bp3-label"
@@ -5466,7 +5469,7 @@ exports[`Test Cloudformation create stack should be able to open optional dropdo
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -5732,6 +5735,7 @@ exports[`Test Cloudformation create stack should be able to open optional dropdo
                 >
                   <div
                     class="bp3-form-group"
+                    style="color: rgb(11, 11, 13);"
                   >
                     <label
                       class="bp3-label"
@@ -6821,7 +6825,7 @@ exports[`Test Cloudformation create stack should be able to submit 1`] = `
         </button>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
     </div>
     <div
@@ -7594,7 +7598,7 @@ exports[`Test Cloudformation create stack should error on submit with invalid da
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -8438,7 +8442,7 @@ exports[`Test Cloudformation create stack should open and close remote template 
         </button>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
     </div>
     <div
@@ -9116,7 +9120,7 @@ exports[`Test Cloudformation create stack should open and close remote template 
         </button>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
     </div>
     <div
@@ -9777,7 +9781,7 @@ exports[`Test Cloudformation create stack should render edit view as new step 1`
         </button>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
     </div>
     <div
@@ -10412,7 +10416,7 @@ exports[`Test Cloudformation create stack should render edit view as new step wi
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -11214,7 +11218,7 @@ exports[`Test Cloudformation create stack should render runtime components 1`] =
         </button>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
     </div>
     <div
@@ -11870,7 +11874,7 @@ exports[`Test Cloudformation create stack should show api aws roles error 1`] = 
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -12592,7 +12596,7 @@ exports[`Test Cloudformation create stack should show api aws statues error 1`] 
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -13314,7 +13318,7 @@ exports[`Test Cloudformation create stack should show api aws statues loading st
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -14036,7 +14040,7 @@ exports[`Test Cloudformation create stack should show api capabilities error 1`]
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -14758,7 +14762,7 @@ exports[`Test Cloudformation create stack should show api capabilities loading s
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -15480,7 +15484,7 @@ exports[`Test Cloudformation create stack should show api regions error 1`] = `
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"
@@ -16202,7 +16206,7 @@ exports[`Test Cloudformation create stack should show api regions loading state 
         </div>
       </div>
       <p
-        class="StyledProps--font StyledProps--main formikError StyledProps--intent-danger"
+        class="StyledProps--font StyledProps--main formikError addMarginBottom StyledProps--intent-danger"
       />
       <div
         class="formGroup alignStart addMarginTop addMarginBottom"

@@ -35,7 +35,7 @@ import css from '../../CloudFormation.module.scss'
 interface StepTwoProps {
   allowableTypes: MultiTypeInputType[]
   initialValues: any
-  onSubmit: (values: any) => void
+  onSubmit: (values: any, prevStepData: any) => void
   index?: number
 }
 
@@ -123,7 +123,7 @@ const StepTwo: React.FC<StepProps<any> & StepTwoProps> = ({
         initialValues={FormatFilePaths(initialValues, prevStepData, index)}
         enableReinitialize
         validationSchema={isNumber(index) ? paramSchema : templateSchema}
-        onSubmit={data => onSubmit(data)}
+        onSubmit={data => onSubmit(data, prevStepData)}
       >
         {({ values }) => {
           let name = 'spec.configuration.templateFile.spec.store.spec.paths[0]'
@@ -145,11 +145,7 @@ const StepTwo: React.FC<StepProps<any> & StepTwoProps> = ({
                   </div>
                 )}
                 {connector !== S3 && (
-                  <ParameterRepoDetails
-                    allowableTypes={allowableTypes}
-                    index={index}
-                    values={{ ...values, connector }}
-                  />
+                  <ParameterRepoDetails allowableTypes={allowableTypes} index={index} values={values} />
                 )}
                 <div className={cx(stepCss.md)}>
                   <MultiTypeFieldSelector

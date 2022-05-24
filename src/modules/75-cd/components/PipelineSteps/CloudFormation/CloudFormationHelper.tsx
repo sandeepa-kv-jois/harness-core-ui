@@ -161,7 +161,8 @@ export const FormatFilePaths = (values: any, prevStepData: any, index?: number) 
   // checking for number as index 0 produces false
   if (isNumber(index)) {
     const param = get(values, `spec.configuration.parameters[${index}]`)
-    const connector = prevStepData?.spec?.configuration?.parameters?.store?.spec
+    const paramConnectorRef = prevStepData?.spec?.configuration?.parameters?.store?.spec?.connectorRef
+    const region = prevStepData?.spec?.configuration?.parameters?.store?.spec?.region
     return {
       spec: {
         configuration: {
@@ -170,13 +171,13 @@ export const FormatFilePaths = (values: any, prevStepData: any, index?: number) 
             store: {
               type: prevStepData?.selectedConnector === 'S3' ? 'S3Url' : prevStepData?.selectedConnector,
               spec: {
-                connectorRef: connector?.connectorRef?.value || connector?.connectorRef,
-                ...(connector?.region
+                ...(region
                   ? {
-                      region: connector?.region,
+                      connectorRef: paramConnectorRef,
+                      region: region,
                       paths: param?.store?.spec?.paths || param?.store?.spec?.urls
                     }
-                  : { paths: param?.store?.spec?.paths, ...param?.store?.spec })
+                  : { ...param?.store?.spec, connectorRef: paramConnectorRef, paths: param?.store?.spec?.paths })
               }
             }
           }
@@ -197,7 +198,7 @@ export const FormatFilePaths = (values: any, prevStepData: any, index?: number) 
               spec: {
                 ...values?.spec?.configuration?.templateFile?.spec?.store?.spec,
                 paths: isRuntime(filePath) ? [filePath] : filePath,
-                connectorRef: connectorRef?.value || connectorRef
+                connectorRef
               }
             }
           }
@@ -213,17 +214,17 @@ export const ConnectorStepTitle = (isParam: boolean): keyof StringsMap => {
   }
   return 'cd.cloudFormation.templateFileConnector'
 }
-
+const parameterFileDetails = 'cd.cloudFormation.parameterFileDetails'
 export const FileStoreTitle = (isParam: boolean): keyof StringsMap => {
   if (isParam) {
-    return 'cd.cloudFormation.parameterFileDetails'
+    return parameterFileDetails
   }
   return 'cd.cloudFormation.templateFileStore'
 }
 
-export const StepTwoTitle = (isParam: boolean,): keyof StringsMap => {
- if (isParam) {
-    return 'cd.cloudFormation.parameterFileDetails'
+export const StepTwoTitle = (isParam: boolean): keyof StringsMap => {
+  if (isParam) {
+    return parameterFileDetails
   }
   return 'cd.cloudFormation.templateFileStore'
 }
@@ -240,14 +241,22 @@ export const FormatRemoteValues = (initialValues: any, paramIndex?: number) => {
       }
     }
   }
-  return { ...initialValues }
+  return {
+    spec: {
+      configuration: {
+        templateFile: {
+          ...initialValues?.spec?.configuration?.templateFile
+        }
+      }
+    }
+  }
 }
 
 export const RemoteFileStorePath = (isParam: boolean, isS3: boolean): keyof StringsMap => {
   if (isParam && isS3) {
     return 'cd.cloudFormation.urls'
   } else if (isParam) {
-    return 'cd.cloudFormation.parameterFileDetails'
+    return parameterFileDetails
   }
   return 'pipeline.manifestType.osTemplatePath'
 }

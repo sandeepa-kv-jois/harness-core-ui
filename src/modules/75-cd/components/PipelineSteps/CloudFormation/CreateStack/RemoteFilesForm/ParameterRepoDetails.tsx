@@ -33,12 +33,14 @@ export const ParameterRepoDetails: React.FC<StepProps<any> & CFFileStoreProps> =
     { label: getString('gitFetchTypes.fromCommit'), value: getString('pipelineSteps.commitIdValue') }
   ]
   const template = values?.spec?.configuration?.templateFile
-  const connector = values?.connector
+  let connectorRef = template?.spec?.store?.spec?.connectorRef
   let param
 
-  if (index !== undefined) {
+  if (isNumber(index)) {
     param = values?.spec?.configuration?.parameters
+    connectorRef = values?.spec?.configuration?.parameters?.store?.spec?.connectorRef
   }
+
   const fieldNames = (isParam: boolean) => ({
     repoName: isParam
       ? 'spec.configuration.parameters.store.spec.repoName'
@@ -56,7 +58,8 @@ export const ParameterRepoDetails: React.FC<StepProps<any> & CFFileStoreProps> =
 
   return (
     <>
-      {(connector?.connector?.spec?.connectionType === 'Account' || connector?.connector?.spec?.type === 'Account') && (
+      {(connectorRef?.connector?.spec?.connectionType === 'Account' ||
+        connectorRef?.connector?.spec?.type === 'Account') && (
         <div className={cx(stepCss.formGroup, stepCss.md)}>
           <FormInput.MultiTextInput
             label={getString('pipelineSteps.repoName')}

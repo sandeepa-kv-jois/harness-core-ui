@@ -73,7 +73,7 @@ export const CreateStack = (
   const [awsRoles, setAwsRoles] = useState<MultiSelectOption[]>([])
   const [awsRef, setAwsRef] = useState<string>(initialValues?.spec?.configuration?.connectorRef)
   const { showError } = useToaster()
-
+  const templateFile = getString('cd.cloudFormation.templateFile')
   const {
     data: regionData,
     loading: regionLoading,
@@ -378,7 +378,7 @@ export const CreateStack = (
                 <Layout.Vertical>
                   <Label style={{ color: Color.GREY_900 }} className={css.configLabel}>
                     {(templateFileType === TemplateTypes.Remote || templateFileType === TemplateTypes.S3URL) &&
-                      getString('cd.cloudFormation.templateFile')}
+                      templateFile}
                   </Label>
                 </Layout.Vertical>
                 <Layout.Vertical>
@@ -437,9 +437,7 @@ export const CreateStack = (
                 <div className={cx(stepCss.formGroup, stepCss.alignStart, css.addMarginTop, css.addMarginBottom)}>
                   <MultiTypeFieldSelector
                     name="spec.configuration.templateFile.spec.templateBody"
-                    label={
-                      <Text style={{ color: 'rgb(11, 11, 13)' }}>{getString('cd.cloudFormation.templateFile')}</Text>
-                    }
+                    label={<Text style={{ color: 'rgb(11, 11, 13)' }}>{templateFile}</Text>}
                     defaultValueToReset=""
                     allowedTypes={allowableTypes}
                     skipRenderValueInExpressionLabel
@@ -448,7 +446,7 @@ export const CreateStack = (
                     <TFMonaco
                       name="spec.configuration.templateFile.spec.templateBody"
                       formik={formik}
-                      title={getString('cd.cloudFormation.templateFile')}
+                      title={templateFile}
                     />
                   </MultiTypeFieldSelector>
                   {

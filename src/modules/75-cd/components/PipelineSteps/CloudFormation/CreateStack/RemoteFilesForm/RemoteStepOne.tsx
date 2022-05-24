@@ -47,7 +47,6 @@ import css from './AWSConnector.module.scss'
 const S3 = 'S3'
 interface StepOneProps {
   isReadonly: boolean
-  showNewConnector: boolean
   allowableTypes: MultiTypeInputType[]
   setShowNewConnector: (bool: boolean) => void
   selectedConnector: string
@@ -62,7 +61,6 @@ const StepOne: React.FC<StepProps<any> & StepOneProps> = ({
   isReadonly = false,
   nextStep,
   setShowNewConnector,
-  showNewConnector,
   selectedConnector,
   setSelectedConnector,
   initialValues,
@@ -99,13 +97,6 @@ const StepOne: React.FC<StepProps<any> & StepOneProps> = ({
       setAllowedTypes(AllowedTypes.filter(item => item !== S3))
     }
   }, [index])
-
-  useEffect(() => {
-    if (showNewConnector) {
-      nextStep?.()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showNewConnector])
 
   const isS3 = !!selectedConnector && selectedConnector === S3
   const errorMsg = Yup.string().required(getString('pipelineSteps.build.create.connectorRequiredError'))
@@ -227,6 +218,7 @@ const StepOne: React.FC<StepProps<any> & StepOneProps> = ({
                         onClick={() => {
                           /* istanbul ignore next */
                           setShowNewConnector(true)
+                          nextStep?.({ ...FormatRemoteValues(initialValues, index), selectedConnector })
                         }}
                       />
                     )}
