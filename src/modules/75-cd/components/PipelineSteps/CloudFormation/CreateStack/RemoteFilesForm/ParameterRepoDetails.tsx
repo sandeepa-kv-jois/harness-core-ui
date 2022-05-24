@@ -29,7 +29,6 @@ export const ParameterRepoDetails: React.FC<StepProps<any> & CFFileStoreProps> =
   const { expressions } = useVariablesExpression()
   const gitFetchTypes: SelectOption[] = [
     { label: getString('gitFetchTypes.fromBranch'), value: getString('pipelineSteps.deploy.inputSet.branch') },
-
     { label: getString('gitFetchTypes.fromCommit'), value: getString('pipelineSteps.commitIdValue') }
   ]
   const template = values?.spec?.configuration?.templateFile
@@ -101,18 +100,21 @@ export const ParameterRepoDetails: React.FC<StepProps<any> & CFFileStoreProps> =
             multiTextInputProps={{ expressions, allowableTypes }}
           />
 
-          {getMultiTypeFromValue(param?.store?.spec?.branch || template?.spec?.store?.spec?.branch) ===
-            MultiTypeInputType.RUNTIME && (
-            <ConfigureOptions
-              style={{ alignSelf: 'center', marginTop: 1 }}
-              value={param?.store?.spec?.branch as string}
-              type="String"
-              variableName={fieldNames(isNumber(index)).branch}
-              showRequiredField={false}
-              showDefaultField={false}
-              showAdvanced={true}
-            />
-          )}
+          {
+            /* istanbul ignore next */
+            getMultiTypeFromValue(param?.store?.spec?.branch || template?.spec?.store?.spec?.branch) ===
+              MultiTypeInputType.RUNTIME && (
+              <ConfigureOptions
+                style={{ alignSelf: 'center', marginTop: 1 }}
+                value={param?.store?.spec?.branch as string}
+                type="String"
+                variableName={fieldNames(isNumber(index)).branch}
+                showRequiredField={false}
+                showDefaultField={false}
+                showAdvanced={true}
+              />
+            )
+          }
         </div>
       )}
 
@@ -126,18 +128,21 @@ export const ParameterRepoDetails: React.FC<StepProps<any> & CFFileStoreProps> =
             multiTextInputProps={{ expressions, allowableTypes }}
           />
 
-          {getMultiTypeFromValue(param?.store?.spec?.commitId || template?.spec?.store?.spec?.commitId) ===
-            MultiTypeInputType.RUNTIME && (
-            <ConfigureOptions
-              style={{ alignSelf: 'center', marginTop: 1 }}
-              value={param?.store?.spec?.commitId as string}
-              type="String"
-              variableName={fieldNames(isNumber(index)).commitId}
-              showRequiredField={false}
-              showDefaultField={false}
-              showAdvanced={true}
-            />
-          )}
+          {
+            /* istanbul ignore next */
+            getMultiTypeFromValue(param?.store?.spec?.commitId || template?.spec?.store?.spec?.commitId) ===
+              MultiTypeInputType.RUNTIME && (
+              <ConfigureOptions
+                style={{ alignSelf: 'center', marginTop: 1 }}
+                value={param?.store?.spec?.commitId as string}
+                type="String"
+                variableName={fieldNames(isNumber(index)).commitId}
+                showRequiredField={false}
+                showDefaultField={false}
+                showAdvanced={true}
+              />
+            )
+          }
         </div>
       )}
     </>

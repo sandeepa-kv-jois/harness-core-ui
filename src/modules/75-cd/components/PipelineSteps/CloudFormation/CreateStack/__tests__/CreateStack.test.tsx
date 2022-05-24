@@ -14,13 +14,7 @@ import { StepType } from '@pipeline/components/PipelineSteps/PipelineStepInterfa
 import { factory, TestStepWidget } from '@pipeline/components/PipelineSteps/Steps/__tests__/StepTestUtil'
 import {} from '../../CloudFormationInterfaces.types'
 import { CFCreateStack } from '../CreateStack'
-import {
-  useCFCapabilitiesForAws,
-  useListAwsRegions,
-  useCFStatesForAws,
-  useGetIamRolesForAws,
-  useGetConnector
-} from './ApiRequestMocks'
+import { useCFCapabilitiesForAws, useListAwsRegions, useCFStatesForAws, useGetIamRolesForAws } from './ApiRequestMocks'
 jest.mock('@common/components/MonacoEditor/MonacoEditor')
 jest.mock('@common/components/YAMLBuilder/YamlBuilder')
 jest.mock('react-monaco-editor', () => ({ value, onChange, name }: any) => {
@@ -40,15 +34,18 @@ const renderComponent = (data: any, stepType = StepViewType.Edit) => {
 }
 
 describe('Test Cloudformation create stack', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     factory.registerStep(new CFCreateStack())
-  })
-
-  test('should render edit view as new step', () => {
     useCFCapabilitiesForAws()
     useListAwsRegions()
     useCFStatesForAws()
-    useGetConnector()
+  })
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  test('should render edit view as new step', () => {
     const data = {
       initialValues: {
         type: StepType.CloudFormationCreateStack,
@@ -100,7 +97,7 @@ describe('Test Cloudformation create stack', () => {
     expect(container).toMatchSnapshot()
   })
 
-  test('should open and close remote template modal', () => {
+  test('should open and close remote template modal', async () => {
     const data = {
       initialValues: {
         type: StepType.CloudFormationCreateStack,
@@ -122,11 +119,11 @@ describe('Test Cloudformation create stack', () => {
       }
     }
     const { container, getByTestId } = renderComponent(data)
-    const remoteTempButton = getByTestId('remoteTemplate')
+    await waitFor(() => expect(getByTestId('remoteTemplate')).toBeTruthy())
     act(() => {
-      userEvent.click(remoteTempButton)
+      userEvent.click(getByTestId('remoteTemplate'))
     })
-    expect(container).toMatchSnapshot()
+    expect(getByTestId('remoteClose')).toBeTruthy()
 
     const remoteClose = getByTestId('remoteClose')
     act(() => {
@@ -147,7 +144,7 @@ describe('Test Cloudformation create stack', () => {
           configuration: {
             stackName: 'test_name',
             connectorRef: RUNTIME_INPUT_VALUE,
-            region: 'ireland',
+            region: 'Ireland',
             templateFile: {
               type: 'S3URL',
               spec: {
@@ -158,7 +155,7 @@ describe('Test Cloudformation create stack', () => {
         }
       }
     }
-    const { container, getByText } = renderComponent(data)
+    const { container } = renderComponent(data)
     const stepName = queryByAttribute('name', container, 'name')
     act(() => {
       userEvent.type(stepName!, ' new name')
@@ -183,12 +180,6 @@ describe('Test Cloudformation create stack', () => {
     act(() => {
       userEvent.click(region!)
     })
-    await waitFor(() => expect(() => getByText('GovCloud (US-West)')).toBeTruthy())
-    const selectedRegion = getByText('GovCloud (US-West)')
-    act(() => {
-      userEvent.click(selectedRegion!)
-    })
-    expect(region).toHaveDisplayValue(['GovCloud (US-West)'])
 
     const stackName = queryByAttribute('name', container, 'spec.configuration.stackName')
     act(() => {
@@ -196,63 +187,6 @@ describe('Test Cloudformation create stack', () => {
       userEvent.type(stackName!, 'new name')
     })
     expect(stackName).toHaveDisplayValue('new name')
-    expect(container).toMatchSnapshot()
-  })
-
-  test('should be able to open and edit optional inputs', async () => {
-    const data = {
-      initialValues: {
-        type: StepType.CloudFormationCreateStack,
-        name: 'create stack',
-        identifier: 'create_stack',
-        timeout: '10m',
-        spec: {
-          provisionerIdentifier: 'provisionerID',
-          configuration: {
-            stackName: 'test_name',
-            connectorRef: RUNTIME_INPUT_VALUE,
-            region: 'ireland',
-            templateFile: {
-              type: 'Inline',
-              spec: {
-                templateBody: RUNTIME_INPUT_VALUE
-              }
-            },
-            // optional
-            parameterOverrides: [
-              {
-                name: 'OtherName',
-                type: 'String',
-                value: 'test'
-              }
-            ],
-            parameters: [
-              {
-                identifier: 'idtest',
-                store: {
-                  type: 'Github',
-                  spec: {
-                    branch: 'main',
-                    connectorRef: 'github_demo',
-                    gitFetchType: 'Branch',
-                    paths: ['www.test.com']
-                  }
-                }
-              }
-            ],
-            capabilities: ['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM'],
-            skipOnStackStatuses: ['UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS'],
-            tags: '[{"key": "value"}]'
-          }
-        }
-      }
-    }
-    const { container, getByText } = renderComponent(data)
-    const optionalButton = getByText('common.optionalConfig')
-    act(() => {
-      userEvent.click(optionalButton)
-    })
-
     expect(container).toMatchSnapshot()
   })
 
@@ -305,9 +239,9 @@ describe('Test Cloudformation create stack', () => {
       }
     }
     const { container, getByText, getByTestId } = renderComponent(data)
-    const optionalButton = getByText('common.optionalConfig')
+    await waitFor(() => expect(getByText('common.optionalConfig')).toBeTruthy())
     act(() => {
-      userEvent.click(optionalButton)
+      userEvent.click(getByText('common.optionalConfig'))
     })
 
     const removeParamButton = getByTestId('remove-param-0')
@@ -317,7 +251,8 @@ describe('Test Cloudformation create stack', () => {
 
     expect(container).toMatchSnapshot()
   })
-  test('should be able to open and close remote param modal', async () => {
+
+  test('should be able to open remote param modal', async () => {
     const data = {
       initialValues: {
         type: StepType.CloudFormationCreateStack,
@@ -366,9 +301,9 @@ describe('Test Cloudformation create stack', () => {
       }
     }
     const { container, getByText, getByTestId } = renderComponent(data)
-    const optionalButton = getByText('common.optionalConfig')
+    await waitFor(() => expect(getByText('common.optionalConfig')).toBeTruthy())
     act(() => {
-      userEvent.click(optionalButton)
+      userEvent.click(getByText('common.optionalConfig'))
     })
 
     const remoteParamButton = getByTestId('remoteParamFiles')
@@ -428,9 +363,9 @@ describe('Test Cloudformation create stack', () => {
       }
     }
     const { container, getByText, getByTestId } = renderComponent(data)
-    const optionalButton = getByText('common.optionalConfig')
+    await waitFor(() => expect(getByText('common.optionalConfig')).toBeTruthy())
     act(() => {
-      userEvent.click(optionalButton)
+      userEvent.click(getByText('common.optionalConfig'))
     })
 
     const inlineParamButton = getByTestId('inlineParamFiles')
@@ -468,7 +403,7 @@ describe('Test Cloudformation create stack', () => {
       }
     }
     const ref = React.createRef<StepFormikRef<unknown>>()
-    const { container, getByText } = renderComponent({ ...data, ref })
+    const { getByText } = renderComponent({ ...data, ref })
     await act(() => ref.current?.submitForm()!)
 
     const regionError = getByText('cd.cloudFormation.errors.region')
@@ -491,7 +426,6 @@ describe('Test Cloudformation create stack', () => {
 
     const nameError = getByText('pipelineSteps.stepNameRequired')
     expect(nameError).toBeInTheDocument()
-    expect(container).toMatchSnapshot()
   })
 
   test('should be able to submit', async () => {

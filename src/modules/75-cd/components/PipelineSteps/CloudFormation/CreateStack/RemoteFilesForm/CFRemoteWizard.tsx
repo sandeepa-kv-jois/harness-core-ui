@@ -91,7 +91,7 @@ const CFRemoteWizard = ({
     setShowNewConnector(false)
     onClose()
   }
-
+  /* istanbul ignore next */
   const onStepChange = (arg: StepChangeData<any>): void => {
     if (arg?.prevStep && arg?.nextStep && arg.prevStep > arg.nextStep && arg.nextStep <= 2) {
       setShowNewConnector(false)

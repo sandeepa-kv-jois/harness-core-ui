@@ -507,7 +507,7 @@ export const CreateStack = (
             </div>
             <Accordion className={stepCss.accordion}>
               <Accordion.Panel
-                id="step-1"
+                id="cloudformationOptionalConfig"
                 summary={getString('common.optionalConfig')}
                 details={
                   <div className={css.optionalDetails}>
@@ -558,7 +558,9 @@ export const CreateStack = (
                                         withoutBoxShadow
                                         iconProps={{ size: 16 }}
                                         onClick={() => {
+                                          /* istanbul ignore next */
                                           setParamIndex(index)
+                                          /* istanbul ignore next */
                                           setShowModal(true)
                                         }}
                                         data-name="config-edit"

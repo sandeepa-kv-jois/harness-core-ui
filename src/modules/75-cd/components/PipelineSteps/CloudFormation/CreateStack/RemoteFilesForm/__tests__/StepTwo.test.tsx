@@ -61,9 +61,15 @@ describe('Test cloudformation remote wizard step one', () => {
         identifier: '',
         store: {
           spec: {
-            connectorRef: 'demo_ref',
+            connectorRef: {
+              connector: {
+                spec: {
+                  type: 'Account'
+                }
+              }
+            },
             gitFetchType: 'pipelineSteps.deploy.inputSet.branch',
-            branch: '',
+            branch: RUNTIME_INPUT_VALUE,
             paths: RUNTIME_INPUT_VALUE
           }
         }
@@ -112,7 +118,13 @@ describe('Test cloudformation remote wizard step one', () => {
       spec: {
         store: {
           spec: {
-            connectorRef: 'demo_ref',
+            connectorRef: {
+              connector: {
+                spec: {
+                  connectionType: 'Account'
+                }
+              }
+            },
             gitFetchType: 'pipelineSteps.deploy.inputSet.branch',
             branch: 'main',
             paths: ['test']
