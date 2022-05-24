@@ -340,7 +340,6 @@ export const CreateStack = (
                 disabled={readonly}
                 width={300}
                 setRefValue
-                /* istanbul ignore next */
                 onChange={(value: any, _unused, _multiType) => {
                   /* istanbul ignore next */
                   if (value?.record?.identifier !== awsRef) {
@@ -387,7 +386,6 @@ export const CreateStack = (
                     name="spec.configuration.templateFile.type"
                     disabled={readonly}
                     value={templateFileType}
-                    /* istanbul ignore next */
                     onChange={e => {
                       /* istanbul ignore next */
                       onSelectChange(e, setFieldValue)
@@ -403,7 +401,10 @@ export const CreateStack = (
               {templateFileType === TemplateTypes.Remote && (
                 <div
                   className={cx(css.configFile, css.configField, css.addMarginBottom)}
-                  onClick={() => setShowModal(true)}
+                  onClick={() => {
+                    /* istanbul ignore next */
+                    setShowModal(true)
+                  }}
                   data-testid="remoteTemplate"
                 >
                   <>
@@ -535,12 +536,10 @@ export const CreateStack = (
                                     onDragEnd={onDragEnd}
                                     onDragOver={onDragOver}
                                     onDragLeave={onDragLeave}
-                                    /* istanbul ignore next */
                                     onDragStart={event => {
                                       /* istanbul ignore next */
                                       onDragStart(event, index)
                                     }}
-                                    /* istanbul ignore next */
                                     onDrop={event => {
                                       /* istanbul ignore next */
                                       onDrop(event, arrayHelpers, index)

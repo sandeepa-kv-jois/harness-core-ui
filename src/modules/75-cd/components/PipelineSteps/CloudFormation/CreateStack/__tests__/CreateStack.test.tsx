@@ -14,7 +14,13 @@ import { StepType } from '@pipeline/components/PipelineSteps/PipelineStepInterfa
 import { factory, TestStepWidget } from '@pipeline/components/PipelineSteps/Steps/__tests__/StepTestUtil'
 import {} from '../../CloudFormationInterfaces.types'
 import { CFCreateStack } from '../CreateStack'
-import { useCFCapabilitiesForAws, useListAwsRegions, useCFStatesForAws, useGetIamRolesForAws } from './ApiRequestMocks'
+import {
+  useCFCapabilitiesForAws,
+  useListAwsRegions,
+  useCFStatesForAws,
+  useGetIamRolesForAws,
+  useGetConnector
+} from './ApiRequestMocks'
 jest.mock('@common/components/MonacoEditor/MonacoEditor')
 jest.mock('@common/components/YAMLBuilder/YamlBuilder')
 jest.mock('react-monaco-editor', () => ({ value, onChange, name }: any) => {
@@ -39,6 +45,7 @@ describe('Test Cloudformation create stack', () => {
     useCFCapabilitiesForAws()
     useListAwsRegions()
     useCFStatesForAws()
+    useGetConnector()
   })
 
   beforeEach(() => {
@@ -108,7 +115,7 @@ describe('Test Cloudformation create stack', () => {
           provisionerIdentifier: 'provisionerID',
           configuration: {
             stackName: 'test_name',
-            connectorRef: RUNTIME_INPUT_VALUE,
+            connectorRef: '',
             region: 'ireland',
             templateFile: {
               type: 'Remote',
