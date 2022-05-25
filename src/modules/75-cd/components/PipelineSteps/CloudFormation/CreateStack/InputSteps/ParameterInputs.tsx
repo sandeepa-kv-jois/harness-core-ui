@@ -58,7 +58,7 @@ export default function ParameterFileInputs<T extends CreateStackData = CreateSt
   useEffect(() => {
     /* istanbul ignore next */
     if (regionData) {
-      const regionValues = map(regionData?.resource, reg => ({ label: reg.name, value: reg.value }))
+      const regionValues = map(regionData.resource, reg => ({ label: reg.name, value: reg.value }))
       setRegions(regionValues as MultiSelectOption[])
     }
 

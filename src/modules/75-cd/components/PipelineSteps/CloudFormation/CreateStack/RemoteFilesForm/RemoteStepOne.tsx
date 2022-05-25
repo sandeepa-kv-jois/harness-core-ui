@@ -87,7 +87,7 @@ const StepOne: React.FC<StepProps<any> & StepOneProps> = ({
     if (connectorType) {
       setSelectedConnector(connectorType === 'S3Url' ? S3 : connectorType)
     } else {
-      setSelectedConnector(allowedTypes[0])
+      setSelectedConnector(AllowedTypes[0])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialValues])
