@@ -315,7 +315,7 @@ describe('Test Cloudformation create stack', () => {
     })
   })
 
-  test('should be able to open and close inline param modal', async () => {
+  test.skip('should be able to open and close inline param modal', async () => {
     const data = {
       initialValues: {
         type: StepType.CloudFormationCreateStack,
