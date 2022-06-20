@@ -38,11 +38,6 @@ export const getAllowedTemplateTypes = (
       disabled: false
     },
     {
-      label: 'Script',
-      value: TemplateType.Script,
-      disabled: !scriptTemplateEnabled
-    },
-    {
       label: getString('common.pipeline'),
       value: TemplateType.Pipeline,
       disabled: false
