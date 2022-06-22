@@ -176,7 +176,11 @@ export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): Re
         ? [
             {
               label: getString('save'),
-              disabled: isEmpty(get(template.spec, 'type')) && template.type !== TemplateType.Pipeline,
+              disabled:
+                isEmpty(get(template.spec, 'type')) &&
+                template.type !== TemplateType.Pipeline &&
+                template.type !== TemplateType.Script,
+
               onClick: onSave
             }
           ]
@@ -203,7 +207,6 @@ export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): Re
   React.useEffect(() => {
     setMenuOpen(false)
   }, [isUpdated])
-
   return (
     <TemplatesActionPopover
       open={menuOpen && saveOptions.length > 1}
