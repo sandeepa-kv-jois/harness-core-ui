@@ -17,7 +17,6 @@ import {
   Icon,
   IconName,
   Layout,
-  PageBody,
   PageHeader,
   PageSpinner,
   Text
@@ -33,6 +32,7 @@ import { allProviders, ceConnectorTypes } from '@ce/constants'
 import { getRelativeTime } from '@ce/components/COGatewayList/Utils'
 import { CE_DATE_FORMAT_INTERNAL_MOMENT } from '@ce/utils/momentUtils'
 import RuleStatusToggleSwitch from '@ce/components/RuleDetails/RuleStatusToggleSwitch'
+import RulesDetailsBody from '@ce/components/RuleDetails/RuleDetailsBody'
 
 const CORuleDetailsPage: React.FC = () => {
   const { accountId, ruleId } = useParams<AccountPathProps & { ruleId: string }>()
@@ -166,9 +166,7 @@ const CORuleDetailsPage: React.FC = () => {
           </Layout.Horizontal>
         }
       />
-      <PageBody>
-        <Text>body</Text>
-      </PageBody>
+      <RulesDetailsBody />
     </Container>
   )
 }
