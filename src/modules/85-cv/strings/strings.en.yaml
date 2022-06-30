@@ -225,6 +225,10 @@ monitoringSources:
     verificationService: Verification service
     averageWaitTime: Average Wait Time
     callsPerMinute: Calls per Minute
+    failImmediately: Fail Immediately
+    failAfterMulti: Fail after multi
+    absoluteValue: Absolute Value
+    percentageDeviation: Percentage Deviation
     appdPathTitle: AppDynamics Path
     applicationName: Application Name
     tierName: Tier Name

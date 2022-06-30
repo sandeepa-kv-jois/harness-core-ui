@@ -6267,6 +6267,7 @@ export interface StringsMap {
   'cv.monitoredServices.youHaveNoMonitoredServices': string
   'cv.monitoringSources.addMetric': string
   'cv.monitoringSources.addQuery': string
+  'cv.monitoringSources.appD.absoluteValue': string
   'cv.monitoringSources.appD.advancedOptional': string
   'cv.monitoringSources.appD.appDApplications': string
   'cv.monitoringSources.appD.appDTier': string
@@ -6285,8 +6286,10 @@ export interface StringsMap {
   'cv.monitoringSources.appD.defaultAppDMetricName': string
   'cv.monitoringSources.appD.envDescription': string
   'cv.monitoringSources.appD.errorsFound': string
+  'cv.monitoringSources.appD.failAfterMulti': string
   'cv.monitoringSources.appD.failFastThresholdHint': string
   'cv.monitoringSources.appD.failFastThresholds': string
+  'cv.monitoringSources.appD.failImmediately': string
   'cv.monitoringSources.appD.firstTimeSetupText': string
   'cv.monitoringSources.appD.greaterThan': string
   'cv.monitoringSources.appD.groupTransaction': string
@@ -6313,6 +6316,7 @@ export interface StringsMap {
   'cv.monitoringSources.appD.noTiersMsg': string
   'cv.monitoringSources.appD.noValueBasePath': string
   'cv.monitoringSources.appD.noValueMetricPath': string
+  'cv.monitoringSources.appD.percentageDeviation': string
   'cv.monitoringSources.appD.product.applicationMonitoring': string
   'cv.monitoringSources.appD.product.businessMonitoring': string
   'cv.monitoringSources.appD.product.endUserMonitoring': string
