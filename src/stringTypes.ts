@@ -4675,6 +4675,7 @@ export interface StringsMap {
   'ce.common.newBudget': string
   'ce.common.or': string
   'ce.common.refresh': string
+  'ce.common.rule': string
   'ce.common.spendTillDate': string
   'ce.common.totalCount': string
   'ce.connector.AWS.crossAccountRole.arn': string

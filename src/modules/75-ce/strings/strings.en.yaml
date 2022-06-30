@@ -15,6 +15,7 @@ common:
   expand: 'Expand'
   collapse: 'Collapse'
   disabled: 'disabled'
+  rule: 'Rule'
 allRegions: 'All Regions'
 allClusters: 'All Clusters'
 enforcementMessage:

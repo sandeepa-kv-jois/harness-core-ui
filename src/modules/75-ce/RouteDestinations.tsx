@@ -55,6 +55,7 @@ import AnomaliesOverviewPage from './pages/anomalies-overview/AnomaliesOverviewP
 import formatCost from './utils/formatCost'
 import BusinessMapping from './pages/business-mapping/BusinessMapping'
 import ECSRecommendationDetailsPage from './pages/ecs-recommendation-details/ECSRecommendationDetailsPage'
+import CORuleDetailsPage from './pages/co-rule-details/CORuleDetailsPage'
 
 featureFactory.registerFeaturesByModule('ce', {
   features: [FeatureIdentifier.PERSPECTIVES],
@@ -311,6 +312,15 @@ const CERoutes: React.FC = () => {
           pageName={PAGE_NAME.CECODashboardPage}
         >
           <CECODashboardPage />
+        </RouteWithLayout>
+        <RouteWithLayout
+          licenseRedirectData={licenseRedirectData}
+          sidebarProps={CESideNavProps}
+          path={routes.toCECORuleDetails({ ...accountPathProps, id: ':ruleId' })}
+          exact
+          pageName={PAGE_NAME.CECORuleDetailsPage}
+        >
+          <CORuleDetailsPage />
         </RouteWithLayout>
         <RouteWithLayout
           licenseRedirectData={licenseRedirectData}

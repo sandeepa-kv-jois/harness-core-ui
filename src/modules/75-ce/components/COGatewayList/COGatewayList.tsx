@@ -1247,9 +1247,10 @@ const COGatewayList: React.FC = () => {
           rules={tableData}
           setRules={setTableData}
           loading={loading}
-          onRowClick={(e, index) => {
-            setSelectedService({ data: e, index })
-            setIsDrawerOpen(true)
+          onRowClick={e => {
+            // setSelectedService({ data: e, index })
+            // setIsDrawerOpen(true)
+            history.push(routes.toCECORuleDetails({ accountId, id: e.id?.toString() as string }))
           }}
           pageProps={{ ...paginationProps, pageIndex: page.value }}
           setPageProps={handlePageChange}

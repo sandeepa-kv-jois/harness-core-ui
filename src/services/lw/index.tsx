@@ -594,6 +594,7 @@ export interface Service {
   account_identifier?: string
   cloud_account_id: string
   created_at?: string
+  created_by?: string
   custom_domains?: string[]
   disabled?: boolean
   fulfilment?: string
