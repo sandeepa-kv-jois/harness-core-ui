@@ -8,7 +8,7 @@
 import { StepTemplate } from '@templates-library/components/Templates/StepTemplate/StepTemplate'
 import { StageTemplate } from '@templates-library/components/Templates/StageTemplate/StageTemplate'
 import { PipelineTemplate } from '@templates-library/components/Templates/PipelineTemplate/PipelineTemplate'
-import { ScriptTemplate } from '@templates-library/components/Templates/ScriptTemplate/ScriptTemplate'
+import { ScriptTemplate } from '@cd/components/ScriptTemplate/ScriptTemplate'
 import templateFactory from './TemplatesFactory'
 
 // common
