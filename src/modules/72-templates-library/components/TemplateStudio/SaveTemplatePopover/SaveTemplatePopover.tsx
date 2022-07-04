@@ -28,6 +28,7 @@ import { AppStoreContext } from 'framework/AppStore/AppStoreContext'
 import useCommentModal from '@common/hooks/CommentModal/useCommentModal'
 import { TemplateType } from '@templates-library/utils/templatesUtils'
 import { getTemplateNameWithLabel } from '@pipeline/utils/templateUtils'
+import { StoreType } from '@common/constants/GitSyncTypes'
 import css from './SaveTemplatePopover.module.scss'
 
 export interface GetErrorResponse extends Omit<Failure, 'errors'> {
@@ -39,7 +40,7 @@ export interface SaveTemplatePopoverProps {
 
 export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): React.ReactElement {
   const {
-    state: { template, yamlHandler, gitDetails, isUpdated, stableVersion, lastPublishedVersion },
+    state: { template, yamlHandler, gitDetails, storeMetadata, isUpdated, stableVersion, lastPublishedVersion },
     setLoading,
     fetchTemplate,
     deleteTemplateCache,
@@ -78,6 +79,7 @@ export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): Re
     template,
     yamlHandler,
     gitDetails,
+    storeMetadata,
     setLoading,
     fetchTemplate,
     deleteTemplateCache,
@@ -107,29 +109,30 @@ export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): Re
     (isEdit: boolean) => {
       checkErrors(async () => {
         try {
-          const comment = !isGitSyncEnabled
-            ? await getComments(
-                getString('templatesLibrary.commentModal.heading', {
-                  name: getTemplateNameWithLabel(template)
-                }),
-                isEdit ? (
-                  <String
-                    stringID="templatesLibrary.commentModal.info"
-                    vars={{
-                      name: getTemplateNameWithLabel(template)
-                    }}
-                    useRichText={true}
-                  />
-                ) : undefined
-              )
-            : ''
+          const comment =
+            !isGitSyncEnabled && storeMetadata?.storeType !== StoreType.REMOTE
+              ? await getComments(
+                  getString('templatesLibrary.commentModal.heading', {
+                    name: getTemplateNameWithLabel(template)
+                  }),
+                  isEdit ? (
+                    <String
+                      stringID="templatesLibrary.commentModal.info"
+                      vars={{
+                        name: getTemplateNameWithLabel(template)
+                      }}
+                      useRichText={true}
+                    />
+                  ) : undefined
+                )
+              : ''
           await saveAndPublish(template, { isEdit, comment })
         } catch (_err) {
           // do nothing as user has cancelled the save operation
         }
       })
     },
-    [checkErrors, isGitSyncEnabled, template, stableVersion, saveAndPublish]
+    [checkErrors, isGitSyncEnabled, storeMetadata, template, stableVersion, saveAndPublish]
   )
 
   const onSave = React.useCallback(() => {
@@ -147,7 +150,7 @@ export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): Re
         promise: saveAndPublish,
         disabledFields: [Fields.Name, Fields.Identifier, Fields.Description, Fields.Tags],
         emptyFields: [Fields.VersionLabel],
-        shouldGetComment: !isGitSyncEnabled,
+        shouldGetComment: !isGitSyncEnabled && storeMetadata?.storeType !== StoreType.REMOTE,
         lastPublishedVersion
       })
       showConfigModal()
@@ -160,7 +163,7 @@ export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): Re
         title: getString('common.template.saveAsNewTemplateHeading'),
         promise: saveAndPublish,
         emptyFields: [Fields.Name, Fields.Identifier, Fields.VersionLabel],
-        shouldGetComment: !isGitSyncEnabled
+        shouldGetComment: !isGitSyncEnabled && storeMetadata?.storeType !== StoreType.REMOTE
       })
       showConfigModal()
     })

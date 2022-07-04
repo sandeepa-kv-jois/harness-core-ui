@@ -235,7 +235,7 @@ export function SavePipelinePopover({ toPipelineStudio }: SavePipelinePopoverPro
     return { status: response?.status, nextCallback: () => publishPipeline(newPipelineId, updatedGitDetails) }
   }
 
-  const saveAngPublishWithGitInfo = async (
+  const saveAndPublishWithGitInfo = async (
     updatedGitDetails: SaveToGitFormInterface | SaveToGitFormV2Interface,
     payload?: SavePipelineObj,
     objectId?: string,
@@ -274,7 +274,7 @@ export function SavePipelinePopover({ toPipelineStudio }: SavePipelinePopoverPro
       payload?: SavePipelineObj,
       objectId?: string
     ): Promise<UseSaveSuccessResponse> =>
-      saveAngPublishWithGitInfo(gitData, payload, objectId || gitDetails?.objectId || '', gitDetails.commitId)
+      saveAndPublishWithGitInfo(gitData, payload, objectId || gitDetails?.objectId || '', gitDetails.commitId)
   })
 
   const saveAndPublish = React.useCallback(async () => {

@@ -23,6 +23,7 @@ import { TemplateListCardContextMenu } from '@templates-library/pages/TemplatesP
 import { Badge } from '@pipeline/pages/utils/Badge/Badge'
 import type { NGTemplateInfoConfigWithGitDetails } from 'framework/Templates/TemplateConfigModal/TemplateConfigModal'
 import { ScopeBadge } from '@common/components/ScopeBadge/ScopeBadge'
+import { StoreType } from '@common/constants/GitSyncTypes'
 import { TemplateColor } from './TemplateColor/TemplateColor'
 import css from './TemplateCard.module.scss'
 
@@ -40,13 +41,18 @@ export function TemplateCard(props: TemplateCardProps): JSX.Element {
   const { getString } = useStrings()
   const { template, onSelect, isSelected, onPreview, onOpenEdit, onOpenSettings, onDelete } = props
 
-  const { isGitSyncEnabled } = useAppStore()
+  const { isGitSyncEnabled, isGitSimplificationEnabled } = useAppStore()
   const { gitSyncRepos, loadingRepos } = useGitSyncStore()
+  const isPipelineRemote =
+    isGitSimplificationEnabled && (template as TemplateSummaryResponse)?.storeType === StoreType.REMOTE
 
   const templateEntityType =
     (template as TemplateSummaryResponse)?.templateEntityType || (template as NGTemplateInfoConfig)?.type
   const style = templateColorStyleMap[templateEntityType]
   const showMenu = !onPreview && !onOpenEdit && !onOpenSettings && !onDelete
+  const repoName =
+    (template as TemplateSummaryResponse)?.gitDetails?.repoName ||
+    (template as NGTemplateInfoConfigWithGitDetails)?.repo
   const repoIdentifier =
     (template as TemplateSummaryResponse)?.gitDetails?.repoIdentifier ||
     (template as NGTemplateInfoConfigWithGitDetails)?.repo
@@ -105,7 +111,7 @@ export function TemplateCard(props: TemplateCardProps): JSX.Element {
         </Container>
         {!!template.tags && !isEmpty(template.tags) && <TemplateTags tags={template.tags} />}
         <Container height={1} background={Color.GREY_100} />
-        {isGitSyncEnabled && !!repoIdentifier && !!branch && (
+        {((isGitSyncEnabled && !!repoIdentifier && !!branch) || isPipelineRemote) && (
           <>
             <Container className={css.infoContainer}>
               <Layout.Horizontal flex={{ justifyContent: 'flex-start' }}>
@@ -115,22 +121,26 @@ export function TemplateCard(props: TemplateCardProps): JSX.Element {
                 <Layout.Horizontal style={{ alignItems: 'center' }} spacing={'small'}>
                   <Icon name="repository" size={10} color={Color.GREY_600} />
                   <Text font={{ size: 'small' }} color={Color.BLACK} title={repoIdentifier} lineClamp={1} width={40}>
-                    {(!loadingRepos && getRepoDetailsByIndentifier(repoIdentifier, gitSyncRepos)?.name) || ''}
+                    {isPipelineRemote
+                      ? repoName
+                      : (!loadingRepos && getRepoDetailsByIndentifier(repoIdentifier, gitSyncRepos)?.name) || ''}
                   </Text>
                 </Layout.Horizontal>
               </Layout.Horizontal>
 
-              <Layout.Horizontal flex={{ justifyContent: 'flex-start' }}>
-                <Text className={css.label} font="small" width={80} color={Color.GREY_700}>
-                  {getString('pipelineSteps.deploy.inputSet.branch')}
-                </Text>
-                <Layout.Horizontal style={{ alignItems: 'center' }} spacing={'small'}>
-                  <Icon name="git-new-branch" size={10} color={Color.GREY_500} />
-                  <Text font={{ size: 'small' }} color={Color.BLACK} title={branch} lineClamp={1} width={40}>
-                    {branch}
+              {isGitSyncEnabled && (
+                <Layout.Horizontal flex={{ justifyContent: 'flex-start' }}>
+                  <Text className={css.label} font="small" width={80} color={Color.GREY_700}>
+                    {getString('pipelineSteps.deploy.inputSet.branch')}
                   </Text>
+                  <Layout.Horizontal style={{ alignItems: 'center' }} spacing={'small'}>
+                    <Icon name="git-new-branch" size={10} color={Color.GREY_500} />
+                    <Text font={{ size: 'small' }} color={Color.BLACK} title={branch} lineClamp={1} width={40}>
+                      {branch}
+                    </Text>
+                  </Layout.Horizontal>
                 </Layout.Horizontal>
-              </Layout.Horizontal>
+              )}
             </Container>
             <Container height={1} background={Color.GREY_100} />
           </>
