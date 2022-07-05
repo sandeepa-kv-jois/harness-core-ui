@@ -69,7 +69,7 @@ import {
   MoveDirection,
   MoveStageDetailsType,
   moveStage,
-  EventDataType,
+  EventStageDataType,
   ListenerReturnType
 } from './StageBuilderUtil'
 import { useStageBuilderCanvasState } from './useStageBuilderCanvasState'
@@ -79,12 +79,12 @@ import { usePipelineContext } from '../PipelineContext/PipelineContext'
 import { getNodeListenersOld, getLinkListernersOld } from './StageBuildOldUtils'
 import css from './StageBuilder.module.scss'
 
-const diagram = new DiagramFactory<StageElementWrapperConfig, PipelineStageNodeMetaDataType, EventDataType>('graph')
+const diagram = new DiagramFactory<StageElementWrapperConfig, PipelineStageNodeMetaDataType, EventStageDataType>()
 
 diagram.registerNode(
   'Deployment',
   PipelineStageNode as React.FC<
-    CombinedNodeProps<StageElementWrapperConfig, PipelineStageNodeMetaDataType, EventDataType>
+    CombinedNodeProps<StageElementWrapperConfig, PipelineStageNodeMetaDataType, EventStageDataType>
   >,
   true
 )
@@ -95,7 +95,7 @@ diagram.registerNode(
 diagram.registerNode(
   NodeType.CreateNode,
   CreateNodeStage as React.FC<
-    CombinedNodeProps<StageElementWrapperConfig, PipelineStageNodeMetaDataType, EventDataType>
+    CombinedNodeProps<StageElementWrapperConfig, PipelineStageNodeMetaDataType, EventStageDataType>
   >
 )
 diagram.registerNode(NodeType.EndNode, EndNodeStage)
@@ -426,7 +426,7 @@ function StageBuilder(): JSX.Element {
     insertAt?: number,
     openSetupAfterAdd?: boolean,
     pipelineTemp?: PipelineInfoConfig,
-    destination?: any
+    destination?: StageElementWrapper
   ): void => {
     // call telemetry
     trackEvent(StageActions.SetupStage, { stageType: newStage?.stage?.type || '' })
@@ -612,7 +612,6 @@ function StageBuilder(): JSX.Element {
       if (isConfirmed) {
         moveStage({
           moveStageDetails,
-          updateStageOnAddLink,
           updateStageOnAddLinkNew,
           addStage,
           pipelineContext,
