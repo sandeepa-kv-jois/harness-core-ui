@@ -21,4 +21,26 @@
     height: 600px;
     background: var(--grey-200);
   }
+
+  .costWidget {
+    width: 220px;
+    padding: var(--spacing-small) var(--spacing-medium);
+    border-radius: 8px;
+    background: var(--grey-100);
+    .costText {
+      color: var(--grey-600);
+    }
+    &.savings-widget {
+      background: rgba(211, 252, 254, 0.5);
+      .costText {
+        color: var(--teal-800);
+      }
+    }
+    &.spend-widget {
+      background: var(--purple-50);
+      .costText {
+        color: var(--purple-800);
+      }
+    }
+  }
 }

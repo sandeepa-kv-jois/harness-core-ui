@@ -72,7 +72,16 @@
 }
 
 .gatewayLogView {
-  background: var(--grey-900) !important;
+  background: var(--primary-bg) !important;
+  border: 1px solid var(--grey-200);
+  pre > div {
+    > span:first-child {
+      color: var(--grey-900);
+    }
+    &:hover {
+      background-color: var(--grey-200) !important;
+    }
+  }
 }
 
 .serviceDetailsItemContainer {

@@ -10,6 +10,10 @@ declare const styles: {
   readonly col1: string
   readonly col2: string
   readonly colDivider: string
+  readonly costText: string
+  readonly costWidget: string
   readonly ruleDetailsBody: string
+  readonly savingsWidget: string
+  readonly spendWidget: string
 }
 export default styles

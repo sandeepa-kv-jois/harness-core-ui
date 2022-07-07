@@ -166,7 +166,7 @@ const CORuleDetailsPage: React.FC = () => {
           </Layout.Horizontal>
         }
       />
-      <RulesDetailsBody />
+      <RulesDetailsBody service={service} />
     </Container>
   )
 }
