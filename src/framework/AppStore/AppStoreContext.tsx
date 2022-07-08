@@ -26,7 +26,7 @@ import {
 } from 'services/cd-ng'
 import { useGetFeatureFlags } from 'services/portal'
 import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
-import type { FeatureFlag } from '@common/featureFlags'
+import { FeatureFlag } from '@common/featureFlags'
 import { useTelemetryInstance } from '@common/hooks/useTelemetryInstance'
 import { PreferenceScope, usePreferenceStore } from 'framework/PreferenceStore/PreferenceStoreContext'
 import routes from '@common/RouteDefinitions'
@@ -201,7 +201,7 @@ export function AppStoreProvider(props: React.PropsWithChildren<unknown>): React
       }
       setState(prevState => ({
         ...prevState,
-        isGitSimplificationEnabled: state.featureFlags.NG_GIT_EXPERIENCE || state.isGitSimplificationEnabled
+        isGitSimplificationEnabled: !state.featureFlags.GIT_SIMPLIFICATION_DISABLED || state.isGitSimplificationEnabled
       }))
     }
   }, [state.featureFlags, state.isGitSimplificationEnabled])
@@ -209,7 +209,7 @@ export function AppStoreProvider(props: React.PropsWithChildren<unknown>): React
   // update gitSyncEnabled when selectedProject changes
   useEffect(() => {
     // For gitSync, using path params instead of project/org from PreferenceFramework
-    if (projectIdentifierFromPath) {
+    if (projectIdentifierFromPath && state.featureFlags[FeatureFlag.GIT_SIMPLIFICATION_DISABLED]) {
       isGitSyncEnabledPromise({
         queryParams: {
           accountIdentifier: accountId,
@@ -233,7 +233,13 @@ export function AppStoreProvider(props: React.PropsWithChildren<unknown>): React
       }))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.selectedProject, projectIdentifierFromPath, orgIdentifierFromPath, state.isGitSyncEnabled])
+  }, [
+    state.selectedProject,
+    projectIdentifierFromPath,
+    orgIdentifierFromPath,
+    state.isGitSyncEnabled,
+    state.featureFlags[FeatureFlag.GIT_SIMPLIFICATION_DISABLED]
+  ])
 
   // set selectedOrg when orgDetails are fetched
   useEffect(() => {

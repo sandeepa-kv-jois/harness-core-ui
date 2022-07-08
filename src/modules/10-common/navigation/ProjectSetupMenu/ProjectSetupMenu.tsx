@@ -25,8 +25,14 @@ interface ProjectSetupMenuProps {
 const ProjectSetupMenu: React.FC<ProjectSetupMenuProps> = ({ module }) => {
   const { getString } = useStrings()
   const { accountId, orgIdentifier, projectIdentifier } = useParams<PipelineType<ProjectPathProps>>()
-  const { NG_TEMPLATES, OPA_PIPELINE_GOVERNANCE, NG_VARIABLES, CVNG_TEMPLATE_MONITORED_SERVICE, NG_FILE_STORE } =
-    useFeatureFlags()
+  const {
+    NG_TEMPLATES,
+    OPA_PIPELINE_GOVERNANCE,
+    NG_VARIABLES,
+    CVNG_TEMPLATE_MONITORED_SERVICE,
+    NG_FILE_STORE,
+    GIT_SIMPLIFICATION_DISABLED
+  } = useFeatureFlags()
   const { showGetStartedTabInMainMenu } = useSideNavContext()
   const { enabledHostedBuildsForFreeUsers } = useHostedBuilds()
   const params = { accountId, orgIdentifier, projectIdentifier, module }
@@ -34,7 +40,8 @@ const ProjectSetupMenu: React.FC<ProjectSetupMenuProps> = ({ module }) => {
   const isCIorCD = module === 'ci' || module === 'cd'
   const isCV = module === 'cv'
   const canUsePolicyEngine = useAnyEnterpriseLicense()
-  const getGitSyncEnabled = isCIorCDorSTO || !module
+  //Supporting GIT_SIMPLIFICATION by default, old GitSync will be selected only for selected accounts
+  const isGitSyncSupported = GIT_SIMPLIFICATION_DISABLED && (isCIorCDorSTO || !module)
 
   return (
     <NavExpandable title={getString('common.projectSetup')} route={routes.toSetup(params)}>
@@ -44,7 +51,7 @@ const ProjectSetupMenu: React.FC<ProjectSetupMenuProps> = ({ module }) => {
         {NG_VARIABLES && <SidebarLink label={getString('common.variables')} to={routes.toVariables(params)} />}
         <SidebarLink to={routes.toAccessControl(params)} label={getString('accessControl')} />
         <SidebarLink label={getString('delegate.delegates')} to={routes.toDelegates(params)} />
-        {getGitSyncEnabled ? (
+        {isGitSyncSupported ? (
           <SidebarLink
             label={getString('gitManagement')}
             to={routes.toGitSyncAdmin({ accountId, orgIdentifier, projectIdentifier, module })}
