@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import cx from 'classnames'
 import { defaultTo } from 'lodash-es'
-import { Container, FontVariation, Layout, PageBody, PageSpinner, Text } from '@harness/uicore'
+import { Container, FontVariation, Layout, PageBody, PageSpinner, Tab, Tabs, Text } from '@harness/uicore'
 import { useStrings } from 'framework/strings'
 import { Service, ServiceSavings, useSavingsOfService } from 'services/lw'
 import type { TimeRangeFilterType } from '@ce/types'
@@ -18,6 +18,7 @@ import TimeRangePicker from '@ce/common/TimeRangePicker/TimeRangePicker'
 import type { AccountPathProps } from '@common/interfaces/RouteInterfaces'
 import formatCost from '@ce/utils/formatCost'
 import COGatewayLogs from '../COGatewayList/COGatewayLogs'
+import RuleDetailsTabContainer from './RuleDetailsTabContainer'
 import css from './RuleDetailsBody.module.scss'
 
 interface RulesDetailsBodyProps {
@@ -123,7 +124,10 @@ const RulesDetailsBody: React.FC<RulesDetailsBodyProps> = ({ service }) => {
         </Container>
         <div className={css.colDivider} />
         <Container className={css.col2}>
-          <Text font={{ variation: FontVariation.H3 }}>{getString('summary')}</Text>
+          <Tabs id={'ruleDetailsTabs'}>
+            <Tab id={'details'} title="Details" panel={<RuleDetailsTabContainer service={service} />} />
+            <Tab id={'ssh'} title="SSH/RDP via Harness CLI " panel={<></>} />
+          </Tabs>
         </Container>
       </Layout.Horizontal>
     </PageBody>

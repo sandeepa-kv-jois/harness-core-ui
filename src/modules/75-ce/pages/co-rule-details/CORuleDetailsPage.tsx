@@ -19,7 +19,8 @@ import {
   Layout,
   PageHeader,
   PageSpinner,
-  Text
+  Text,
+  useToaster
 } from '@harness/uicore'
 import type { AccountPathProps } from '@common/interfaces/RouteInterfaces'
 import { Service, useRouteDetails } from 'services/lw'
@@ -33,11 +34,13 @@ import { getRelativeTime } from '@ce/components/COGatewayList/Utils'
 import { CE_DATE_FORMAT_INTERNAL_MOMENT } from '@ce/utils/momentUtils'
 import RuleStatusToggleSwitch from '@ce/components/RuleDetails/RuleStatusToggleSwitch'
 import RulesDetailsBody from '@ce/components/RuleDetails/RuleDetailsBody'
+import useDeleteServiceHook from '@ce/common/useDeleteService'
 
 const CORuleDetailsPage: React.FC = () => {
   const { accountId, ruleId } = useParams<AccountPathProps & { ruleId: string }>()
   const { getString } = useStrings()
   const history = useHistory()
+  const { showSuccess, showError } = useToaster()
 
   const [user, setUser] = useState<UserAggregate>()
 
@@ -55,6 +58,18 @@ const CORuleDetailsPage: React.FC = () => {
     queryParams: {
       pageIndex: 0,
       accountIdentifier: accountId
+    }
+  })
+
+  const { triggerDelete } = useDeleteServiceHook({
+    serviceData: defaultTo(service, {}) as Service,
+    accountId,
+    onSuccess: (_data: Service) => {
+      showSuccess(getString('ce.co.deleteRuleSuccessMessage', { name: defaultTo(service?.name, '') }))
+      history.push(routes.toCECORules({ accountId, params: '' }))
+    },
+    onFailure: err => {
+      showError(defaultTo(err?.errors?.join(', '), ''))
     }
   })
 
@@ -148,9 +163,9 @@ const CORuleDetailsPage: React.FC = () => {
           </Layout.Horizontal>
         }
         toolbar={
-          <Layout.Horizontal>
+          <Layout.Horizontal spacing={'medium'}>
             <Button
-              variation={ButtonVariation.SECONDARY}
+              variation={ButtonVariation.PRIMARY}
               icon="Edit"
               onClick={() => {
                 history.push(
@@ -162,6 +177,9 @@ const CORuleDetailsPage: React.FC = () => {
               }}
             >
               {getString('edit')}
+            </Button>
+            <Button variation={ButtonVariation.SECONDARY} icon="main-trash" onClick={triggerDelete}>
+              {getString('delete')}
             </Button>
           </Layout.Horizontal>
         }

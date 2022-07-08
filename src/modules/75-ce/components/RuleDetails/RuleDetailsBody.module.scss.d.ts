@@ -15,5 +15,6 @@ declare const styles: {
   readonly ruleDetailsBody: string
   readonly savingsWidget: string
   readonly spendWidget: string
+  readonly tabRowContainer: string
 }
 export default styles
