@@ -7,12 +7,7 @@
  **/
 // this is an auto-generated file, do not update this manually
 declare const styles: {
-  readonly addButton: string
   readonly body: string
-  readonly headerRow: string
-  readonly label: string
-  readonly panel: string
-  readonly responseMappingRow: string
   readonly subject: string
 }
 export default styles
