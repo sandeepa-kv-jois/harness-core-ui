@@ -4110,6 +4110,7 @@ export interface StringsMap {
   'cd.steps.common.specifyCredentials': string
   'cd.steps.common.undefinedType': string
   'cd.steps.emailStep.ccOptionalLabel': string
+  'cd.steps.emailStep.timeout1DayMinimum': string
   'cd.steps.kubernetesGcpStep.stepName': string
   'cd.steps.pdcStep.attributesPlaceholder': string
   'cd.steps.pdcStep.deployAllHostsOption': string
@@ -10446,10 +10447,6 @@ export interface StringsMap {
    * @deprecated migrate this string to module level file
    */
   'validation.timeout10SecMinimum': string
-  /**
-   * @deprecated migrate this string to module level file
-   */
-  'validation.timeout1DayMinimum': string
   /**
    * @deprecated migrate this string to module level file
    */

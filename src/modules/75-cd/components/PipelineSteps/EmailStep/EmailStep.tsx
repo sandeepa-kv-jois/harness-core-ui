@@ -109,7 +109,7 @@ export class EmailStep extends PipelineStep<EmailStepData> {
     if (getMultiTypeFromValue(template?.timeout) === MultiTypeInputType.RUNTIME) {
       let timeoutSchema = getDurationValidationSchema({ minimum: '1d' })
       if (isRequired) {
-        timeoutSchema = timeoutSchema.required(getString?.('validation.timeout1DayMinimum'))
+        timeoutSchema = timeoutSchema.required(getString?.('cd.steps.emailStep.timeout1DayMinimum'))
       }
       const timeout = Yup.object().shape({
         timeout: timeoutSchema

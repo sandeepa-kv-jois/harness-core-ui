@@ -60,6 +60,7 @@ steps:
     stagePlaceholder: Specify a stage
   emailStep:
     ccOptionalLabel: Cc (Optional)
+    timeout1DayMinimum: 'Minimum Timeout is 1 day'
 filePathPlaceholder: 'Enter path within manifest folder'
 resourceCannotBeEmpty: 'Resource cannot be empty'
 manifestPathsCannotBeEmpty: 'Manifest Paths cannot be empty'

@@ -41,7 +41,9 @@ export function EmailStepWidget(
   const { initialValues, onUpdate, onChange, isNewStep, isDisabled, stepViewType, allowableTypes } = props
   const { getString } = useStrings()
   const validationSchema = Yup.object().shape({
-    timeout: getDurationValidationSchema({ minimum: '1d' }).required(getString('validation.timeout1DayMinimum')),
+    timeout: getDurationValidationSchema({ minimum: '1d' }).required(
+      getString('cd.steps.emailStep.timeout1DayMinimum')
+    ),
     spec: Yup.object().shape({
       to: EmailValidationSchema(),
       cc: EmailValidationSchemaWithoutRequired(),

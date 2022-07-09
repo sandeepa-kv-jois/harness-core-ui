@@ -1008,7 +1008,6 @@ validation:
   nexusVersion: 'Version is required'
   artifactoryServerURL: 'Artifactory URL is required'
   timeout10SecMinimum: 'Minimum Timeout is 10 seconds'
-  timeout1DayMinimum: 'Minimum Timeout is 1 day'
   tagsRequired: Tags is required
   environmentVariablesRequired: Environment Variables is required
   settingsRequired: Settings is required
