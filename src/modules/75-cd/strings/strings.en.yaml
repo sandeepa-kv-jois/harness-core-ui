@@ -58,6 +58,8 @@ steps:
   serverless:
     regionPlaceholder: Specify a region
     stagePlaceholder: Specify a stage
+  emailStep:
+    ccOptionalLabel: Cc (Optional)
 filePathPlaceholder: 'Enter path within manifest folder'
 resourceCannotBeEmpty: 'Resource cannot be empty'
 manifestPathsCannotBeEmpty: 'Manifest Paths cannot be empty'

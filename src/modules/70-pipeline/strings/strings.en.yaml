@@ -81,6 +81,9 @@ utilitiesStep:
   url: Enter the URL
   requestBody: Enter the message body
   assertion: Enter Assertion
+  to: Enter recepient email
+  subject: Enter the email subject
+  cc: Cc
 terraformStep:
   provisionerIdentifier: Enter Provisioner Identifier
   workspace: Enter Workspace
@@ -880,6 +883,7 @@ failureTypetext: Select Failure Type
 stepDescription:
   HTTP: Run HTTP requests containing URLs, methods, headers, assertions, and variables.
   SHELLSCRIPT: Execute scripts in the shell session. The scripts can be executed on the pod/instance running a Harness Delegate or on a remote host in the infrastructure.
+  Email: Add custom emails.
   Barrier: Synchronize multiple Pipelines to coordinate deployments systematically.
   Queue: Queue pipeline executions to prevent multiple stages or pipelines from requesting the same deployment resources simultaneously.
   K8sRollingRollback: Roll back the workloads deployed by the stage.

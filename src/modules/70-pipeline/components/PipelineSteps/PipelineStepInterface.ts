@@ -12,6 +12,7 @@ export enum StepType {
   HTTP = 'Http',
   SHELLSCRIPT = 'ShellScript',
   Command = 'Command',
+  Email = 'Email',
   CustomApproval = 'CustomApproval',
   Barrier = 'Barrier',
   Queue = 'Queue',

@@ -3448,6 +3448,7 @@ export interface StringsMap {
   'pipeline.stepDescription.CustomApproval': string
   'pipeline.stepDescription.DockerHub': string
   'pipeline.stepDescription.ECR': string
+  'pipeline.stepDescription.Email': string
   'pipeline.stepDescription.FlagConfiguration': string
   'pipeline.stepDescription.GCR': string
   'pipeline.stepDescription.GCS': string
@@ -3575,7 +3576,10 @@ export interface StringsMap {
   'pipeline.uniqueName': string
   'pipeline.unsupportedImagesWarning': string
   'pipeline.utilitiesStep.assertion': string
+  'pipeline.utilitiesStep.cc': string
   'pipeline.utilitiesStep.requestBody': string
+  'pipeline.utilitiesStep.subject': string
+  'pipeline.utilitiesStep.to': string
   'pipeline.utilitiesStep.url': string
   'pipeline.variable.typePlaceholder': string
   'pipeline.variable.variableNamePlaceholder': string
@@ -4105,6 +4109,7 @@ export interface StringsMap {
   'cd.steps.common.selectOrEnterClusterPlaceholder': string
   'cd.steps.common.specifyCredentials': string
   'cd.steps.common.undefinedType': string
+  'cd.steps.emailStep.ccOptionalLabel': string
   'cd.steps.kubernetesGcpStep.stepName': string
   'cd.steps.pdcStep.attributesPlaceholder': string
   'cd.steps.pdcStep.deployAllHostsOption': string
@@ -10441,6 +10446,10 @@ export interface StringsMap {
    * @deprecated migrate this string to module level file
    */
   'validation.timeout10SecMinimum': string
+  /**
+   * @deprecated migrate this string to module level file
+   */
+  'validation.timeout1DayMinimum': string
   /**
    * @deprecated migrate this string to module level file
    */

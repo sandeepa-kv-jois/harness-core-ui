@@ -51,8 +51,10 @@ import { CommandScriptsStep } from './CommandScripts/CommandScriptsStep'
 import { AzureSlotDeployment } from './AzureSlotDeployment/AzureSlotDeployment'
 import { AzureTrafficShift } from './AzureTrafficShift/AzureTrafficShift'
 import { AzureSwapSlot } from './AzureWebAppSwapSlot/AzureWebAppSwapSlot'
+import { EmailStep } from './EmailStep/EmailStep'
 
 factory.registerStep(new CommandScriptsStep())
+factory.registerStep(new EmailStep())
 factory.registerStep(new HttpStep())
 factory.registerStep(new K8RolloutDeployStep())
 factory.registerStep(new K8sRollingRollbackStep())
