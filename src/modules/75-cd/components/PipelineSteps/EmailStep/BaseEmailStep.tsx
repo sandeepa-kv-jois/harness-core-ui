@@ -20,6 +20,7 @@ import { StepViewType } from '@pipeline/components/AbstractSteps/Step'
 import type { EmailStepFormData } from './emailStepTypes'
 import stepCss from '@pipeline/components/PipelineSteps/Steps/Steps.module.scss'
 import css from './EmailStep.module.scss'
+import { defaultTo } from 'lodash-es'
 
 interface BaseEmailStepProps {
   formik: FormikProps<EmailStepFormData>
@@ -68,13 +69,13 @@ const BaseEmailStep = (props: BaseEmailStepProps): React.ReactElement => {
         />
         {getMultiTypeFromValue(formValues.timeout) === MultiTypeInputType.RUNTIME && (
           <ConfigureOptions
-            value={formValues.timeout || ''}
+            value={defaultTo(formValues.timeout, '')}
             type="String"
             variableName="timeout"
             showRequiredField={false}
             showDefaultField={false}
             showAdvanced={true}
-            onChange={value => setFieldValue('timeout', value)}
+            onChange={/* istanbul ignore next */ value => setFieldValue('timeout', value)}
             isReadonly={readonly}
           />
         )}
@@ -98,7 +99,7 @@ const BaseEmailStep = (props: BaseEmailStepProps): React.ReactElement => {
             showRequiredField={false}
             showDefaultField={false}
             showAdvanced={true}
-            onChange={value => setFieldValue('spec.to', value)}
+            onChange={/* istanbul ignore next */ value => setFieldValue('spec.to', value)}
             isReadonly={readonly}
           />
         )}
@@ -119,7 +120,7 @@ const BaseEmailStep = (props: BaseEmailStepProps): React.ReactElement => {
             showRequiredField={false}
             showDefaultField={false}
             showAdvanced={true}
-            onChange={value => setFieldValue('spec.cc', value)}
+            onChange={/* istanbul ignore next */ value => setFieldValue('spec.cc', value)}
             isReadonly={readonly}
           />
         )}
@@ -140,7 +141,7 @@ const BaseEmailStep = (props: BaseEmailStepProps): React.ReactElement => {
             showRequiredField={false}
             showDefaultField={false}
             showAdvanced={true}
-            onChange={value => setFieldValue('spec.subject', value)}
+            onChange={/* istanbul ignore next */ value => setFieldValue('spec.subject', value)}
             isReadonly={readonly}
           />
         )}
@@ -161,7 +162,7 @@ const BaseEmailStep = (props: BaseEmailStepProps): React.ReactElement => {
             showRequiredField={false}
             showDefaultField={false}
             showAdvanced={true}
-            onChange={value => setFieldValue('spec.body', value)}
+            onChange={/* istanbul ignore next */ value => setFieldValue('spec.body', value)}
             isReadonly={readonly}
           />
         )}

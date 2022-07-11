@@ -23,7 +23,6 @@ export interface EmailStepInputSetProps {
   stepViewType?: StepViewType
   readonly?: boolean
   template?: EmailStepData
-  onUpdate?: (data: EmailStepFormData) => void
   path: string
   allowableTypes: MultiTypeInputType[]
 }

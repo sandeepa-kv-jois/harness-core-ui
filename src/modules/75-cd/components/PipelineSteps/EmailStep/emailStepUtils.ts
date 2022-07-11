@@ -7,11 +7,11 @@
 
 import * as Yup from 'yup'
 import { getMultiTypeFromValue, MultiTypeInputType } from '@harness/uicore'
-import { useStrings } from 'framework/strings'
+import type { UseStringsReturn } from 'framework/strings'
 
-export const EmailValidationSchema = (): Yup.Schema<string | undefined> => {
-  const { getString } = useStrings()
+export const EmailValidationSchema = (getString: UseStringsReturn['getString']): Yup.Schema<string | undefined> => {
   return Yup.lazy((value): Yup.Schema<string> => {
+    /* istanbul ignore else */
     if (getMultiTypeFromValue(value as any) === MultiTypeInputType.FIXED) {
       return Yup.string()
         .trim()
@@ -27,13 +27,16 @@ export const EmailValidationSchema = (): Yup.Schema<string | undefined> => {
             })
         )
     }
+    /* istanbul ignore next */
     return Yup.string().required(getString('common.validation.email.required'))
   })
 }
 
-export const EmailValidationSchemaWithoutRequired = (): Yup.Schema<string | undefined> => {
-  const { getString } = useStrings()
+export const EmailValidationSchemaWithoutRequired = (
+  getString: UseStringsReturn['getString']
+): Yup.Schema<string | undefined> => {
   return Yup.lazy((value): Yup.Schema<string | undefined> => {
+    /* istanbul ignore else */
     if (getMultiTypeFromValue(value as any) === MultiTypeInputType.FIXED) {
       return Yup.string()
         .notRequired()
@@ -55,6 +58,7 @@ export const EmailValidationSchemaWithoutRequired = (): Yup.Schema<string | unde
               )
         })
     }
+    /* istanbul ignore next */
     return Yup.string().required(getString('common.validation.email.required'))
   })
 }

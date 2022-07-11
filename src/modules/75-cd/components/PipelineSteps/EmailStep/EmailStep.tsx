@@ -9,7 +9,7 @@ import React from 'react'
 import { getMultiTypeFromValue, IconName, MultiTypeInputType } from '@wings-software/uicore'
 import * as Yup from 'yup'
 import { FormikErrors, yupToFormErrors } from 'formik'
-import { isEmpty, set } from 'lodash-es'
+import { defaultTo, isEmpty, set } from 'lodash-es'
 
 import { StepProps, StepViewType, ValidateInputSetProps } from '@pipeline/components/AbstractSteps/Step'
 import { getDurationValidationSchema } from '@common/components/MultiTypeDuration/MultiTypeDuration'
@@ -66,11 +66,10 @@ export class EmailStep extends PipelineStep<EmailStepData> {
       return (
         <EmailStepInputSet
           initialValues={this.processInitialValues(initialValues)}
-          onUpdate={data => onUpdate?.(this.processFormData(data))}
           stepViewType={stepViewType}
           readonly={!!inputSetData?.readonly}
           template={inputSetData?.template}
-          path={inputSetData?.path || ''}
+          path={defaultTo(inputSetData?.path, '')}
           allowableTypes={allowableTypes}
         />
       )
@@ -108,6 +107,7 @@ export class EmailStep extends PipelineStep<EmailStepData> {
 
     if (getMultiTypeFromValue(template?.timeout) === MultiTypeInputType.RUNTIME) {
       let timeoutSchema = getDurationValidationSchema({ minimum: '1d' })
+      /* istanbul ignore else */
       if (isRequired) {
         timeoutSchema = timeoutSchema.required(getString?.('cd.steps.emailStep.timeout1DayMinimum'))
       }
@@ -118,6 +118,7 @@ export class EmailStep extends PipelineStep<EmailStepData> {
       try {
         timeout.validateSync(data)
       } catch (e) {
+        /* istanbul ignore else */
         if (e instanceof Yup.ValidationError) {
           const err = yupToFormErrors(e)
           Object.assign(errors, err)
@@ -129,7 +130,7 @@ export class EmailStep extends PipelineStep<EmailStepData> {
       try {
         const schema = Yup.object().shape({
           spec: Yup.object().shape({
-            to: EmailValidationSchema()
+            to: EmailValidationSchema(getString!)
           })
         })
         schema.validateSync(data)
@@ -142,7 +143,7 @@ export class EmailStep extends PipelineStep<EmailStepData> {
       try {
         const schema = Yup.object().shape({
           spec: Yup.object().shape({
-            cc: EmailValidationSchemaWithoutRequired()
+            cc: EmailValidationSchemaWithoutRequired(getString!)
           })
         })
         schema.validateSync(data)

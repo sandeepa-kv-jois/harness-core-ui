@@ -45,8 +45,8 @@ export function EmailStepWidget(
       getString('cd.steps.emailStep.timeout1DayMinimum')
     ),
     spec: Yup.object().shape({
-      to: EmailValidationSchema(),
-      cc: EmailValidationSchemaWithoutRequired(),
+      to: EmailValidationSchema(getString),
+      cc: EmailValidationSchemaWithoutRequired(getString),
       subject: Yup.string().required(getString('common.smtp.validationSubject')),
       body: Yup.string().required(getString('common.smtp.validationBody'))
     }),
@@ -57,11 +57,13 @@ export function EmailStepWidget(
     <Formik<EmailStepFormData>
       initialValues={initialValues}
       formName="emailStepForm"
-      onSubmit={values => {
-        onUpdate?.(values)
-      }}
+      onSubmit={
+        /* istanbul ignore next */ values => {
+          onUpdate?.(values)
+        }
+      }
       validate={values => {
-        onChange?.(values)
+        /* istanbul ignore next */ onChange?.(values)
       }}
       validationSchema={validationSchema}
     >
