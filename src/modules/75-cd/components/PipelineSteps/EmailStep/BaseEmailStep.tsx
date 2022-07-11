@@ -9,6 +9,7 @@ import React from 'react'
 import { FormInput, getMultiTypeFromValue, MultiTypeInputType } from '@wings-software/uicore'
 import type { FormikProps } from 'formik'
 import cx from 'classnames'
+import { defaultTo } from 'lodash-es'
 
 import { FormMultiTypeTextAreaField } from '@common/components/MultiTypeTextArea/MultiTypeTextArea'
 import { FormMultiTypeDurationField } from '@common/components/MultiTypeDuration/MultiTypeDuration'
@@ -20,7 +21,6 @@ import { StepViewType } from '@pipeline/components/AbstractSteps/Step'
 import type { EmailStepFormData } from './emailStepTypes'
 import stepCss from '@pipeline/components/PipelineSteps/Steps/Steps.module.scss'
 import css from './EmailStep.module.scss'
-import { defaultTo } from 'lodash-es'
 
 interface BaseEmailStepProps {
   formik: FormikProps<EmailStepFormData>
