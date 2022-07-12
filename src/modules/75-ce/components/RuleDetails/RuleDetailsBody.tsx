@@ -19,6 +19,7 @@ import type { AccountPathProps } from '@common/interfaces/RouteInterfaces'
 import formatCost from '@ce/utils/formatCost'
 import COGatewayLogs from '../COGatewayList/COGatewayLogs'
 import RuleDetailsTabContainer from './RuleDetailsTabContainer'
+import CLITabContainer from './CLITabContainer'
 import css from './RuleDetailsBody.module.scss'
 
 interface RulesDetailsBodyProps {
@@ -126,7 +127,11 @@ const RulesDetailsBody: React.FC<RulesDetailsBodyProps> = ({ service }) => {
         <Container className={css.col2}>
           <Tabs id={'ruleDetailsTabs'}>
             <Tab id={'details'} title="Details" panel={<RuleDetailsTabContainer service={service} />} />
-            <Tab id={'ssh'} title="SSH/RDP via Harness CLI " panel={<></>} />
+            <Tab
+              id={'ssh'}
+              title="SSH/RDP via Harness CLI "
+              panel={<CLITabContainer ruleName={defaultTo(service?.name, '')} />}
+            />
           </Tabs>
         </Container>
       </Layout.Horizontal>

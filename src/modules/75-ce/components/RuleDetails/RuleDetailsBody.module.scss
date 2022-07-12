@@ -10,10 +10,12 @@
 
   .col1 {
     flex: 3;
+    flex-shrink: 0;
     padding: 0 var(--spacing-huge) 0 var(--spacing-large) !important;
   }
   .col2 {
     flex: 2;
+    flex-shrink: 0;
     padding: 0 var(--spacing-large) !important;
   }
   .colDivider {
@@ -48,5 +50,39 @@
     box-shadow: 0px 0px 1px rgba(40, 41, 61, 0.08), 0px 0.5px 2px rgba(96, 97, 112, 0.16);
     border-radius: 4px;
     padding: var(--spacing-large);
+  }
+
+  .sshStepIndicator {
+    flex-shrink: 0;
+  }
+  .sshStepText {
+    flex-shrink: 1;
+  }
+
+  .sshTabs {
+    color: inherit;
+    :global {
+      .bp3-tab-indicator-wrapper {
+        display: none;
+      }
+      .bp3-tab-list {
+        .bp3-tab {
+          padding: 3px var(--spacing-5);
+          border-radius: 25px;
+          &[aria-expanded='true'] {
+            background-color: var(--primary-9) !important;
+            color: var(--white);
+          }
+          &:hover {
+            &:not([aria-expanded='true']) {
+              background-color: var(--grey-100) !important;
+            }
+            &[aria-expanded='true'] {
+              color: var(--white) !important;
+            }
+          }
+        }
+      }
+    }
   }
 }

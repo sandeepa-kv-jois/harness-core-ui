@@ -101,7 +101,7 @@ co:
         description:
           info: 'With on-demand instances, you pay for computing capacity based on usage with no long-term commitments. AutoStopping will ensure that your on-demand resource is only running when in use, and stopped whenever idle so that you are only being charged for active usage of the resource.'
           additionalInfo: 'Further, AutoStopping also has a second (optional) level of optimization with orchestrated spot instances. A spot instance is an unused cloud excess capacity that is available for up to 90% cheaper rates than the On-Demand resources. This can lower your Amazon EC2 costs significantly. Typically, the limitation of spot instances is the lack of availability guarantees from the cloud provider as they may be taken away with just a 2-minute notice. However, AutoStopping has full spot orchestration built-in. Whenever there is a spot interruption, AutoStopping will automatically provision a new spot instance in its place. If there is no spot capacity available, it will fall back to on-demand to maintain availability. It will also continue to poll the spot market and perform a reverse fall-back from on-demand back to spot whenever spot capacity is available again. This is continuous cost optimization that enables you to leverage spot pricing seamlessly at every opportunity in a fully automated experience.'
-      readMore: 'Read More...'
+      readMore: 'Read More'
     providerSelector:
       description: 'Select the cloud account type'
       helpText:
@@ -498,6 +498,17 @@ co:
     stopped: 'Stopped'
     warmingUp: 'Warming up'
     coolingDown: 'Cooling down'
+  ruleDetails:
+    sshTab:
+      header: 'You can access VMs/Instances via SSH/RDP'
+      description: 'AutoStopping has first class support for accessing the resources managed by this rule via SSH/RDP.'
+      step1:
+        indicator: 'STEP 1'
+        info: 'Choose your Operating System and download the Harness CLI'
+      step2:
+        indicator: 'STEP 2'
+        title: 'Apply Commands'
+        info: 'Choose your requirements and apply commands using the downloaded CLI'
 
 learnMore: Learn more about Cloud Cost Management
 ceTrialHomePage:
