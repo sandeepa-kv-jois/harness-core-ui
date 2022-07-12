@@ -2329,7 +2329,7 @@ export interface CreateTemplateQueryParams {
   isNewBranch?: boolean
   baseBranch?: string
   connectorRef?: string
-  storeType?: 'INLINE' | 'REMOTE'
+  storeType?: StoreType
   repoName?: string
   setDefaultTemplate?: boolean
   comments?: string
@@ -2831,7 +2831,7 @@ export interface UpdateExistingTemplateLabelQueryParams {
   resolvedConflictCommitId?: string
   baseBranch?: string
   connectorRef?: string
-  storeType?: 'INLINE' | 'REMOTE'
+  storeType?: StoreType
   lastCommitId?: string
   setDefaultTemplate?: boolean
   comments?: string

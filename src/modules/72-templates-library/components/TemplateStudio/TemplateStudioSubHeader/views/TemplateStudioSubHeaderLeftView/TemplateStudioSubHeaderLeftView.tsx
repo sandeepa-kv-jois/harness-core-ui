@@ -173,20 +173,23 @@ export const TemplateStudioSubHeaderLeftView: (props: TemplateStudioSubHeaderLef
       try {
         await updateTemplate(template)
 
-        if (extraInfo.storeMetadata) updateStoreMetadata(extraInfo.storeMetadata, gitDetails)
-
         if (updatedGitDetails) {
           if (gitDetails?.objectId) {
             updatedGitDetails = { ...gitDetails, ...updatedGitDetails }
           }
-          updateGitDetails(updatedGitDetails).then(() => {
-            if (updatedGitDetails && isGitSyncEnabled) {
-              updateQueryParams(
-                { repoIdentifier: updatedGitDetails.repoIdentifier, branch: updatedGitDetails.branch },
-                { skipNulls: true }
-              )
-            }
-          })
+
+          if (isGitSimplificationEnabled && extraInfo.storeMetadata) {
+            updateStoreMetadata(extraInfo.storeMetadata, updatedGitDetails)
+          } else if (isGitSyncEnabled) {
+            updateGitDetails(updatedGitDetails).then(() => {
+              if (updatedGitDetails) {
+                updateQueryParams(
+                  { repoIdentifier: updatedGitDetails.repoIdentifier, branch: updatedGitDetails.branch },
+                  { skipNulls: true }
+                )
+              }
+            })
+          }
         }
         return { status: 'SUCCESS' }
       } catch (error) {

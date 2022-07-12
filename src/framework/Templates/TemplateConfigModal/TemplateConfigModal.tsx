@@ -81,7 +81,7 @@ export interface TemplateConfigValues extends NGTemplateInfoConfigWithGitDetails
 }
 
 export interface NGTemplateInfoConfigWithGitDetails extends NGTemplateInfoConfig {
-  connectorRef?: ConnectorSelectedValue | string
+  connectorRef?: string
   repo: string
   branch: string
   storeType?: StoreType
@@ -140,7 +140,7 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
     const comment = values.comment.trim()
     const storeMetadata = {
       storeType: values.storeType,
-      connectorRef: values.connectorRef?.value,
+      connectorRef: (values.connectorRef as unknown as ConnectorSelectedValue)?.value,
       repoName: values.repo,
       branch: values.branch,
       filePath: values.filePath
