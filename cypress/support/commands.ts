@@ -321,8 +321,7 @@ Cypress.Commands.add('verifyStepInitialSetup', () => {
 
   cy.fillName('testStage_Cypress')
   cy.clickSubmit()
-
-  cy.wait('@cdFailureStrategiesYaml')
+  // cy.wait('@cdFailureStrategiesYaml')
   cy.wait('@pipelineSteps')
   cy.wait('@service')
 })
@@ -367,7 +366,8 @@ Cypress.Commands.add('verifyStepSelectStrategyAndVerifyStep', () => {
   cy.findByTestId('execution').scrollIntoView().click()
 
   cy.wait('@strategiesList')
-  cy.wait('@strategiesYaml')
+  // cy.wait('@strategiesYaml')
+  // cy.wait('@cdFailureStrategiesYaml')
 
   // choosing deployment strategy
   cy.findByRole('button', { name: /Use Strategy/i }).click()
