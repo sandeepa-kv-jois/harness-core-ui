@@ -85,4 +85,17 @@
       }
     }
   }
+
+  .link {
+    color: var(--primary-7) !important;
+    cursor: pointer;
+    &.disabledLink {
+      color: var(--grey-500) !important;
+    }
+  }
+
+  .detailRow {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+  }
 }

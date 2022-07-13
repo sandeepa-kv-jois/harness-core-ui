@@ -20,14 +20,12 @@ declare const styles: {
   readonly disable: string
   readonly disableRule: string
   readonly disabled: string
-  readonly disabledLabel: string
   readonly downTag: string
   readonly fulFilmentIcon: string
   readonly gatewayLogView: string
   readonly headerLayout: string
   readonly layout: string
   readonly link: string
-  readonly loadingLabel: string
   readonly modeToggle: string
   readonly notAllowed: string
   readonly pageContainer: string
@@ -36,15 +34,12 @@ declare const styles: {
   readonly resourceCell: string
   readonly ruleListRow: string
   readonly ruleToggle: string
-  readonly runningLabel: string
   readonly savingsAmount: string
   readonly scheduleAccordion: string
   readonly scheduleItemContainer: string
   readonly search: string
   readonly serviceAccordionContainer: string
   readonly serviceDetailsItemContainer: string
-  readonly stateLabel: string
-  readonly stoppedLabel: string
   readonly tableWrapper: string
   readonly upTag: string
 }

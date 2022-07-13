@@ -4621,6 +4621,8 @@ export interface StringsMap {
   'ce.co.resourcesManagedDescription.gcpVm': string
   'ce.co.resourcesManagedDescription.k8s': string
   'ce.co.resourcesManagedDescription.rds': string
+  'ce.co.ruleDetails.detailsTab.label.ruleId': string
+  'ce.co.ruleDetails.detailsTab.label.vmsManaged': string
   'ce.co.ruleDetails.sshTab.description': string
   'ce.co.ruleDetails.sshTab.header': string
   'ce.co.ruleDetails.sshTab.step1.indicator': string

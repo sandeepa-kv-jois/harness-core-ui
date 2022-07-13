@@ -467,7 +467,7 @@ co:
     mangedResources: 'RESOURCES MANAGED'
     savings: 'Cumulative Savings'
     lastActivity: 'LAST ACTIVITY'
-    status: 'RULE STATUS'
+    status: 'Rule Status'
   ruleDetailsHeader:
     idleTime: 'Idle time'
     resourcesManaged: 'Resources managed'
@@ -499,6 +499,10 @@ co:
     warmingUp: 'Warming up'
     coolingDown: 'Cooling down'
   ruleDetails:
+    detailsTab:
+      label:
+        ruleId: 'Rule ID'
+        vmsManaged: 'VMs Managed'
     sshTab:
       header: 'You can access VMs/Instances via SSH/RDP'
       description: 'AutoStopping has first class support for accessing the resources managed by this rule via SSH/RDP.'

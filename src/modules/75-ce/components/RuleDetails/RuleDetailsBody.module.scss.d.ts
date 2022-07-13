@@ -12,6 +12,9 @@ declare const styles: {
   readonly colDivider: string
   readonly costText: string
   readonly costWidget: string
+  readonly detailRow: string
+  readonly disabledLink: string
+  readonly link: string
   readonly ruleDetailsBody: string
   readonly savingsWidget: string
   readonly spendWidget: string
