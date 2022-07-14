@@ -189,6 +189,7 @@ const CORuleDetailsPage: React.FC = () => {
           service={service}
           connectorData={connectorData?.data?.connector}
           dependencies={data?.response?.deps}
+          setService={setService}
         />
       ) : (
         <PageSpinner />

@@ -24,6 +24,7 @@ declare const styles: {
   readonly sshStepText: string
   readonly sshTabs: string
   readonly tabRowContainer: string
+  readonly toggleInput: string
   readonly vmsTable: string
   readonly vmsTableContainer: string
 }

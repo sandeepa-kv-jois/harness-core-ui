@@ -18,11 +18,12 @@ import {
   Table,
   Text,
   TextProps,
-  Toggle
+  Toggle,
+  useToaster
 } from '@harness/uicore'
 import { useParams } from 'react-router-dom'
 import type { Column } from 'react-table'
-import { AccessPoint, Resource, Service, ServiceDep, useRouteDetails } from 'services/lw'
+import { AccessPoint, Opts, Resource, Service, ServiceDep, useRouteDetails, useSaveService } from 'services/lw'
 import { useStrings } from 'framework/strings'
 import { InstanceStatusIndicatorV2 } from '@ce/common/InstanceStatusIndicator/InstanceStatusIndicator'
 import { Utils } from '@ce/common/Utils'
@@ -42,6 +43,7 @@ interface RuleDetailsTabContainerProps {
   accessPointData?: AccessPoint
   resources?: Resource[]
   dependencies?: ServiceDep[]
+  setService: (data?: Service) => void
 }
 
 interface DetailRowProps {
@@ -52,6 +54,7 @@ interface DetailRowProps {
 interface AdvancedConfigurationRowProps {
   service: Service
   dependencies?: ServiceDep[]
+  setService: (data?: Service) => void
 }
 
 const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => {
@@ -180,7 +183,8 @@ const RuleDetailsTabContainer: React.FC<RuleDetailsTabContainerProps> = ({
   connectorData,
   accessPointData,
   resources,
-  dependencies
+  dependencies,
+  setService
 }) => {
   const { getString } = useStrings()
 
@@ -247,7 +251,7 @@ const RuleDetailsTabContainer: React.FC<RuleDetailsTabContainerProps> = ({
               }
             />
           </Layout.Vertical>
-          <AdvancedConfigurationRow service={service} dependencies={dependencies} />
+          <AdvancedConfigurationRow service={service} dependencies={dependencies} setService={setService} />
         </>
       )}
     </Container>
@@ -303,17 +307,47 @@ const DependenciesAccordion: React.FC<{ data?: ServiceDep[] }> = ({ data = [] })
   )
 }
 
-const AdvancedConfigurationRow: React.FC<AdvancedConfigurationRowProps> = ({ service, dependencies }) => {
+const AdvancedConfigurationRow: React.FC<AdvancedConfigurationRowProps> = ({ service, dependencies, setService }) => {
   const { getString } = useStrings()
+  const { accountId } = useParams<AccountPathProps>()
+  const { showError, showSuccess } = useToaster()
 
   const { state: hideProgressPage, toggle: toggleHideProgressPage } = useBooleanStatus(service.opts?.hide_progress_page)
   const { state: dryRunMode, toggle: toggleDryRunMode } = useBooleanStatus(service.opts?.dry_run)
 
+  const { mutate: saveService } = useSaveService({
+    account_id: accountId,
+    queryParams: {
+      accountIdentifier: accountId
+    }
+  })
+
+  const handleSaveService = async (opts: Opts) => {
+    try {
+      const { response } = await saveService({
+        service: { ...service, opts: { ...service.opts, ...opts } },
+        deps: dependencies
+      })
+      showSuccess('Response is successfully saved')
+      setService(response)
+    } catch (err) {
+      showError(err.data?.errors?.join('\n') || err.data?.message)
+      if ('dry_run' in opts) {
+        toggleDryRunMode()
+      }
+      if ('hide_progress_page' in opts) {
+        toggleHideProgressPage()
+      }
+    }
+  }
+
   const handleHideProgressPageToggle = () => {
+    handleSaveService({ hide_progress_page: !hideProgressPage })
     toggleHideProgressPage()
   }
 
   const handleDryRunModeToggle = () => {
+    handleSaveService({ dry_run: !dryRunMode })
     toggleDryRunMode()
   }
 
@@ -328,6 +362,7 @@ const AdvancedConfigurationRow: React.FC<AdvancedConfigurationRowProps> = ({ ser
         label={getString('ce.co.autoStoppingRule.review.hideProgressPage')}
         onToggle={handleHideProgressPageToggle}
         data-testid={'progressPageViewToggle'}
+        className={css.toggleInput}
       />
       <Toggle
         checked={dryRunMode}
@@ -335,6 +370,7 @@ const AdvancedConfigurationRow: React.FC<AdvancedConfigurationRowProps> = ({ ser
         label={getString('ce.co.dryRunLabel')}
         onToggle={handleDryRunModeToggle}
         data-testid={'dryRunToggle'}
+        className={css.toggleInput}
       />
       {!isEmpty(dependencies) && <DependenciesAccordion data={dependencies} />}
       <FixedScheduleAccordion service={service} />

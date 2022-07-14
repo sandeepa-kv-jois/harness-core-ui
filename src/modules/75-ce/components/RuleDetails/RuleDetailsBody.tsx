@@ -36,6 +36,7 @@ interface RulesDetailsBodyProps {
   service: Service
   connectorData?: ConnectorInfoDTO
   dependencies?: ServiceDep[]
+  setService: (data?: Service) => void
 }
 
 interface CostCardProps {
@@ -67,7 +68,7 @@ const CostCard: React.FC<CostCardProps> = ({ title, changeInPercentage, cost, in
   )
 }
 
-const RulesDetailsBody: React.FC<RulesDetailsBodyProps> = ({ service, connectorData, dependencies }) => {
+const RulesDetailsBody: React.FC<RulesDetailsBodyProps> = ({ service, connectorData, dependencies, setService }) => {
   const { accountId } = useParams<AccountPathProps>()
   const { getString } = useStrings()
 
@@ -168,6 +169,7 @@ const RulesDetailsBody: React.FC<RulesDetailsBodyProps> = ({ service, connectorD
                   accessPointData={accessPointData?.response}
                   resources={resources?.response}
                   dependencies={dependencies}
+                  setService={setService}
                 />
               }
             />
