@@ -611,6 +611,7 @@ export interface Service {
   project_id?: string
   routing?: RoutingData
   status?: string
+  updated_at?: string
 }
 
 export interface ServiceDefinitionByIDResponse {

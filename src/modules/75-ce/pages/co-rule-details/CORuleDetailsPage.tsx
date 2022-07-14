@@ -19,6 +19,7 @@ import {
   Layout,
   PageHeader,
   PageSpinner,
+  Tag,
   Text,
   useToaster
 } from '@harness/uicore'
@@ -31,10 +32,17 @@ import { useStrings } from 'framework/strings'
 import { useGetAggregatedUsers, useGetConnector, UserAggregate } from 'services/cd-ng'
 import { allProviders, ceConnectorTypes } from '@ce/constants'
 import { getRelativeTime } from '@ce/components/COGatewayList/Utils'
-import { CE_DATE_FORMAT_INTERNAL_MOMENT } from '@ce/utils/momentUtils'
+import {
+  ANOMALIES_LIST_FORMAT,
+  CE_DATE_FORMAT_INTERNAL_MOMENT,
+  FORMAT_12_HOUR,
+  getStaticSchedulePeriodTime,
+  getTimePeriodString
+} from '@ce/utils/momentUtils'
 import RuleStatusToggleSwitch from '@ce/components/RuleDetails/RuleStatusToggleSwitch'
 import RulesDetailsBody from '@ce/components/RuleDetails/RuleDetailsBody'
 import useDeleteServiceHook from '@ce/common/useDeleteService'
+import css from './CORuleDetailsPage.module.scss'
 
 const CORuleDetailsPage: React.FC = () => {
   const { accountId, ruleId } = useParams<AccountPathProps & { ruleId: string }>()
@@ -114,53 +122,74 @@ const CORuleDetailsPage: React.FC = () => {
     connectorData?.data?.connector?.type && ceConnectorTypes[connectorData?.data?.connector?.type]
   const provider = useMemo(() => allProviders.find(item => item.value === cloudProviderType), [cloudProviderType])
   const iconName = isK8sRule ? 'app-kubernetes' : defaultTo(provider?.icon, 'spinner')
-  // const ruleTypeStringKey = getRuleType(tableProps.row.original, provider) as keyof StringsMap
+
+  const lastUpdatedAtEpoch = service?.updated_at && getStaticSchedulePeriodTime(service?.updated_at)
 
   if (loading) {
     return <PageSpinner />
   }
 
   return (
-    <Container>
+    <Container className={service?.disabled ? css.disabledRuleHeader : ''}>
       <PageHeader
-        size="xlarge"
+        size={service?.disabled ? 'xxlarge' : 'xlarge'}
         breadcrumbs={<NGBreadcrumbs links={breadcrumbs} />}
         title={
-          <Layout.Horizontal flex={{ alignItems: 'center', justifyContent: 'flex-start' }} spacing="small">
-            <Icon name={iconName as IconName} size={30} />
-            <Container>
-              <Layout.Horizontal spacing={'medium'} flex={{ alignItems: 'center', justifyContent: 'flex-start' }}>
-                <Text font={{ variation: FontVariation.H4 }}>{defaultTo(service?.name, '')}</Text>
-                {service && (
-                  <Container>
-                    <RuleStatusToggleSwitch serviceData={service} onSuccess={setService} />
-                  </Container>
-                )}
-              </Layout.Horizontal>
-              <Layout.Horizontal spacing={'small'} margin={{ top: 'small' }}>
-                <Text color={Color.GREY_500} font={{ variation: FontVariation.BODY, size: 'small' }}>
-                  {'AWS EC2'}
-                </Text>
-                {user && (
-                  <>
-                    <Text>{' | '}</Text>
-                    <Text font={{ variation: FontVariation.BODY, size: 'small' }}>{getString('createdBy')}</Text>
-                    <Text color={Color.GREY_500} font={{ variation: FontVariation.BODY, size: 'small' }}>
-                      {user.user.name}
-                    </Text>
-                  </>
-                )}
-                {service?.created_at && (
-                  <>
-                    <Text>{' | '}</Text>
-                    <Text color={Color.GREY_500} font={{ variation: FontVariation.BODY, size: 'small' }}>
-                      {getRelativeTime(service.created_at, CE_DATE_FORMAT_INTERNAL_MOMENT)}
-                    </Text>
-                  </>
-                )}
-              </Layout.Horizontal>
-            </Container>
-          </Layout.Horizontal>
+          <Layout.Vertical spacing={'large'}>
+            <Layout.Horizontal flex={{ alignItems: 'center', justifyContent: 'flex-start' }} spacing="small">
+              <Icon name={iconName as IconName} size={30} />
+              <Container>
+                <Layout.Horizontal spacing={'medium'} flex={{ alignItems: 'center', justifyContent: 'flex-start' }}>
+                  <Text font={{ variation: FontVariation.H4 }}>{defaultTo(service?.name, '')}</Text>
+                  {service && (
+                    <Container>
+                      <RuleStatusToggleSwitch serviceData={service} onSuccess={setService} />
+                    </Container>
+                  )}
+                </Layout.Horizontal>
+                <Layout.Horizontal spacing={'small'} margin={{ top: 'small' }}>
+                  <Text color={Color.GREY_500} font={{ variation: FontVariation.BODY, size: 'small' }}>
+                    {'AWS EC2'}
+                  </Text>
+                  {user && (
+                    <>
+                      <Text>{' | '}</Text>
+                      <Text font={{ variation: FontVariation.BODY, size: 'small' }}>{getString('createdBy')}</Text>
+                      <Text color={Color.GREY_500} font={{ variation: FontVariation.BODY, size: 'small' }}>
+                        {user.user.name}
+                      </Text>
+                    </>
+                  )}
+                  {service?.created_at && (
+                    <>
+                      <Text>{' | '}</Text>
+                      <Text color={Color.GREY_500} font={{ variation: FontVariation.BODY, size: 'small' }}>
+                        {getRelativeTime(service.created_at, CE_DATE_FORMAT_INTERNAL_MOMENT)}
+                      </Text>
+                    </>
+                  )}
+                </Layout.Horizontal>
+              </Container>
+            </Layout.Horizontal>
+            {service?.disabled && (
+              <Container>
+                <Layout.Horizontal spacing={'medium'}>
+                  <Tag>
+                    <Text font={{ variation: FontVariation.UPPERCASED }}>{getString('ce.common.disabled')}</Text>
+                  </Tag>
+                  {lastUpdatedAtEpoch && (
+                    <Text inline font={{ variation: FontVariation.BODY2 }}>{`Last active on ${getTimePeriodString(
+                      lastUpdatedAtEpoch,
+                      ANOMALIES_LIST_FORMAT
+                    )} at ${getTimePeriodString(
+                      lastUpdatedAtEpoch,
+                      FORMAT_12_HOUR
+                    )}. Switch the toggle to enable the rule and continue saving.`}</Text>
+                  )}
+                </Layout.Horizontal>
+              </Container>
+            )}
+          </Layout.Vertical>
         }
         toolbar={
           <Layout.Horizontal spacing={'medium'}>
