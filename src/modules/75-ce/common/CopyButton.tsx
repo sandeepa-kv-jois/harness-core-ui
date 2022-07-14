@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react'
-import { Button, ButtonProps, Color } from '@harness/uicore'
+import { Button, ButtonProps } from '@harness/uicore'
 import copy from 'clipboard-copy'
 
 interface CopyButtonProps extends ButtonProps {
@@ -27,7 +27,6 @@ const CopyButton: React.FC<CopyButtonProps> = ({ textToCopy, ...rest }) => {
     <Button
       minimal
       icon="duplicate"
-      iconProps={{ color: Color.PRIMARY_7 }}
       onClick={() => {
         copy(textToCopy)
         showCopySuccess()

@@ -98,4 +98,51 @@
     display: grid;
     grid-template-columns: 140px 1fr;
   }
+
+  .vmsTableContainer {
+    max-height: 204px;
+    overflow: auto;
+    margin-top: var(--spacing-medium) !important;
+    .vmsTable {
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid var(--grey-200);
+      border-collapse: collapse;
+      thead {
+        background-color: var(--primary-1);
+        tr {
+          th {
+            border: 1px solid var(--primary-3);
+          }
+        }
+      }
+    }
+  }
+
+  .copyBtn {
+    min-height: auto !important;
+    height: auto !important;
+    line-height: inherit !important;
+    padding: 0 !important;
+    svg {
+      color: var(--primary-7);
+    }
+  }
+
+  .dependenciesAccordion {
+    background: var(--primary-1);
+    padding: 0 var(--spacing-medium);
+    border-radius: 5px;
+    table {
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid var(--grey-200);
+      border-collapse: collapse;
+      tbody {
+        tr {
+          background: var(--white);
+        }
+      }
+    }
+  }
 }

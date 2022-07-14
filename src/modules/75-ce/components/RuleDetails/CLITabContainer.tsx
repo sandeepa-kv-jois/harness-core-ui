@@ -5,15 +5,21 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React from 'react'
+import React, { useMemo } from 'react'
+import { defaultTo } from 'lodash-es'
 import { Container, FontVariation, Layout, Tab, Tabs, Text } from '@harness/uicore'
 import { useStrings } from 'framework/strings'
 import CommandBlock from '@ce/common/CommandBlock/CommandBlock'
+import type { ConnectorInfoDTO } from 'services/cd-ng'
+import type { Provider } from '@ce/components/COCreateGateway/models'
+import { allProviders, ceConnectorTypes } from '@ce/constants'
+import { Utils } from '@ce/common/Utils'
 import DownloadCLI from '../DownloadCLI/DownloadCLI'
 import css from './RuleDetailsBody.module.scss'
 
 interface CLITabContainerProps {
   ruleName: string
+  connectorData?: ConnectorInfoDTO
 }
 
 const DownloadCliStep = () => {
@@ -36,8 +42,12 @@ const DownloadCliStep = () => {
   )
 }
 
-const ApplyCommandsStep = ({ ruleName }: { ruleName: string }) => {
+const ApplyCommandsStep = ({ ruleName, connectorData }: { ruleName: string; connectorData?: ConnectorInfoDTO }) => {
   const { getString } = useStrings()
+  const cloudProvider = connectorData?.type && ceConnectorTypes[connectorData.type]
+  const provider = useMemo(() => allProviders.find(item => item.value === cloudProvider), [cloudProvider])
+  const isGcpProvider = Utils.isProviderGcp(defaultTo(provider, {}) as Provider)
+  const isAwsProvider = Utils.isProviderAws(defaultTo(provider, {}) as Provider)
   return (
     <Container>
       <Layout.Horizontal>
@@ -66,17 +76,30 @@ const ApplyCommandsStep = ({ ruleName }: { ruleName: string }) => {
                 title="RDP"
                 panel={<CommandBlock allowCopy commandSnippet={`harness rdp --name ${ruleName}`} />}
               />
-              <Tab
-                id="ssm"
-                title="SSM"
-                panel={
-                  <CommandBlock
-                    allowCopy
-                    commandSnippet={`harness ssh --name ${ruleName} --user ubuntu -- <any_ssh_params>`}
-                  />
-                }
-              />
-              <Tab id="gcloud" title="gcloud" />
+              {isAwsProvider && (
+                <Tab
+                  id="ssm"
+                  title="SSM"
+                  panel={
+                    <CommandBlock
+                      allowCopy
+                      commandSnippet={`harness smm start-session --name ${ruleName} -- --document-name AWS-StartPortForwardingSession --parameters "localPortNumber=54321,portNumber=22" --region ap-south-1`}
+                    />
+                  }
+                />
+              )}
+              {isGcpProvider && (
+                <Tab
+                  id="gcloud"
+                  title="gcloud"
+                  panel={
+                    <CommandBlock
+                      allowCopy
+                      commandSnippet={`harness gcloud ssh --name ${ruleName} -- --project=<gcp_project_name>`}
+                    />
+                  }
+                />
+              )}
             </Tabs>
           </Container>
         </Layout.Vertical>
@@ -96,7 +119,7 @@ const CLITabContainer: React.FC<CLITabContainerProps> = props => {
       </Layout.Vertical>
       <Layout.Vertical spacing="medium" margin={{ top: 'medium' }}>
         <DownloadCliStep />
-        <ApplyCommandsStep ruleName={props.ruleName} />
+        <ApplyCommandsStep ruleName={props.ruleName} connectorData={props.connectorData} />
       </Layout.Vertical>
     </Container>
   )

@@ -10,8 +10,10 @@ declare const styles: {
   readonly col1: string
   readonly col2: string
   readonly colDivider: string
+  readonly copyBtn: string
   readonly costText: string
   readonly costWidget: string
+  readonly dependenciesAccordion: string
   readonly detailRow: string
   readonly disabledLink: string
   readonly link: string
@@ -22,5 +24,7 @@ declare const styles: {
   readonly sshStepText: string
   readonly sshTabs: string
   readonly tabRowContainer: string
+  readonly vmsTable: string
+  readonly vmsTableContainer: string
 }
 export default styles

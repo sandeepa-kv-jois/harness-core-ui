@@ -185,7 +185,11 @@ const CORuleDetailsPage: React.FC = () => {
         }
       />
       {service ? (
-        <RulesDetailsBody service={service} connectorData={connectorData?.data?.connector} />
+        <RulesDetailsBody
+          service={service}
+          connectorData={connectorData?.data?.connector}
+          dependencies={data?.response?.deps}
+        />
       ) : (
         <PageSpinner />
       )}

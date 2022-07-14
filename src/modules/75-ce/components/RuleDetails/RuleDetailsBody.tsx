@@ -13,6 +13,7 @@ import { Container, FontVariation, Layout, PageBody, Tab, Tabs, Text } from '@ha
 import { useStrings } from 'framework/strings'
 import {
   Service,
+  ServiceDep,
   ServiceSavings,
   useAllServiceResources,
   useGetAccessPoint,
@@ -34,6 +35,7 @@ import css from './RuleDetailsBody.module.scss'
 interface RulesDetailsBodyProps {
   service: Service
   connectorData?: ConnectorInfoDTO
+  dependencies?: ServiceDep[]
 }
 
 interface CostCardProps {
@@ -65,7 +67,7 @@ const CostCard: React.FC<CostCardProps> = ({ title, changeInPercentage, cost, in
   )
 }
 
-const RulesDetailsBody: React.FC<RulesDetailsBodyProps> = ({ service, connectorData }) => {
+const RulesDetailsBody: React.FC<RulesDetailsBodyProps> = ({ service, connectorData, dependencies }) => {
   const { accountId } = useParams<AccountPathProps>()
   const { getString } = useStrings()
 
@@ -165,13 +167,14 @@ const RulesDetailsBody: React.FC<RulesDetailsBodyProps> = ({ service, connectorD
                   connectorData={connectorData}
                   accessPointData={accessPointData?.response}
                   resources={resources?.response}
+                  dependencies={dependencies}
                 />
               }
             />
             <Tab
               id={'ssh'}
               title="SSH/RDP via Harness CLI "
-              panel={<CLITabContainer ruleName={defaultTo(service?.name, '')} />}
+              panel={<CLITabContainer ruleName={defaultTo(service?.name, '')} connectorData={connectorData} />}
             />
           </Tabs>
         </Container>

@@ -7,8 +7,22 @@
 
 import React, { useMemo } from 'react'
 import { isEmpty, defaultTo } from 'lodash-es'
-import { Container, FontVariation, Icon, IconName, Layout, Table, Text } from '@harness/uicore'
-import type { AccessPoint, Resource, Service } from 'services/lw'
+import {
+  Accordion,
+  Color,
+  Container,
+  FontVariation,
+  Icon,
+  IconName,
+  Layout,
+  Table,
+  Text,
+  TextProps,
+  Toggle
+} from '@harness/uicore'
+import { useParams } from 'react-router-dom'
+import type { Column } from 'react-table'
+import { AccessPoint, Resource, Service, ServiceDep, useRouteDetails } from 'services/lw'
 import { useStrings } from 'framework/strings'
 import { InstanceStatusIndicatorV2 } from '@ce/common/InstanceStatusIndicator/InstanceStatusIndicator'
 import { Utils } from '@ce/common/Utils'
@@ -16,6 +30,8 @@ import CopyButton from '@ce/common/CopyButton'
 import { allProviders, ceConnectorTypes } from '@ce/constants'
 import type { ConnectorInfoDTO } from 'services/cd-ng'
 import { useBooleanStatus } from '@common/hooks'
+import type { AccountPathProps } from '@common/interfaces/RouteInterfaces'
+import FixedScheduleAccordion from '../COGatewayList/components/FixedScheduleAccordion/FixedScheduleAccordion'
 import css from './RuleDetailsBody.module.scss'
 
 interface RuleDetailsTabContainerProps {
@@ -25,11 +41,17 @@ interface RuleDetailsTabContainerProps {
   connectorData?: ConnectorInfoDTO
   accessPointData?: AccessPoint
   resources?: Resource[]
+  dependencies?: ServiceDep[]
 }
 
 interface DetailRowProps {
   label: string
   value: string | React.ReactNode
+}
+
+interface AdvancedConfigurationRowProps {
+  service: Service
+  dependencies?: ServiceDep[]
 }
 
 const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => {
@@ -54,7 +76,12 @@ const LinkWithCopy: React.FC<{ url: string; protocol: string }> = ({ url, protoc
       >
         {url}
       </Text>
-      <CopyButton textToCopy={completeUrl} iconProps={{ size: 14 }} small />
+      <CopyButton
+        className={css.copyBtn}
+        textToCopy={completeUrl}
+        iconProps={{ size: 14, color: Color.PRIMARY_7 }}
+        small
+      />
     </Layout.Horizontal>
   )
 }
@@ -62,70 +89,87 @@ const LinkWithCopy: React.FC<{ url: string; protocol: string }> = ({ url, protoc
 const ManagedVms: React.FC<{ resources: Resource[] }> = ({ resources }) => {
   const { getString } = useStrings()
   const { state, toggle } = useBooleanStatus()
+
+  const getTableText = (str = '', props?: TextProps) => (
+    <Text font={{ variation: FontVariation.SMALL }} lineClamp={1} {...props}>
+      {str}
+    </Text>
+  )
+
   return (
-    <Layout.Horizontal flex={{ alignItems: 'center' }}>
-      <Text>{resources.length}</Text>
-      {resources.length && (
-        <Container>
-          <Text rightIcon={state ? 'main-chevron-up' : 'main-chevron-down'} onClick={toggle}>
-            {getString('ce.common.collapse')}
-          </Text>
-          {state && (
-            <Table<Resource>
-              data={resources}
-              bpTableProps={{ bordered: true, condensed: true, striped: false }}
-              columns={[
-                {
-                  accessor: 'name',
-                  Header: 'Name/ID',
-                  width: '25%',
-                  Cell: ({ row }) => (
-                    <Layout.Vertical>
-                      <Text>{row.original.name}</Text>
-                      <Text>{row.original.id}</Text>
-                    </Layout.Vertical>
-                  )
-                },
-                {
-                  accessor: 'ipv4',
-                  Header: 'Public/Private IP',
-                  width: '25%',
-                  Cell: ({ row }) => (
-                    <Layout.Vertical>
-                      <Text>{row.original.ipv4}</Text>
-                      <Text>{row.original.private_ipv4}</Text>
-                    </Layout.Vertical>
-                  )
-                },
-                {
-                  accessor: 'type',
-                  Header: 'Instance family',
-                  width: '25%',
-                  Cell: ({ row }) => (
-                    <Layout.Vertical>
-                      <Text>{row.original.type}</Text>
-                    </Layout.Vertical>
-                  )
-                },
-                {
-                  accessor: 'tags',
-                  Header: 'Tags',
-                  width: '25%',
-                  Cell: ({ row }) => (
-                    <Layout.Vertical>
-                      {row.original.tags &&
-                        Object.entries(row.original.tags).map(([key, value]) => {
-                          return <Text key={key}>{`${key}: ${value}`}</Text>
-                        })}
-                    </Layout.Vertical>
-                  )
-                }
-              ]}
-            />
-          )}
+    <Layout.Vertical>
+      <Layout.Horizontal spacing={'medium'} flex={{ alignItems: 'center', justifyContent: 'flex-start' }}>
+        <Text>{resources.length}</Text>
+        {resources.length && (
+          <Container>
+            <Text
+              rightIcon={state ? 'main-chevron-up' : 'main-chevron-down'}
+              rightIconProps={{ color: Color.PRIMARY_7, size: 14 }}
+              color={Color.PRIMARY_7}
+              onClick={toggle}
+            >
+              {state ? getString('ce.common.collapse') : getString('ce.common.expand')}
+            </Text>
+          </Container>
+        )}
+      </Layout.Horizontal>
+      {state && (
+        <Container className={css.vmsTableContainer}>
+          <Table<Resource>
+            className={css.vmsTable}
+            data={resources}
+            bpTableProps={{ bordered: true, condensed: true, striped: false }}
+            columns={[
+              {
+                accessor: 'name',
+                Header: getTableText('Name/ID', { font: { variation: FontVariation.SMALL_BOLD } }),
+                width: '25%',
+                Cell: ({ row }) => (
+                  <Layout.Vertical>
+                    {getTableText(row.original.name, { font: { variation: FontVariation.SMALL_SEMI } })}
+                    {getTableText(row.original.id, { color: Color.GREY_400 })}
+                  </Layout.Vertical>
+                )
+              },
+              {
+                accessor: 'ipv4',
+                Header: getTableText('Public/Private IP', { font: { variation: FontVariation.SMALL_BOLD } }),
+                width: '25%',
+                Cell: ({ row }) => (
+                  <Layout.Vertical>
+                    {getTableText(row.original.ipv4?.[0], { font: { variation: FontVariation.SMALL_SEMI } })}
+                    {getTableText(row.original.private_ipv4?.[0], { color: Color.GREY_400 })}
+                  </Layout.Vertical>
+                )
+              },
+              {
+                accessor: 'type',
+                Header: getTableText('Instance family', { font: { variation: FontVariation.SMALL_BOLD } }),
+                width: '25%',
+                Cell: ({ row }) => (
+                  <Layout.Vertical>
+                    {getTableText(row.original.type, { font: { variation: FontVariation.SMALL_SEMI } })}
+                  </Layout.Vertical>
+                )
+              },
+              {
+                accessor: 'tags',
+                Header: getTableText('Tags', { font: { variation: FontVariation.SMALL_BOLD } }),
+                width: '25%',
+                Cell: ({ row }) => (
+                  <Layout.Vertical>
+                    {row.original.tags &&
+                      Object.entries(row.original.tags).map(([key, value]) => {
+                        return getTableText(`${key}: ${value}`)
+                      })}
+                  </Layout.Vertical>
+                )
+              }
+            ]}
+          />
         </Container>
       )}
-    </Layout.Horizontal>
+    </Layout.Vertical>
   )
 }
 
@@ -135,7 +179,8 @@ const RuleDetailsTabContainer: React.FC<RuleDetailsTabContainerProps> = ({
   refetchHealthStatus,
   connectorData,
   accessPointData,
-  resources
+  resources,
+  dependencies
 }) => {
   const { getString } = useStrings()
 
@@ -152,12 +197,12 @@ const RuleDetailsTabContainer: React.FC<RuleDetailsTabContainerProps> = ({
   const iconName = isK8sRule ? 'app-kubernetes' : (defaultTo(provider?.icon, 'spinner') as IconName)
 
   return (
-    <Container className={css.tabRowContainer}>
+    <Container>
       {!service ? (
         <Icon name="spinner" />
       ) : (
         <>
-          <Layout.Vertical spacing={'medium'}>
+          <Layout.Vertical spacing={'medium'} className={css.tabRowContainer}>
             <Text font={{ variation: FontVariation.H5 }}>{getString('ce.co.gatewayReview.gatewayDetails')}</Text>
             <DetailRow label={getString('ce.co.ruleDetails.detailsTab.label.ruleId')} value={`${service.id}`} />
             <DetailRow label={getString('ce.co.ruleDetailsHeader.idleTime')} value={`${service.idle_time_mins} min`} />
@@ -202,9 +247,98 @@ const RuleDetailsTabContainer: React.FC<RuleDetailsTabContainerProps> = ({
               }
             />
           </Layout.Vertical>
+          <AdvancedConfigurationRow service={service} dependencies={dependencies} />
         </>
       )}
     </Container>
+  )
+}
+
+const DependenciesAccordion: React.FC<{ data?: ServiceDep[] }> = ({ data = [] }) => {
+  const { getString } = useStrings()
+  const { accountId } = useParams<AccountPathProps>()
+  const columns: Column<ServiceDep>[] = useMemo(
+    () => [
+      {
+        accessor: 'dep_id',
+        Header: 'Dependant Rule',
+        width: '50%',
+        Cell: ({ row }) => {
+          const { data: ruleData, loading } = useRouteDetails({
+            account_id: accountId,
+            rule_id: Number(row.original.dep_id)
+          })
+          return loading ? (
+            <Icon name="spinner" size={20} />
+          ) : (
+            <Text>{defaultTo(ruleData?.response?.service?.name, '')}</Text>
+          )
+        }
+      },
+      {
+        accessor: 'delay_secs',
+        Header: 'Delay(secs)',
+        width: '50%',
+        Cell: ({ row }) => {
+          return <Text>{row.original.delay_secs}</Text>
+        }
+      }
+    ],
+    [data]
+  )
+  return (
+    <Accordion className={css.dependenciesAccordion}>
+      <Accordion.Panel
+        id="deps"
+        summary={`${data.length} ${getString('ce.co.autoStoppingRule.configuration.step4.tabs.deps.title')}`}
+        details={
+          <Table<ServiceDep>
+            data={data}
+            bpTableProps={{ bordered: true, condensed: true, striped: false }}
+            columns={columns}
+          />
+        }
+      />
+    </Accordion>
+  )
+}
+
+const AdvancedConfigurationRow: React.FC<AdvancedConfigurationRowProps> = ({ service, dependencies }) => {
+  const { getString } = useStrings()
+
+  const { state: hideProgressPage, toggle: toggleHideProgressPage } = useBooleanStatus(service.opts?.hide_progress_page)
+  const { state: dryRunMode, toggle: toggleDryRunMode } = useBooleanStatus(service.opts?.dry_run)
+
+  const handleHideProgressPageToggle = () => {
+    toggleHideProgressPage()
+  }
+
+  const handleDryRunModeToggle = () => {
+    toggleDryRunMode()
+  }
+
+  return (
+    <Layout.Vertical spacing={'medium'} margin={{ top: 'xlarge' }} className={css.tabRowContainer}>
+      <Text font={{ variation: FontVariation.H5 }}>
+        {getString('ce.co.autoStoppingRule.configuration.step4.advancedConfiguration')}
+      </Text>
+      <Toggle
+        checked={hideProgressPage}
+        disabled={service.disabled}
+        label={getString('ce.co.autoStoppingRule.review.hideProgressPage')}
+        onToggle={handleHideProgressPageToggle}
+        data-testid={'progressPageViewToggle'}
+      />
+      <Toggle
+        checked={dryRunMode}
+        disabled={service.disabled}
+        label={getString('ce.co.dryRunLabel')}
+        onToggle={handleDryRunModeToggle}
+        data-testid={'dryRunToggle'}
+      />
+      {!isEmpty(dependencies) && <DependenciesAccordion data={dependencies} />}
+      <FixedScheduleAccordion service={service} />
+    </Layout.Vertical>
   )
 }
 
