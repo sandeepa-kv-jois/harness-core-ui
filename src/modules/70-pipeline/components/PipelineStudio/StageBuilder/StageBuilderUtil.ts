@@ -608,7 +608,7 @@ export const getNodeEventListerner = (
   confirmMoveStage: () => void,
   stageMap: Map<string, StageState>,
   newPipelineStudioEnabled?: boolean
-): NodeModelListener => {
+): ListenerReturnType => {
   const {
     state: {
       pipeline,
