@@ -55,7 +55,10 @@ export enum Fields {
   Tags = 'tags',
   VersionLabel = 'versionLabel',
   Repo = 'repo',
-  Branch = 'branch'
+  RepoName = 'repoName',
+  Branch = 'branch',
+  ConnectorRef = 'connectorRef',
+  FilePath = 'filePath'
 }
 
 export interface PromiseExtraArgs {
@@ -128,7 +131,7 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
 
   React.useEffect(() => {
     const edit = isGitSimplificationEnabled
-      ? templateIdentifier !== DefaultNewTemplateId
+      ? !!templateIdentifier && templateIdentifier !== DefaultNewTemplateId
       : initialValues.identifier !== DefaultNewTemplateId
     setIsEdit(edit)
   }, [initialValues])
@@ -138,9 +141,13 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
     const formGitDetails =
       values.repo && values.repo.trim().length > 0 ? { repoIdentifier: values.repo, branch: values.branch } : undefined
     const comment = values.comment.trim()
+
     const storeMetadata = {
       storeType: values.storeType,
-      connectorRef: (values.connectorRef as unknown as ConnectorSelectedValue)?.value,
+      connectorRef:
+        typeof values.connectorRef === 'string'
+          ? values.connectorRef
+          : (values.connectorRef as unknown as ConnectorSelectedValue)?.value,
       repoName: values.repo,
       branch: values.branch,
       filePath: values.filePath
@@ -302,14 +309,19 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
                             </Layout.Horizontal>
                           </Container>
                         )}
-                        {shouldGetComment && (
+                        {((!isGitSimplificationEnabled && shouldGetComment) ||
+                          (isGitSimplificationEnabled &&
+                            formik.values?.storeType === StoreType.INLINE &&
+                            shouldGetComment)) && (
                           <FormInput.TextArea
                             name="comment"
                             label={getString('optionalField', {
                               name: getString('common.commentModal.commentLabel')
                             })}
                             textArea={{
-                              className: css.comment
+                              className: classNames(css.comment, {
+                                [css.gitNameIdDescriptionTags]: isGitSimplificationEnabled
+                              })
                             }}
                           />
                         )}
@@ -340,6 +352,16 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
                             formikProps={formik}
                             isEdit={isEdit}
                             initialValues={pick(initialValues, 'repo', 'branch', 'filePath', 'connectorRef')}
+                            disableFields={pick(
+                              modalProps.disabledFields?.reduce((fields: Record<string, boolean>, field: string) => {
+                                fields[field] = true
+                                return fields
+                              }, {}),
+                              Fields.ConnectorRef,
+                              Fields.RepoName,
+                              Fields.Branch,
+                              Fields.FilePath
+                            )}
                           />
                         )}
                       </>

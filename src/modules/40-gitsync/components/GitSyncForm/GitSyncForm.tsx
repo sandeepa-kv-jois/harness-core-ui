@@ -41,7 +41,10 @@ interface GitSyncFormProps<T> {
   formikProps: FormikContextType<T>
   isEdit: boolean
   disableFields?: {
-    [key: string]: boolean
+    connectorRef?: boolean
+    repoName?: boolean
+    branch?: boolean
+    filePath?: boolean
   }
   initialValues?: StoreMetadata
   errorData?: ResponseMessage[]
