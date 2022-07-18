@@ -49,6 +49,7 @@ import EndNodeStep from '@pipeline/components/PipelineDiagram/Nodes/EndNode/EndN
 import StartNodeStep from '@pipeline/components/PipelineDiagram/Nodes/StartNode/StartNodeStep'
 import { CIDependencyNode } from '@pipeline/components/PipelineDiagram/Nodes/StepGroupNode/CIDependencyNode'
 import DiagramLoader from '@pipeline/components/DiagramLoader/DiagramLoader'
+import StepGroupNode from '@pipeline/components/PipelineDiagram/Nodes/StepGroupNode/StepGroupNode'
 import { ExecutionStepModel, GridStyleInterface } from './ExecutionStepModel'
 import { StepType as PipelineStepType } from '../../PipelineSteps/PipelineStepInterface'
 import {
@@ -92,10 +93,10 @@ import {
 } from '../../Diagram'
 import { CanvasButtons } from '../../CanvasButtons/CanvasButtons'
 import { usePipelineContext } from '../PipelineContext/PipelineContext'
-import type { EventStepDataType } from '../StageBuilder/StageBuilderUtil'
+import type { EventDataType, EventStepDataType, EventStepGroupDataType } from '../StageBuilder/StageBuilderUtil'
 import css from './ExecutionGraph.module.scss'
 
-const diagram = new DiagramFactory<ExecutionWrapperConfig, PipelineStageNodeMetaDataType, EventStepDataType>()
+const diagram = new DiagramFactory<ExecutionWrapperConfig, PipelineStageNodeMetaDataType, any>()
 
 diagram.registerNode(
   'ShellScript',
@@ -112,7 +113,12 @@ diagram.registerNode(
 )
 diagram.registerNode(NodeType.EndNode, EndNodeStep)
 diagram.registerNode(NodeType.StartNode, StartNodeStep)
-// diagram.registerNode('StepGroup', DiagramNodes[NodeType.StepGroupNode])
+diagram.registerNode(
+  'StepGroup',
+  StepGroupNode as React.FC<
+    CombinedNodeProps<ExecutionWrapperConfig, PipelineStageNodeMetaDataType, EventStepGroupDataType>
+  >
+)
 // diagram.registerNode('Approval', DiamondNodeWidget)
 // diagram.registerNode('JiraApproval', DiamondNodeWidget)
 // diagram.registerNode('HarnessApproval', DiamondNodeWidget)

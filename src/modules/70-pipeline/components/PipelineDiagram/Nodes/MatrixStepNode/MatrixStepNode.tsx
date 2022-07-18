@@ -31,7 +31,7 @@ const MAX_ALLOWED_MATRIX__COLLAPSED_NODES = 4
 const DEFAULT_MATRIX_PARALLELISM = 1
 
 export const getCalculatedStepNodeStyles = (
-  data: PipelineGraphState[],
+  data: PipelineGraphState<any, any, any>[],
   parallelism: number,
   showAllNodes?: boolean
 ): LayoutStyles => {

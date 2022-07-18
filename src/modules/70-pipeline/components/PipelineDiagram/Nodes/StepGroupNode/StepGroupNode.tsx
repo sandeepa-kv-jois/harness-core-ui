@@ -8,43 +8,76 @@
 import * as React from 'react'
 import cx from 'classnames'
 import { Icon, Layout, Text, Button, ButtonVariation } from '@wings-software/uicore'
-import { Color } from '@harness/design-system'
-import { defaultTo, get } from 'lodash-es'
+import { defaultTo } from 'lodash-es'
 import { Event, DiagramDrag, DiagramType } from '@pipeline/components/Diagram'
 import { STATIC_SERVICE_GROUP_NAME } from '@pipeline/utils/executionUtils'
 import { useStrings } from 'framework/strings'
 import type { ExecutionWrapperConfig } from 'services/pipeline-ng'
-import type { EventStepDataType } from '@pipeline/components/PipelineStudio/StageBuilder/StageBuilderUtil'
+import type {
+  EventStepDataType,
+  EventStepGroupDataType
+} from '@pipeline/components/PipelineStudio/StageBuilder/StageBuilderUtil'
+import type { StepGroupElementConfig } from 'services/cd-ng'
 import StepGroupGraph from '../StepGroupGraph/StepGroupGraph'
 import { NodeProps, NodeType, PipelineStageNodeMetaDataType } from '../../types'
 import SVGMarker from '../SVGMarker'
-import { getPositionOfAddIcon } from '../utils'
+import { getPositionOfAddIcon, hasStepGroupChild } from '../utils'
 import { NodeDimensionProvider } from '../NodeDimensionStore'
+import AddLinkNode from '../DefaultNode/AddLinkNode/AddLinkNode'
 import css from './StepGroupNode.module.scss'
 import defaultCss from '../DefaultNode/DefaultNode.module.scss'
 
-export function StepGroupNode(
-  props: NodeProps<ExecutionWrapperConfig, PipelineStageNodeMetaDataType, EventStepDataType>
+function StepGroupNodeWrapper(
+  props: NodeProps<ExecutionWrapperConfig, PipelineStageNodeMetaDataType, EventStepGroupDataType>
 ): JSX.Element {
   const allowAdd = defaultTo(props.permissions?.allowAdd, false)
   const { getString } = useStrings()
   const [showAdd, setVisibilityOfAdd] = React.useState(false)
-  const [showAddLink, setShowAddLink] = React.useState(false)
+  // const [showAddLink, setShowAddLink] = React.useState(false)
   const [isNodeCollapsed, setNodeCollapsed] = React.useState(false)
   const CreateNode: React.FC<any> | undefined = props?.getNode?.(NodeType.CreateNode)?.component
   const DefaultNode: React.FC<any> | undefined = props?.getDefaultNode()?.component
-  const stepGroupData = defaultTo(props?.data?.stepGroup, props?.data?.step?.data?.stepGroup) || props?.data?.step
-  const stepsData = stepGroupData?.steps
-  const hasStepGroupChild = stepsData?.some((step: { step: { type: string } }) => {
-    const stepType = get(step, 'step.type')
-    return stepType === 'STEP_GROUP'
-  })
 
-  const isNestedStepGroup = Boolean(get(props, 'data.step.data.isNestedGroup'))
+  const stepGroupData = props?.data?.data?.stepGroup
+  //defaultTo(props?.data?.data?.stepGroup, props?.data?.data?.step?.data?.stepGroup) || props?.data?.step
+  const stepsData = stepGroupData?.steps
+
+  const isNestedStepGroup = Boolean(props.data.metaData.isNestedGroup)
+  const isParallelNode = (nodeData: typeof props): boolean => Boolean(nodeData?.metaData?.isParallelNode)
+  const hasChildren = (nodeData: typeof props): boolean => Boolean(defaultTo(nodeData?.data?.children?.length, 0))
 
   React.useEffect(() => {
     props?.updateGraphLinks?.()
   }, [isNodeCollapsed])
+
+  const onDropEvent = (event: React.DragEvent): void => {
+    event.stopPropagation()
+    const nodeData = JSON.parse(event.dataTransfer.getData(DiagramDrag.NodeDrag)) as typeof props
+
+    props?.fireEvent?.({
+      type: Event.DropNodeEvent,
+      target: event.target,
+      data: {
+        nodeType: DiagramType.StepGroupNode,
+        nodeData: {
+          id: nodeData?.data?.id,
+          data: nodeData?.data?.data?.stepGroup,
+          metaData: {
+            hasChildren: hasChildren(nodeData),
+            isParallelNode: isParallelNode(nodeData)
+          }
+        },
+        destinationNode: {
+          id: props?.data?.id,
+          data: props?.data?.data?.stepGroup,
+          metaData: {
+            hasChildren: hasChildren(props),
+            isParallelNode: isParallelNode(props)
+          }
+        }
+      }
+    })
+  }
 
   return (
     <>
@@ -68,11 +101,12 @@ export function StepGroupNode(
               allowAdd && setVisibilityOfAdd(false)
             }}
             onDragLeave={() => allowAdd && setVisibilityOfAdd(false)}
-            style={stepGroupData?.containerCss ? stepGroupData?.containerCss : undefined}
+            // remove container CSS later - derive from data
+            // style={stepGroupData ? stepGroupData?.containerCss : undefined}
             className={cx(
               css.stepGroup,
-              { [css.firstnode]: !props?.isParallelNode },
-              { [css.marginBottom]: props?.isParallelNode },
+              { [css.firstnode]: !isParallelNode(props) },
+              { [css.marginBottom]: isParallelNode(props) },
               { [css.nestedGroup]: isNestedStepGroup },
               { [css.stepGroupParent]: hasStepGroupChild },
               { [css.stepGroupNormal]: !isNestedStepGroup && !hasStepGroupChild }
@@ -137,7 +171,17 @@ export function StepGroupNode(
                     props?.fireEvent?.({
                       type: Event.MouseEnterNode,
                       target: event.target,
-                      data: { ...props }
+                      data: {
+                        nodeType: DiagramType.StepGroupNode,
+                        nodeData: {
+                          id: props?.data?.id,
+                          data: props?.data?.data?.stepGroup as StepGroupElementConfig,
+                          metaData: {
+                            hasChildren: hasChildren(props),
+                            isParallelNode: isParallelNode(props)
+                          }
+                        }
+                      }
                     })
                   }}
                   onMouseLeave={event => {
@@ -146,7 +190,17 @@ export function StepGroupNode(
                     props?.fireEvent?.({
                       type: Event.MouseLeaveNode,
                       target: event.target,
-                      data: { ...props }
+                      data: {
+                        nodeType: DiagramType.StepGroupNode,
+                        nodeData: {
+                          id: props?.data?.id,
+                          data: props?.data?.data?.stepGroup as StepGroupElementConfig,
+                          metaData: {
+                            hasChildren: hasChildren(props),
+                            isParallelNode: isParallelNode(props)
+                          }
+                        }
+                      }
                     })
                   }}
                   lineClamp={1}
@@ -156,7 +210,17 @@ export function StepGroupNode(
                     props?.fireEvent?.({
                       type: Event.StepGroupClicked,
                       target: event.target,
-                      data: { ...props }
+                      data: {
+                        nodeType: DiagramType.StepGroupNode,
+                        nodeData: {
+                          id: props?.data?.id,
+                          data: props?.data?.data?.stepGroup as StepGroupElementConfig,
+                          metaData: {
+                            hasChildren: hasChildren(props),
+                            isParallelNode: isParallelNode(props)
+                          }
+                        }
+                      }
                     })
                   }}
                 >
@@ -168,16 +232,17 @@ export function StepGroupNode(
               <NodeDimensionProvider>
                 <StepGroupGraph
                   {...props}
-                  data={stepsData}
+                  id={props.data?.id}
+                  stepsData={stepsData as ExecutionWrapperConfig[]}
                   isNodeCollapsed={isNodeCollapsed}
                   parentIdentifier={props?.data?.identifier}
                   hideLinks={props?.data?.identifier === STATIC_SERVICE_GROUP_NAME}
                 />
               </NodeDimensionProvider>
             </div>
-            {!props.readonly && props?.data?.identifier !== STATIC_SERVICE_GROUP_NAME && (
+            {!props?.permissions?.readonly && props?.data?.identifier !== STATIC_SERVICE_GROUP_NAME && (
               <Button
-                className={cx(css.closeNode, { [css.readonly]: props.readonly })}
+                className={cx(css.closeNode, { [css.readonly]: props?.permissions?.readonly })}
                 minimal
                 icon="cross"
                 variation={ButtonVariation.PRIMARY}
@@ -186,9 +251,17 @@ export function StepGroupNode(
                   e.stopPropagation()
                   props?.fireEvent?.({
                     type: Event.RemoveNode,
+                    target: e.target,
                     data: {
-                      identifier: props?.data?.identifier,
-                      node: props
+                      nodeType: DiagramType.StepGroupNode,
+                      nodeData: {
+                        id: props?.data?.id,
+                        data: props?.data?.data?.stepGroup as StepGroupElementConfig,
+                        metaData: {
+                          hasChildren: hasChildren(props),
+                          isParallelNode: isParallelNode(props)
+                        }
+                      }
                     }
                   })
                 }}
@@ -196,88 +269,49 @@ export function StepGroupNode(
               />
             )}
           </div>
-          {!props.isParallelNode && !props.readonly && (
-            <div
+          {!isParallelNode(props) && !props?.permissions?.readonly && (
+            <AddLinkNode<StepGroupElementConfig, PipelineStageNodeMetaDataType, EventStepDataType>
+              data={props?.data?.data?.stepGroup as StepGroupElementConfig}
+              id={props?.data?.id}
+              parentIdentifier={props?.metaData?.parentIdentifier}
+              isParallelNode={isParallelNode(props)}
+              readonly={props?.permissions?.readonly}
+              fireEvent={props.fireEvent}
               style={{ left: getPositionOfAddIcon(props) }}
-              data-linkid={props?.data?.identifier}
-              onMouseOver={event => event.stopPropagation()}
-              onClick={event => {
-                event.stopPropagation()
-                props?.fireEvent?.({
-                  type: Event.AddLinkClicked,
-                  target: event.target,
-                  data: {
-                    entityType: DiagramType.Link,
-                    node: props,
-                    parentIdentifier: props?.parentIdentifier,
-                    identifier: props?.data?.identifier
-                  }
-                })
-              }}
-              onDragOver={event => {
-                event.stopPropagation()
-                event.preventDefault()
-                setShowAddLink(true)
-              }}
-              onDragLeave={event => {
-                event.stopPropagation()
-                event.preventDefault()
-                setShowAddLink(false)
-              }}
-              onDrop={event => {
-                event.stopPropagation()
-                setShowAddLink(false)
-                props?.fireEvent?.({
-                  type: Event.DropLinkEvent,
-                  target: event.target,
-                  data: {
-                    linkBeforeStepGroup: false,
-                    entityType: DiagramType.Link,
-                    node: JSON.parse(event.dataTransfer.getData(DiagramDrag.NodeDrag)),
-                    destination: props
-                  }
-                })
-              }}
-              className={cx(defaultCss.addNodeIcon, defaultCss.stepAddIcon, defaultCss.stepGroupAddIcon, {
-                [defaultCss.show]: showAddLink
-              })}
-            >
-              <Icon name="plus" color={Color.WHITE} />
-            </div>
+              className={cx(defaultCss.addNodeIcon, defaultCss.stepAddIcon)}
+            />
           )}
-          {allowAdd && !props.readonly && CreateNode && (
+          {allowAdd && !props?.permissions?.readonly && CreateNode && (
             <CreateNode
+              {...props}
               className={cx(
                 defaultCss.addNode,
                 { [defaultCss.visible]: showAdd },
-                { [defaultCss.marginBottom]: props?.isParallelNode }
+                { [defaultCss.marginBottom]: isParallelNode(props) }
               )}
               onMouseOver={() => allowAdd && setVisibilityOfAdd(true)}
               onMouseLeave={() => allowAdd && setVisibilityOfAdd(false)}
-              onDrop={(event: any) => {
-                props?.fireEvent?.({
-                  type: Event.DropNodeEvent,
-                  data: {
-                    nodeType: DiagramType.Default,
-                    node: JSON.parse(event.dataTransfer.getData(DiagramDrag.NodeDrag)),
-                    destination: props
-                  }
-                })
-              }}
-              onClick={(event: any): void => {
+              onDrop={onDropEvent}
+              onClick={(event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
                 event.stopPropagation()
                 props?.fireEvent?.({
                   type: Event.AddParallelNode,
                   target: event.target,
                   data: {
-                    identifier: props?.data?.identifier,
-                    parentIdentifier: props?.parentIdentifier,
-                    entityType: DiagramType.StepGroupNode,
-                    node: props
+                    nodeType: DiagramType.StepGroupNode,
+                    parentIdentifier: props?.metaData?.parentIdentifier,
+                    nodeData: {
+                      id: props?.data?.id,
+                      data: props?.data?.data?.stepGroup,
+                      metaData: {
+                        hasChildren: hasChildren(props),
+                        isParallelNode: isParallelNode(props)
+                      }
+                    }
                   }
                 })
               }}
-              name={''}
+              id={props?.data?.id}
               hidden={!showAdd}
             />
           )}
@@ -286,3 +320,7 @@ export function StepGroupNode(
     </>
   )
 }
+const StepGroupNode: React.FC<
+  NodeProps<ExecutionWrapperConfig, PipelineStageNodeMetaDataType, EventStepGroupDataType>
+> = StepGroupNodeWrapper
+export default StepGroupNode

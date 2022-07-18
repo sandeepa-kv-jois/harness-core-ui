@@ -639,6 +639,7 @@ ProcessGroupItemArgs): void => {
               icon: StepTypeIconsMap.STEP_GROUP,
               steps,
               status: nodeData?.status as ExecutionStatus,
+              // remove as derived in node comp
               containerCss: {
                 ...(isRollbackNext ? RollbackContainerCss : {})
               }
