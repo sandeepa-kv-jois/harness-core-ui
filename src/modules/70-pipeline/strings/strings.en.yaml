@@ -81,7 +81,7 @@ utilitiesStep:
   url: Enter the URL
   requestBody: Enter the message body
   assertion: Enter Assertion
-  to: Enter recepient email
+  to: Enter recipient email
   subject: Enter the email subject
   cc: Cc
 terraformStep:
