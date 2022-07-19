@@ -559,9 +559,9 @@ export const createAppDFormData = (
     metricIdentifier,
     ignoreThresholds: [
       {
-        metricType: 'performance',
+        metricType: 'Performance',
         transaction: 'register',
-        metric: 'averageWaitTime',
+        metric: 'calls_per_minute',
         criteria: {
           spec: {
             type: 'percentage',

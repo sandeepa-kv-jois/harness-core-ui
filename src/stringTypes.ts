@@ -6276,10 +6276,10 @@ export interface StringsMap {
   'cv.monitoringSources.appD.appdPathDetail': string
   'cv.monitoringSources.appD.appdPathTitle': string
   'cv.monitoringSources.appD.applicationName': string
-  'cv.monitoringSources.appD.basePathPlaceholder': string
-  'cv.monitoringSources.appD.completeMetricPath': string
   'cv.monitoringSources.appD.averageWaitTime': string
+  'cv.monitoringSources.appD.basePathPlaceholder': string
   'cv.monitoringSources.appD.callsPerMinute': string
+  'cv.monitoringSources.appD.completeMetricPath': string
   'cv.monitoringSources.appD.connectToMonitoringSource': string
   'cv.monitoringSources.appD.createConnectorText': string
   'cv.monitoringSources.appD.customMetric': string

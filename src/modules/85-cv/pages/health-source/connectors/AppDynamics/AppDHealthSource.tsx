@@ -415,7 +415,7 @@ export default function AppDMonitoredSource({
                 </Button>
               </CardWithOuterTitle>
             )}
-            <AppDMetricThreshold formikValues={formik.values} />
+            <AppDMetricThreshold formikValues={formik.values} formik={formik} metricPacks={selectedMetricPacks} />
             <DrawerFooter
               isSubmit
               onPrevious={onPrevious}

@@ -8,7 +8,13 @@ export const AppDMetricThresholdContext = React.createContext<AppDMetricThreshol
   {} as AppDMetricThresholdContextType
 )
 
-export default function AppDMetricThreshold({ formikValues }: AppDMetricThresholdPropsType): JSX.Element {
+AppDMetricThresholdContext.displayName = 'AppDMetricThresholdContext'
+
+export default function AppDMetricThreshold({
+  formikValues,
+  metricPacks,
+  formik
+}: AppDMetricThresholdPropsType): JSX.Element {
   const { getString } = useStrings()
   return (
     <Container margin={{ bottom: 'huge' }} padding="large">
@@ -17,7 +23,7 @@ export default function AppDMetricThreshold({ formikValues }: AppDMetricThreshol
           id="advancedAppD"
           summary={getString('cv.monitoringSources.appD.advancedOptional')}
           details={
-            <AppDMetricThresholdContext.Provider value={{ formikValues }}>
+            <AppDMetricThresholdContext.Provider value={{ formikValues, metricPacks, formik }}>
               <AppDMetricThresholdContent />
             </AppDMetricThresholdContext.Provider>
           }
