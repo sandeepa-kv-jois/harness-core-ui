@@ -58,6 +58,7 @@ import formatCost from './utils/formatCost'
 import BusinessMapping from './pages/business-mapping/BusinessMapping'
 import ECSRecommendationDetailsPage from './pages/ecs-recommendation-details/ECSRecommendationDetailsPage'
 import OverviewAddCluster from './components/OverviewPage/OverviewAddCluster'
+import BIDashboard from './pages/bi-dashboards/BIDashboard'
 
 featureFactory.registerFeaturesByModule('ce', {
   features: [FeatureIdentifier.PERSPECTIVES],
@@ -552,6 +553,16 @@ const CERoutes: React.FC = () => {
         >
           <BusinessMapping />
         </RouteWithLayout>
+        <RouteWithLayout
+          licenseRedirectData={licenseRedirectData}
+          sidebarProps={CESideNavProps}
+          path={routes.toCEDashboards({ ...accountPathProps })}
+          exact
+          pageName={PAGE_NAME.CEDashboards}
+        >
+          <BIDashboard />
+        </RouteWithLayout>
+
         <RouteWithLayout
           licenseRedirectData={licenseRedirectData}
           sidebarProps={CESideNavProps}

@@ -1,0 +1,18 @@
+.header {
+  padding: var(--spacing-medium) var(--spacing-large) !important;
+  border-bottom: 1px solid var(--grey-200);
+  background: var(--white) !important;
+}
+
+.pageBodyWrapper {
+  padding: 0 150px !important;
+}
+
+.bannerWrapper {
+  padding: var(--spacing-medium) var(--spacing-large) !important;
+}
+
+.banner {
+  padding: var(--spacing-medium) !important;
+  background-color: var(--blue-50) !important;
+}

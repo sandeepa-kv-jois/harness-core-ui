@@ -113,6 +113,7 @@ export enum PAGE_NAME {
   CENodeDetailsPage = 'CENodeDetailsPage',
   CEAnomaliesOverviewPage = 'CEAnomaliesOverviewPage',
   CEBusinessMapping = 'CEBusinessMapping',
+  CEDashboards = 'CEDashboards',
   ErrorTrackingListPage = 'ErrorTrackingListPage',
   OPAPolicyDashboard = 'OPAPolicyDashboard'
 }

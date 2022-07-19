@@ -18,7 +18,8 @@ import {
   Page,
   Icon,
   IconName,
-  ExpandingSearchInputHandle
+  ExpandingSearchInputHandle,
+  Checkbox
 } from '@wings-software/uicore'
 import { Color, FontVariation } from '@harness/design-system'
 import { defaultTo, pick } from 'lodash-es'
@@ -142,12 +143,16 @@ interface QuickFiltersProps {
   countInfo: Record<string, number>
   setQuickFilters: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
   quickFilters: Record<string, boolean>
+  showCount?: boolean
+  showDefault?: boolean
 }
 
-const QuickFilters: (props: QuickFiltersProps) => JSX.Element | null = ({
+export const QuickFilters: (props: QuickFiltersProps) => JSX.Element | null = ({
   countInfo,
   quickFilters,
-  setQuickFilters
+  setQuickFilters,
+  showCount = true,
+  showDefault = true
 }) => {
   const FilterPill: (props: { count: number; icon: IconName; name: ViewFieldIdentifier | ViewType }) => JSX.Element = ({
     count,
@@ -170,29 +175,32 @@ const QuickFilters: (props: QuickFiltersProps) => JSX.Element | null = ({
           setQuickFilters(selectedFilters)
         }}
       >
+        {!showCount && <Checkbox checked={isSelected} />}
         {isSelected ? <Icon color={Color.WHITE} name={icon} /> : <Icon name={icon} />}
-        <Text
-          padding={{
-            left: 'small',
-            right: 'small'
-          }}
-          margin={{
-            left: 'xsmall'
-          }}
-          font={{ variation: FontVariation.FORM_LABEL }}
-          color={Color.GREY_600}
-          className={css.count}
-          background={Color.WHITE}
-        >
-          {count}
-        </Text>
+        {showCount && (
+          <Text
+            padding={{
+              left: 'small',
+              right: 'small'
+            }}
+            margin={{
+              left: 'xsmall'
+            }}
+            font={{ variation: FontVariation.FORM_LABEL }}
+            color={Color.GREY_600}
+            className={css.count}
+            background={Color.WHITE}
+          >
+            {count}
+          </Text>
+        )}
       </Container>
     )
   }
 
   return (
     <Layout.Horizontal spacing="small">
-      <FilterPill name={ViewType.Default} count={countInfo[ViewType.Default]} icon={'harness'} />
+      {showDefault && <FilterPill name={ViewType.Default} count={countInfo[ViewType.Default]} icon={'harness'} />}
       <FilterPill
         name={ViewFieldIdentifier.Cluster}
         count={countInfo[ViewFieldIdentifier.Cluster]}
