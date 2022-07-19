@@ -1519,7 +1519,12 @@ export interface CcmConnectorFilter {
   azureTenantId?: string
   featuresEnabled?: ('BILLING' | 'OPTIMIZATION' | 'VISIBILITY')[]
   gcpProjectId?: string
-  k8sConnectorRef?: string
+  k8sConnectorRef?: string[]
+}
+
+export interface CcmK8sConnectorResponse {
+  ccmk8sConnector?: ConnectorResponse[]
+  k8sConnector?: ConnectorResponse
 }
 
 export interface CeLicenseInfo {
@@ -6946,6 +6951,16 @@ export interface PageApiKeyAggregateDTO {
   totalPages?: number
 }
 
+export interface PageCcmK8sConnectorResponse {
+  content?: CcmK8sConnectorResponse[]
+  empty?: boolean
+  pageIndex?: number
+  pageItemCount?: number
+  pageSize?: number
+  totalItems?: number
+  totalPages?: number
+}
+
 export interface PageClusterFromGitops {
   content?: ClusterFromGitops[]
   empty?: boolean
@@ -9312,6 +9327,13 @@ export interface ResponsePageActivitySummary {
 export interface ResponsePageApiKeyAggregateDTO {
   correlationId?: string
   data?: PageApiKeyAggregateDTO
+  metaData?: { [key: string]: any }
+  status?: 'SUCCESS' | 'FAILURE' | 'ERROR'
+}
+
+export interface ResponsePageCcmK8sConnectorResponse {
+  correlationId?: string
+  data?: PageCcmK8sConnectorResponse
   metaData?: { [key: string]: any }
   status?: 'SUCCESS' | 'FAILURE' | 'ERROR'
 }
@@ -12149,6 +12171,8 @@ export type ApiKeyDTORequestBody = ApiKeyDTO
 export type CFParametersForAwsBodyRequestBody = string
 
 export type ConnectorRequestBody = Connector
+
+export type ConnectorFilterPropertiesRequestBody = ConnectorFilterProperties
 
 export type CustomerDTORequestBody = CustomerDTO
 
@@ -19450,6 +19474,94 @@ export const getConnectorCataloguePromise = (
     signal
   )
 
+export interface GetCCMK8SConnectorListQueryParams {
+  pageIndex?: number
+  pageSize?: number
+  accountIdentifier?: string
+  searchTerm?: string
+  orgIdentifier?: string
+  projectIdentifier?: string
+  filterIdentifier?: string
+  includeAllConnectorsAvailableAtScope?: boolean
+  branch?: string
+  repoIdentifier?: string
+  getDefaultFromOtherRepo?: boolean
+  getDistinctFromBranches?: boolean
+}
+
+export type GetCCMK8SConnectorListProps = Omit<
+  MutateProps<
+    ResponsePageCcmK8sConnectorResponse,
+    Failure | Error,
+    GetCCMK8SConnectorListQueryParams,
+    ConnectorFilterPropertiesRequestBody,
+    void
+  >,
+  'path' | 'verb'
+>
+
+/**
+ * Gets CCMK8S Connector list
+ */
+export const GetCCMK8SConnectorList = (props: GetCCMK8SConnectorListProps) => (
+  <Mutate<
+    ResponsePageCcmK8sConnectorResponse,
+    Failure | Error,
+    GetCCMK8SConnectorListQueryParams,
+    ConnectorFilterPropertiesRequestBody,
+    void
+  >
+    verb="POST"
+    path={`/connectors/ccmK8sList`}
+    base={getConfig('ng/api')}
+    {...props}
+  />
+)
+
+export type UseGetCCMK8SConnectorListProps = Omit<
+  UseMutateProps<
+    ResponsePageCcmK8sConnectorResponse,
+    Failure | Error,
+    GetCCMK8SConnectorListQueryParams,
+    ConnectorFilterPropertiesRequestBody,
+    void
+  >,
+  'path' | 'verb'
+>
+
+/**
+ * Gets CCMK8S Connector list
+ */
+export const useGetCCMK8SConnectorList = (props: UseGetCCMK8SConnectorListProps) =>
+  useMutate<
+    ResponsePageCcmK8sConnectorResponse,
+    Failure | Error,
+    GetCCMK8SConnectorListQueryParams,
+    ConnectorFilterPropertiesRequestBody,
+    void
+  >('POST', `/connectors/ccmK8sList`, { base: getConfig('ng/api'), ...props })
+
+/**
+ * Gets CCMK8S Connector list
+ */
+export const getCCMK8SConnectorListPromise = (
+  props: MutateUsingFetchProps<
+    ResponsePageCcmK8sConnectorResponse,
+    Failure | Error,
+    GetCCMK8SConnectorListQueryParams,
+    ConnectorFilterPropertiesRequestBody,
+    void
+  >,
+  signal?: RequestInit['signal']
+) =>
+  mutateUsingFetch<
+    ResponsePageCcmK8sConnectorResponse,
+    Failure | Error,
+    GetCCMK8SConnectorListQueryParams,
+    ConnectorFilterPropertiesRequestBody,
+    void
+  >('POST', getConfig('ng/api'), `/connectors/ccmK8sList`, props, signal)
+
 export interface GetAllAllowedFieldValuesQueryParams {
   accountIdentifier?: string
   connectorType:
@@ -19611,7 +19723,7 @@ export type GetConnectorListV2Props = Omit<
     ResponsePageConnectorResponse,
     Failure | Error,
     GetConnectorListV2QueryParams,
-    ConnectorFilterProperties,
+    ConnectorFilterPropertiesRequestBody,
     void
   >,
   'path' | 'verb'
@@ -19625,7 +19737,7 @@ export const GetConnectorListV2 = (props: GetConnectorListV2Props) => (
     ResponsePageConnectorResponse,
     Failure | Error,
     GetConnectorListV2QueryParams,
-    ConnectorFilterProperties,
+    ConnectorFilterPropertiesRequestBody,
     void
   >
     verb="POST"
@@ -19640,7 +19752,7 @@ export type UseGetConnectorListV2Props = Omit<
     ResponsePageConnectorResponse,
     Failure | Error,
     GetConnectorListV2QueryParams,
-    ConnectorFilterProperties,
+    ConnectorFilterPropertiesRequestBody,
     void
   >,
   'path' | 'verb'
@@ -19654,7 +19766,7 @@ export const useGetConnectorListV2 = (props: UseGetConnectorListV2Props) =>
     ResponsePageConnectorResponse,
     Failure | Error,
     GetConnectorListV2QueryParams,
-    ConnectorFilterProperties,
+    ConnectorFilterPropertiesRequestBody,
     void
   >('POST', `/connectors/listV2`, { base: getConfig('ng/api'), ...props })
 
@@ -19666,7 +19778,7 @@ export const getConnectorListV2Promise = (
     ResponsePageConnectorResponse,
     Failure | Error,
     GetConnectorListV2QueryParams,
-    ConnectorFilterProperties,
+    ConnectorFilterPropertiesRequestBody,
     void
   >,
   signal?: RequestInit['signal']
@@ -19675,7 +19787,7 @@ export const getConnectorListV2Promise = (
     ResponsePageConnectorResponse,
     Failure | Error,
     GetConnectorListV2QueryParams,
-    ConnectorFilterProperties,
+    ConnectorFilterPropertiesRequestBody,
     void
   >('POST', getConfig('ng/api'), `/connectors/listV2`, props, signal)
 
