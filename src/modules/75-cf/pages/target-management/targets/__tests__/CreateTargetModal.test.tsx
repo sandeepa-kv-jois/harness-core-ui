@@ -79,11 +79,12 @@ describe('CreateTargetModal', () => {
     )
 
     await act(async () => {
-      fireEvent.click(
-        document.querySelector(
-          '.bp3-portal [style*="height"] > button[type="button"][class*="intent-primary"]'
-        ) as HTMLButtonElement
-      )
+      userEvent.click(screen.getByRole('button', { name: 'add' }))
+      // fireEvent.click(
+      //   document.querySelector(
+      //     '.bp3-portal [style*="height"] > button[type="button"][class*="intent-primary"]'
+      //   ) as HTMLButtonElement
+      // )
     })
     expect(onSubmitTargets).toBeCalledTimes(1)
   })

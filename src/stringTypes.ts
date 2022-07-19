@@ -5735,11 +5735,14 @@ export interface StringsMap {
   'cf.targets.deleteTarget': string
   'cf.targets.deleteTargetMessage': string
   'cf.targets.deleteTargetSuccess': string
+  'cf.targets.duplicateId': string
   'cf.targets.enterName': string
   'cf.targets.enterValue': string
+  'cf.targets.idRequired': string
   'cf.targets.lastActivity': string
   'cf.targets.list': string
   'cf.targets.name': string
+  'cf.targets.nameRequired': string
   'cf.targets.noSegmentFound': string
   'cf.targets.noTargetDescription': string
   'cf.targets.noTargetForEnv': string

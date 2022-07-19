@@ -277,6 +277,7 @@ flagFilters:
 targets:
   ID: '{{ $.common.ID }}'
   name: name
+  nameRequired: Target name is required
   targetSegment: Target Group
   lastActivity: '{{ $.lastActivity }}'
   createdDate: Created Date
@@ -301,6 +302,8 @@ targets:
   uploadError: CSV processing failed
   noTargetForEnv: There are no Targets in this Environment
   noTargetDescription: <a href="https://docs.harness.io/article/dbk9uoaid3-add-targets#step_add_a_target" target="_blank" rel="noreferrer">Targets</a> are individual evaluations of Flags based on attributes you define in our SDKs. For instance, a Target can be a single customer or account that toggle a Flag.
+  idRequired: Target identifier is required
+  duplicateId: A Target with this identifier already exists. Try another identifier
 targetDetail:
   title: 'Targets: Individual'
   environmentLine: '<strong>Environment</strong>: {{name}}'

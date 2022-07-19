@@ -6,21 +6,24 @@
  */
 
 import React, { useState } from 'react'
+import * as yup from 'yup'
 import {
   Button,
   ButtonVariation,
   Container,
   FlexExpander,
+  FormikForm,
+  FormInput,
   Layout,
   SimpleTagInput,
-  Text,
-  TextInput
+  Text
 } from '@harness/uicore'
+import { Form, Formik, FieldArray, FormikProps } from 'formik'
 import { useModalHook } from '@harness/use-modal'
 import { Color } from '@harness/design-system'
 import { Dialog, Radio, RadioGroup, Spinner } from '@blueprintjs/core'
 import type { StringKeys } from 'framework/strings'
-import { useStrings } from 'framework/strings'
+import { String, useStrings } from 'framework/strings'
 import RbacButton from '@rbac/components/Button/Button'
 import { ResourceType } from '@rbac/interfaces/ResourceType'
 import { PermissionIdentifier } from '@rbac/interfaces/PermissionIdentifier'
@@ -36,19 +39,22 @@ export type TargetData = Pick<Target, 'name' | 'identifier'>
 const emptyTarget = (): TargetData => ({ name: '', identifier: '' })
 
 interface TargetListProps {
+  formikProps: FormikProps<any>
   onAdd: () => void
   onRemove: (index: number) => void
   onChange: (idx: number, newData: TargetData) => void
   targets: TargetData[]
 }
 
-const TargetList: React.FC<TargetListProps> = ({ targets, onAdd, onRemove, onChange }) => {
+const TargetList: React.FC<TargetListProps> = ({ onAdd, onRemove, onChange, formikProps }) => {
+  const {
+    values: { targets }
+  } = formikProps || {}
   const { getString } = useStrings()
   const handleChange = (idx: number, attr: keyof TargetData) => (e: any) => {
     onChange(idx, { ...targets[idx], [attr]: e.target.value })
   }
   const fieldWidth = 285
-
   return (
     <Layout.Vertical spacing="xsmall" margin={{ top: 'small', bottom: 'medium' }} style={{ paddingLeft: '28px' }}>
       <Layout.Horizontal spacing="small">
@@ -60,57 +66,69 @@ const TargetList: React.FC<TargetListProps> = ({ targets, onAdd, onRemove, onCha
         </Text>
         <FlexExpander />
       </Layout.Horizontal>
-      {targets.map((target: TargetData, idx: number) => {
-        const lastItem = idx === targets.length - 1
+      <Form>
+        <FieldArray
+          name="targets"
+          render={arrayHelpers => (
+            <>
+              {targets.map((idx: number) => {
+                const lastItem = idx === targets.length - 1
+                return (
+                  <Layout.Horizontal key={idx + '-target-row'} spacing="small">
+                    <FormInput.Text
+                      placeholder={getString('cf.targets.enterName')}
+                      onChange={handleChange(idx, 'name')}
+                      style={{ width: `${fieldWidth}px` }}
+                      name={`targets.${idx}.name`}
+                    />
+                    <FormInput.Text
+                      placeholder={getString('cf.targets.enterValue')}
+                      onChange={handleChange(idx, 'identifier')}
+                      style={{ width: `${fieldWidth}px` }}
+                      name={`targets.${idx}.identifier`}
+                    />
 
-        return (
-          <Layout.Horizontal key={idx + '-target-row'} spacing="small">
-            <TextInput
-              placeholder={getString('cf.targets.enterName')}
-              value={target.name}
-              onChange={handleChange(idx, 'name')}
-              style={{ width: `${fieldWidth}px` }}
-            />
-            <TextInput
-              placeholder={getString('cf.targets.enterValue')}
-              value={target.identifier}
-              onChange={handleChange(idx, 'identifier')}
-              style={{ width: `${fieldWidth}px` }}
-            />
-            {lastItem && idx !== 0 && (
-              <Button
-                minimal
-                intent="primary"
-                icon={'minus'}
-                iconProps={{
-                  size: 16,
-                  style: { alignSelf: 'center' }
-                }}
-                onClick={() => {
-                  onRemove(idx)
-                }}
-              />
-            )}
-            <Button
-              minimal
-              intent="primary"
-              icon={lastItem ? 'plus' : 'minus'}
-              iconProps={{
-                size: 16,
-                style: { alignSelf: 'center' }
-              }}
-              onClick={
-                lastItem
-                  ? onAdd
-                  : () => {
-                      onRemove(idx)
-                    }
-              }
-              style={{ transform: `translateX(${lastItem && idx ? -10 : 0}px)` }}
-            />
-          </Layout.Horizontal>
-        )
-      })}
+                    {lastItem && idx !== 0 && (
+                      <Button
+                        minimal
+                        intent="primary"
+                        icon={'minus'}
+                        iconProps={{
+                          size: 16,
+                          style: { alignSelf: 'center' }
+                        }}
+                        onClick={() => {
+                          onRemove(idx)
+                        }}
+                      />
+                    )}
+                    <Button
+                      minimal
+                      intent="primary"
+                      icon={lastItem ? 'plus' : 'minus'}
+                      iconProps={{
+                        size: 16,
+                        style: { alignSelf: 'center' }
+                      }}
+                      onClick={
+                        lastItem
+                          ? () => {
+                              onAdd
+                              arrayHelpers.push(emptyTarget())
+                            }
+                          : () => {
+                              onRemove(idx)
+                            }
+                      }
+                      style={{ transform: `translateX(${lastItem && idx ? -10 : 0}px)` }}
+                    />
+                  </Layout.Horizontal>
+                )
+              })}
+            </>
+          )}
+        />
+      </Form>
     </Layout.Vertical>
   )
 }
@@ -209,12 +227,18 @@ const filterTargets = (targets: TargetData[]): TargetData[] =>
   targets.filter(t => t.name?.length && t.identifier?.length)
 
 export interface CreateTargetModalProps {
+  existingTargets: Target[]
   loading: boolean
   onSubmitTargets: (targets: TargetData[], hideModal: () => void) => void
   onSubmitTargetFile: (file: File, hideModal: () => void) => void
 }
 
-const CreateTargetModal: React.FC<CreateTargetModalProps> = ({ loading, onSubmitTargets, onSubmitTargetFile }) => {
+const CreateTargetModal: React.FC<CreateTargetModalProps> = ({
+  loading,
+  onSubmitTargets,
+  onSubmitTargetFile,
+  existingTargets
+}) => {
   const LIST = 'list'
   const UPLOAD = 'upload'
   const [isList, setIsList] = useState(true)
@@ -285,6 +309,15 @@ const CreateTargetModal: React.FC<CreateTargetModalProps> = ({ loading, onSubmit
     hideModal()
   }
 
+  const initialValues = { targets: [{ name: '', identifier: '' }] }
+
+  const duplicateIdCheck = (identifier: string): boolean => {
+    if (existingTargets.length && existingTargets?.some(target => target.identifier === identifier)) {
+      return false
+    }
+    return true
+  }
+
   const [openModal, hideModal] = useModalHook(() => {
     return (
       <Dialog
@@ -294,54 +327,84 @@ const CreateTargetModal: React.FC<CreateTargetModalProps> = ({ loading, onSubmit
         title={getString('cf.targets.addTargetsLabel')}
         className={css.modal}
       >
-        <Layout.Vertical padding="medium" height={450}>
-          <Container style={{ flexGrow: 1, overflow: 'auto' }} padding={{ top: 'small' }}>
-            <RadioGroup name="modalVariant" selectedValue={isList ? LIST : UPLOAD} onChange={handleChange}>
-              <Radio name="modalVariant" label={getPageString('list')} value={LIST} />
-              {isList && (
-                <TargetList
-                  targets={targets}
-                  onAdd={handleTargetAdd}
-                  onRemove={handleTargetRemove}
-                  onChange={handleTargetChange}
-                />
-              )}
-              <Radio name="modalVariant" label={getPageString('upload')} value={UPLOAD} />
-              {!isList && (
-                <Layout.Vertical spacing="small">
-                  <Text style={{ padding: 'var(--spacing-xsmall) var(--spacing-xsmall) var(--spacing-xsmall) 27px' }}>
-                    <span dangerouslySetInnerHTML={{ __html: getString('cf.targets.uploadHeadline') }} />
-                    <Text
-                      rightIcon="question"
-                      inline
-                      tooltip={getString('cf.targets.uploadHelp')}
-                      style={{ transform: 'translateY(2px)', cursor: 'pointer' }}
-                    />
-                  </Text>
-                  <FileUpload onChange={file => setTargetFile(file)} />
-                </Layout.Vertical>
-              )}
-            </RadioGroup>
-          </Container>
-          {/* Buttons */}
-          <Layout.Horizontal height={34} spacing="small">
-            <Button
-              variation={ButtonVariation.PRIMARY}
-              disabled={addDisabled || loading}
-              text={getString('add')}
-              intent="primary"
-              onClick={handleSubmit}
-            />
-            <Button
-              variation={ButtonVariation.TERTIARY}
-              disabled={loading}
-              text={getString('cancel')}
-              minimal
-              onClick={handleCancel}
-            />
-            {loading && <Spinner size={16} />}
-          </Layout.Horizontal>
-        </Layout.Vertical>
+        <Formik
+          initialValues={initialValues}
+          formName="addTargeteDialog"
+          validationSchema={yup.object().shape({
+            targets: yup.array().of(
+              yup.object().shape({
+                name: yup.string().trim().required(getString('cf.targets.nameRequired')),
+                identifier: yup
+                  .string()
+                  .trim()
+                  .required(getString('cf.targets.idRequired'))
+                  .test('Unique', getString('cf.targets.duplicateId'), identifier => {
+                    return duplicateIdCheck(identifier)
+                  })
+              })
+            )
+          })}
+          onSubmit={handleSubmit}
+          onReset={handleCancel}
+        >
+          {formikProps => (
+            <FormikForm>
+              <Layout.Vertical padding="medium" height={450}>
+                <Container style={{ flexGrow: 1, overflow: 'auto' }} padding={{ top: 'small' }}>
+                  <RadioGroup name="modalVariant" selectedValue={isList ? LIST : UPLOAD} onChange={handleChange}>
+                    <Radio name="modalVariant" label={getPageString('list')} value={LIST} />
+                    {isList && (
+                      <TargetList
+                        formikProps={formikProps}
+                        targets={targets}
+                        onAdd={handleTargetAdd}
+                        onRemove={handleTargetRemove}
+                        onChange={handleTargetChange}
+                      />
+                    )}
+
+                    <Radio name="modalVariant" label={getPageString('upload')} value={UPLOAD} />
+                    {!isList && (
+                      <Layout.Vertical spacing="small">
+                        <Text
+                          style={{
+                            padding: 'var(--spacing-xsmall) var(--spacing-xsmall) var(--spacing-xsmall) 27px'
+                          }}
+                        >
+                          <String useRichText stringID="cf.targets.uploadHeadline" />
+                          <Text
+                            rightIcon="question"
+                            inline
+                            tooltip={getString('cf.targets.uploadHelp')}
+                            style={{ transform: 'translateY(2px)', cursor: 'pointer' }}
+                          />
+                        </Text>
+                        <FileUpload onChange={file => setTargetFile(file)} />
+                      </Layout.Vertical>
+                    )}
+                  </RadioGroup>
+                </Container>
+                <Layout.Horizontal height={34} spacing="small">
+                  <Button
+                    variation={ButtonVariation.PRIMARY}
+                    disabled={loading}
+                    text={getString('add')}
+                    intent="primary"
+                    type="submit"
+                  />
+                  <Button
+                    variation={ButtonVariation.TERTIARY}
+                    disabled={loading}
+                    text={getString('cancel')}
+                    minimal
+                    type="reset"
+                  />
+                  {loading && <Spinner size={16} />}
+                </Layout.Horizontal>
+              </Layout.Vertical>
+            </FormikForm>
+          )}
+        </Formik>
       </Dialog>
     )
   }, [isList, targets, loading, addDisabled])
