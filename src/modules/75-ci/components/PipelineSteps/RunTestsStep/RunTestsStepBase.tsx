@@ -17,7 +17,8 @@ import {
   CodeBlock,
   Container,
   Layout,
-  SelectOption
+  SelectOption,
+  AllowedTypes
 } from '@wings-software/uicore'
 import { Color } from '@harness/design-system'
 import type { FormikProps } from 'formik'
@@ -63,7 +64,7 @@ interface FieldRenderProps {
   name: string
   fieldLabelKey: keyof StringsMap
   tooltipId: string
-  allowableTypes: MultiTypeInputType[]
+  allowableTypes: AllowedTypes
   placeholder?: string
   renderOptionalSublabel?: boolean
   selectFieldOptions?: SelectOption[]
@@ -382,8 +383,8 @@ export const RunTestsStepBase = (
       tooltipId?: string
       labelKey: keyof StringsMap
       placeholderKey?: keyof StringsMap
-      allowedTypes: MultiTypeInputType[]
-      allowedTypesForEntries: MultiTypeInputType[]
+      allowedTypes: AllowedTypes
+      allowedTypesForEntries: AllowedTypes
       restrictToSingleEntry?: boolean
     } & ConnectorReferenceProps) => (
       <MultiTypeList

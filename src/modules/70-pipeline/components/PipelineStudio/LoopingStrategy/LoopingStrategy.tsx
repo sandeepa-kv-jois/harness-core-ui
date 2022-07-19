@@ -18,7 +18,7 @@ import {
   Text,
   useToggleOpen
 } from '@harness/uicore'
-import { clone, defaultTo, noop } from 'lodash-es'
+import { clone, defaultTo, isEqual, noop } from 'lodash-es'
 import type { FormikProps } from 'formik'
 import { Color, FontVariation } from '@harness/design-system'
 import cx from 'classnames'
@@ -71,23 +71,38 @@ export function LoopingStrategy({
     open: openToggleTypeConfirmation,
     close: closeToggleTypeConfirmation
   } = useToggleOpen()
-
+  const timerRef = React.useRef<null | number>(null)
+  const onUpdateStrategyRef = React.useRef(onUpdateStrategy)
   const initialSelectedStrategy = Object.keys(defaultTo(strategy, {}))[0] as LoopingStrategyEnum
 
   React.useEffect(() => {
-    const timer = window.setInterval(() => {
-      try {
-        const newValues: StrategyConfig = parse(defaultTo(/* istanbul ignore next */ yamlHandler?.getLatestYaml(), ''))
-        onUpdateStrategy(newValues)
-      } catch (_e) {
-        // this catch intentionally left empty
-      }
-    }, 1000)
+    onUpdateStrategyRef.current = onUpdateStrategy
+  }, [onUpdateStrategy])
+
+  React.useEffect(() => {
+    if (yamlHandler) {
+      timerRef.current = window.setInterval(() => {
+        try {
+          const newValues: StrategyConfig = parse(
+            defaultTo(/* istanbul ignore next */ yamlHandler?.getLatestYaml(), '')
+          )
+          // only update when not equal to avoid frequent re-renders
+          if (!isEqual(newValues, strategy)) {
+            onUpdateStrategyRef.current(newValues)
+          }
+        } catch (_e) {
+          // this catch intentionally left empty
+        }
+      }, 1000)
+    }
 
     return () => {
-      window.clearInterval(timer)
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current)
+        timerRef.current = null
+      }
     }
-  }, [onUpdateStrategy, yamlHandler])
+  }, [yamlHandler, strategy])
 
   const onChangeStrategy = (newStrategy: LoopingStrategyEnum, formikProps: FormikProps<StrategyConfig>): void => {
     const callback = (): void => {

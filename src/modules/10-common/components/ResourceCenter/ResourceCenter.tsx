@@ -14,7 +14,7 @@ import _refiner from 'refiner-js'
 import { Drawer, Position } from '@blueprintjs/core'
 import cx from 'classnames'
 import { useAppStore } from 'framework/AppStore/AppStoreContext'
-import { useStrings } from 'framework/strings'
+import { useStrings, String } from 'framework/strings'
 import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
 import { useGetCommunity } from '@common/utils/utils'
 import { getButton } from './ResourceCenterUtil'
@@ -104,17 +104,21 @@ export const ResourceCenter = (): React.ReactElement => {
 
   if (!show) {
     return (
-      <Icon
-        name={'nav-help'}
-        onClick={e => {
-          e.stopPropagation()
-          e.preventDefault()
-          setShow(true)
-        }}
-        size={30}
-        data-testid="question"
-        className={css.helpCenterIcon}
-      />
+      <Layout.Vertical flex spacing="xsmall" className={css.helpCenterIcon}>
+        <Icon
+          name={'nav-help'}
+          onClick={e => {
+            e.stopPropagation()
+            e.preventDefault()
+            setShow(true)
+          }}
+          size={20}
+          data-testid="question"
+        />
+        <Text font={{ size: 'xsmall', align: 'center' }} color={Color.WHITE}>
+          <String stringID="common.help" />
+        </Text>
+      </Layout.Vertical>
     )
   }
 

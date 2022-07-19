@@ -91,7 +91,7 @@ const HomePage: React.FC = () => {
     },
     {
       label: getString('dashboards.dashboardSortingOptions.recentlyViewed'),
-      value: 'last_viewed_at desc'
+      value: 'last_accessed_at desc'
     },
     {
       label: getString('dashboards.dashboardSortingOptions.recentlyCreated'),

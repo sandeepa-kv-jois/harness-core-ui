@@ -1,6 +1,7 @@
 secrets: Secrets
 home: Home
 welcome: Welcome
+help: Help
 dashboards: Dashboards
 setup: Setup
 agent: Agent
