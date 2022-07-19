@@ -15,7 +15,7 @@ import CreateTargetModal, { TargetData } from './CreateTargetModal'
 
 export interface NewTargetsProps {
   accountIdentifier: string
-  existingTargets: Target[]
+  existingTargets?: Target[]
   orgIdentifier: string
   projectIdentifier: string
   onCreated: () => void

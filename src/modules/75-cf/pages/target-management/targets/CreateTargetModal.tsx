@@ -18,7 +18,7 @@ import {
   SimpleTagInput,
   Text
 } from '@harness/uicore'
-import { Form, Formik, FieldArray, FormikProps } from 'formik'
+import { Formik, FieldArray, FormikProps } from 'formik'
 import { useModalHook } from '@harness/use-modal'
 import { Color } from '@harness/design-system'
 import { Dialog, Radio, RadioGroup, Spinner } from '@blueprintjs/core'
@@ -40,13 +40,11 @@ const emptyTarget = (): TargetData => ({ name: '', identifier: '' })
 
 interface TargetListProps {
   formikProps: FormikProps<any>
-  onAdd: () => void
-  onRemove: (index: number) => void
   onChange: (idx: number, newData: TargetData) => void
   targets: TargetData[]
 }
 
-const TargetList: React.FC<TargetListProps> = ({ onAdd, onRemove, onChange, formikProps }) => {
+const TargetList: React.FC<TargetListProps> = ({ onChange, formikProps }) => {
   const {
     values: { targets }
   } = formikProps || {}
@@ -66,69 +64,58 @@ const TargetList: React.FC<TargetListProps> = ({ onAdd, onRemove, onChange, form
         </Text>
         <FlexExpander />
       </Layout.Horizontal>
-      <Form>
-        <FieldArray
-          name="targets"
-          render={arrayHelpers => (
-            <>
-              {targets.map((idx: number) => {
-                const lastItem = idx === targets.length - 1
-                return (
-                  <Layout.Horizontal key={idx + '-target-row'} spacing="small">
-                    <FormInput.Text
-                      placeholder={getString('cf.targets.enterName')}
-                      onChange={handleChange(idx, 'name')}
-                      style={{ width: `${fieldWidth}px` }}
-                      name={`targets.${idx}.name`}
-                    />
-                    <FormInput.Text
-                      placeholder={getString('cf.targets.enterValue')}
-                      onChange={handleChange(idx, 'identifier')}
-                      style={{ width: `${fieldWidth}px` }}
-                      name={`targets.${idx}.identifier`}
-                    />
+      <FieldArray
+        name="targets"
+        render={arrayHelpers => (
+          <>
+            {targets.map((_: TargetData, idx: number) => {
+              const lastItem = idx === targets.length - 1
+              return (
+                <Layout.Horizontal key={idx + '-target-row'} spacing="small">
+                  <FormInput.Text
+                    placeholder={getString('cf.targets.enterName')}
+                    onChange={handleChange(idx, 'name')}
+                    style={{ width: `${fieldWidth}px` }}
+                    name={`targets.${idx}.name`}
+                  />
+                  <FormInput.Text
+                    placeholder={getString('cf.targets.enterValue')}
+                    onChange={handleChange(idx, 'identifier')}
+                    style={{ width: `${fieldWidth}px` }}
+                    name={`targets.${idx}.identifier`}
+                  />
 
-                    {lastItem && idx !== 0 && (
-                      <Button
-                        minimal
-                        intent="primary"
-                        icon={'minus'}
-                        iconProps={{
-                          size: 16,
-                          style: { alignSelf: 'center' }
-                        }}
-                        onClick={() => {
-                          onRemove(idx)
-                        }}
-                      />
-                    )}
+                  {lastItem && idx !== 0 && (
                     <Button
                       minimal
                       intent="primary"
-                      icon={lastItem ? 'plus' : 'minus'}
+                      icon={'minus'}
                       iconProps={{
                         size: 16,
                         style: { alignSelf: 'center' }
                       }}
-                      onClick={
-                        lastItem
-                          ? () => {
-                              onAdd
-                              arrayHelpers.push(emptyTarget())
-                            }
-                          : () => {
-                              onRemove(idx)
-                            }
-                      }
-                      style={{ transform: `translateX(${lastItem && idx ? -10 : 0}px)` }}
+                      onClick={() => {
+                        arrayHelpers.remove(idx)
+                      }}
                     />
-                  </Layout.Horizontal>
-                )
-              })}
-            </>
-          )}
-        />
-      </Form>
+                  )}
+                  <Button
+                    minimal
+                    intent="primary"
+                    icon={lastItem ? 'plus' : 'minus'}
+                    iconProps={{
+                      size: 16,
+                      style: { alignSelf: 'center' }
+                    }}
+                    onClick={lastItem ? () => arrayHelpers.push(emptyTarget()) : () => arrayHelpers.remove(idx)}
+                    style={{ transform: `translateX(${lastItem && idx ? -10 : 0}px)` }}
+                  />
+                </Layout.Horizontal>
+              )
+            })}
+          </>
+        )}
+      />
     </Layout.Vertical>
   )
 }
@@ -197,9 +184,7 @@ const FileUpload: React.FC<{
             style={{ alignItems: 'center' }}
           >
             <Text>
-              <span
-                dangerouslySetInnerHTML={{ __html: getString('cf.targets.uploadStats', { count: targets.length }) }}
-              />
+              <String useRichText stringID="cf.targets.uploadStats" vars={{ count: targets.length }} />
             </Text>
             <FlexExpander />
             <Button intent="primary" text={getString('filters.clearAll')} onClick={handleRemove} minimal />
@@ -227,7 +212,7 @@ const filterTargets = (targets: TargetData[]): TargetData[] =>
   targets.filter(t => t.name?.length && t.identifier?.length)
 
 export interface CreateTargetModalProps {
-  existingTargets: Target[]
+  existingTargets?: Target[]
   loading: boolean
   onSubmitTargets: (targets: TargetData[], hideModal: () => void) => void
   onSubmitTargetFile: (file: File, hideModal: () => void) => void
@@ -268,15 +253,6 @@ const CreateTargetModal: React.FC<CreateTargetModalProps> = ({
     setTargetFile(undefined)
   }
 
-  const handleTargetAdd = (): void => {
-    setTargets([...targets, emptyTarget()])
-  }
-
-  const handleTargetRemove = (index: number): void => {
-    targets.splice(index, 1)
-    setTargets([...targets])
-  }
-
   const handleTargetChange = (idx: number, newData: TargetData): void => {
     targets[idx] = newData
     setTargets([...targets])
@@ -312,7 +288,7 @@ const CreateTargetModal: React.FC<CreateTargetModalProps> = ({
   const initialValues = { targets: [{ name: '', identifier: '' }] }
 
   const duplicateIdCheck = (identifier: string): boolean => {
-    if (existingTargets.length && existingTargets?.some(target => target.identifier === identifier)) {
+    if (existingTargets?.length && existingTargets?.some(target => target.identifier === identifier)) {
       return false
     }
     return true
@@ -329,7 +305,7 @@ const CreateTargetModal: React.FC<CreateTargetModalProps> = ({
       >
         <Formik
           initialValues={initialValues}
-          formName="addTargeteDialog"
+          formName="addTargetDialog"
           validationSchema={yup.object().shape({
             targets: yup.array().of(
               yup.object().shape({
@@ -348,20 +324,12 @@ const CreateTargetModal: React.FC<CreateTargetModalProps> = ({
           onReset={handleCancel}
         >
           {formikProps => (
-            <FormikForm>
+            <FormikForm data-testid="create-target-form">
               <Layout.Vertical padding="medium" height={450}>
                 <Container style={{ flexGrow: 1, overflow: 'auto' }} padding={{ top: 'small' }}>
                   <RadioGroup name="modalVariant" selectedValue={isList ? LIST : UPLOAD} onChange={handleChange}>
                     <Radio name="modalVariant" label={getPageString('list')} value={LIST} />
-                    {isList && (
-                      <TargetList
-                        formikProps={formikProps}
-                        targets={targets}
-                        onAdd={handleTargetAdd}
-                        onRemove={handleTargetRemove}
-                        onChange={handleTargetChange}
-                      />
-                    )}
+                    {isList && <TargetList formikProps={formikProps} targets={targets} onChange={handleTargetChange} />}
 
                     <Radio name="modalVariant" label={getPageString('upload')} value={UPLOAD} />
                     {!isList && (
@@ -387,7 +355,7 @@ const CreateTargetModal: React.FC<CreateTargetModalProps> = ({
                 <Layout.Horizontal height={34} spacing="small">
                   <Button
                     variation={ButtonVariation.PRIMARY}
-                    disabled={loading}
+                    disabled={addDisabled || loading}
                     text={getString('add')}
                     intent="primary"
                     type="submit"
