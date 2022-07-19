@@ -117,32 +117,6 @@ const getServerlessDeploymentTypes = (
         icon: 'service-serverless-aws',
         value: ServiceDeploymentType.ServerlessAwsLambda
       }
-      // Keeping these for now. If we do not support these in near future, we will remove these.
-      //
-      // {
-      //   label: getString('pipeline.serviceDeploymentTypes.serverlessAzureFunctions'),
-      //   icon: 'service-serverless-azure',
-      //   value: ServiceDeploymentType.ServerlessAzureFunctions,
-      //   disabled: true
-      // },
-      // {
-      //   label: getString('pipeline.serviceDeploymentTypes.serverlessGoogleFunctions'),
-      //   icon: 'service-serverless-gcp',
-      //   value: ServiceDeploymentType.ServerlessGoogleFunctions,
-      //   disabled: true
-      // },
-      // {
-      //   label: getString('pipeline.serviceDeploymentTypes.awsSAM'),
-      //   icon: 'service-aws-sam',
-      //   value: ServiceDeploymentType.AmazonSAM,
-      //   disabled: true
-      // },
-      // {
-      //   label: getString('pipeline.serviceDeploymentTypes.azureFunctions'),
-      //   icon: 'service-azure-functions',
-      //   value: ServiceDeploymentType.AzureFunctions,
-      //   disabled: true
-      // }
     ]
   }
   return []
@@ -160,7 +134,7 @@ export default function SelectDeploymentType({
   const { getString } = useStrings()
   const formikRef = React.useRef<FormikProps<unknown> | null>(null)
   const { subscribeForm, unSubscribeForm } = React.useContext(StageErrorContext)
-  const { SERVERLESS_SUPPORT, SSH_NG, AZURE_WEBAPP_NG } = useFeatureFlags()
+  const { SERVERLESS_SUPPORT, SSH_NG, AZURE_WEBAPP_NG, ECS_NG } = useFeatureFlags()
 
   const { accountId } = useParams<{
     accountId: string
@@ -200,17 +174,28 @@ export default function SelectDeploymentType({
         value: ServiceDeploymentType.AzureWebApp
       })
     }
+    if (ECS_NG) {
+      baseTypes.push({
+        label: getString('pipeline.serviceDeploymentTypes.amazonEcs'),
+        icon: 'service-ecs',
+        value: ServiceDeploymentType.amazonEcs
+      })
+    }
     return [...baseTypes, ...getServerlessDeploymentTypes(getString, SERVERLESS_SUPPORT)] as DeploymentTypeItem[]
   }, [getString, SERVERLESS_SUPPORT, SSH_NG, AZURE_WEBAPP_NG])
 
   // Suppported in CG (First Gen - Old Version of Harness App)
   const cgSupportedDeploymentTypes: DeploymentTypeItem[] = React.useMemo(() => {
     const types = [
-      {
-        label: getString('pipeline.serviceDeploymentTypes.amazonEcs'),
-        icon: 'service-ecs',
-        value: ServiceDeploymentType.amazonEcs
-      },
+      ...(!ECS_NG
+        ? [
+            {
+              label: getString('pipeline.serviceDeploymentTypes.amazonEcs'),
+              icon: 'service-ecs',
+              value: ServiceDeploymentType.amazonEcs
+            }
+          ]
+        : []),
       {
         label: getString('pipeline.serviceDeploymentTypes.amazonAmi'),
         icon: 'main-service-ami',
@@ -245,7 +230,7 @@ export default function SelectDeploymentType({
       })
     }
     return types as DeploymentTypeItem[]
-  }, [getString, SSH_NG])
+  }, [getString, SSH_NG, ECS_NG])
 
   const [cgDeploymentTypes, setCgDeploymentTypes] = React.useState(cgSupportedDeploymentTypes)
   const [ngDeploymentTypes, setNgDeploymentTypes] = React.useState(ngSupportedDeploymentTypes)
