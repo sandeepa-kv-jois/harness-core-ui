@@ -7,7 +7,7 @@
 
 import React, { Dispatch, SetStateAction, useContext, useState } from 'react'
 import * as Yup from 'yup'
-import { defaultTo, isEmpty, isEqual, omit, unset } from 'lodash-es'
+import { defaultTo, isEmpty, isEqual, omit, unset, pick } from 'lodash-es'
 import type { FormikProps } from 'formik'
 import {
   Button,
@@ -22,9 +22,10 @@ import {
   SelectOption,
   Text
 } from '@wings-software/uicore'
-import { Color } from '@harness/design-system'
 import produce from 'immer'
-import { Classes } from '@blueprintjs/core'
+import { Classes, Divider } from '@blueprintjs/core'
+import { Color, FontVariation } from '@harness/design-system'
+import classNames from 'classnames'
 import { useParams } from 'react-router-dom'
 import { useStrings } from 'framework/strings'
 import { NameIdDescriptionTags } from '@common/components/NameIdDescriptionTags/NameIdDescriptionTags'
@@ -42,7 +43,11 @@ import { GitSyncStoreProvider } from 'framework/GitRepoStore/GitSyncStoreContext
 import { IdentifierSchema, NameSchema, TemplateVersionLabelSchema } from '@common/utils/Validation'
 import { Scope } from '@common/interfaces/SecretsInterface'
 import { getScopeFromDTO } from '@common/components/EntityReference/EntityReference'
+import { GitSyncForm, gitSyncFormSchema } from '@gitsync/components/GitSyncForm/GitSyncForm'
+import { InlineRemoteSelect } from '@common/components/InlineRemoteSelect/InlineRemoteSelect'
+import { StoreMetadata, StoreType } from '@common/constants/GitSyncTypes'
 import type { TemplateStudioPathProps } from '@common/interfaces/RouteInterfaces'
+import type { ConnectorSelectedValue } from '@connectors/components/ConnectorReferenceField/ConnectorReferenceField'
 import { DefaultNewTemplateId, DefaultNewVersionLabel } from '../templates'
 import css from './TemplateConfigModal.module.scss'
 
@@ -53,13 +58,17 @@ export enum Fields {
   Tags = 'tags',
   VersionLabel = 'versionLabel',
   Repo = 'repo',
-  Branch = 'branch'
+  RepoName = 'repoName',
+  Branch = 'branch',
+  ConnectorRef = 'connectorRef',
+  FilePath = 'filePath'
 }
 
 export interface PromiseExtraArgs {
   isEdit?: boolean
   updatedGitDetails?: EntityGitDetails
   comment?: string
+  storeMetadata?: StoreMetadata
 }
 
 export enum Intent {
@@ -75,6 +84,8 @@ export interface ModalProps {
   title: string
   intent: Intent
   disabledFields?: Fields[]
+  shouldGetComment?: boolean
+  showGitFields?: boolean
   allowScopeChange?: boolean
   lastPublishedVersion?: string
 }
@@ -84,8 +95,11 @@ export interface TemplateConfigValues extends NGTemplateInfoConfigWithGitDetails
 }
 
 export interface NGTemplateInfoConfigWithGitDetails extends NGTemplateInfoConfig {
+  connectorRef?: string
   repo?: string
   branch?: string
+  storeType?: StoreType
+  filePath?: string
 }
 
 export interface ConfigModalProps extends ModalProps {
@@ -105,18 +119,20 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
     onClose,
     gitDetails,
     allowScopeChange = false,
+    showGitFields,
+    shouldGetComment,
     title,
     intent,
     disabledFields = [],
     promise,
     lastPublishedVersion
   } = props
-  const { isGitSyncEnabled } = useAppStore()
+  const pathParams = useParams<TemplateStudioPathProps>()
+  const { orgIdentifier, projectIdentifier, templateIdentifier } = pathParams
+  const { isGitSyncEnabled, isGitSimplificationEnabled } = useAppStore()
   const formName = `create${initialValues.type}Template`
   const [loading, setLoading] = React.useState<boolean>()
   const { isReadonly } = useContext(TemplateContext)
-  const pathParams = useParams<TemplateStudioPathProps>()
-  const { orgIdentifier, projectIdentifier } = pathParams
   const scope = getScopeFromDTO(pathParams)
   const SCOPE_OPTIONS: SelectOption[] = [
     {
@@ -132,6 +148,12 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
       label: getString('projectLabel')
     }
   ]
+
+  const [isEdit, setIsEdit] = React.useState(() =>
+    isGitSimplificationEnabled
+      ? templateIdentifier !== DefaultNewTemplateId
+      : initialValues.identifier !== DefaultNewTemplateId
+  )
 
   const formInitialValues = React.useMemo(
     () =>
@@ -172,13 +194,33 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
     [intent, isGitSyncEnabled]
   )
 
+  React.useEffect(() => {
+    const edit = isGitSimplificationEnabled
+      ? !!templateIdentifier && templateIdentifier !== DefaultNewTemplateId
+      : initialValues.identifier !== DefaultNewTemplateId
+    setIsEdit(edit)
+  }, [initialValues])
+
   const onSubmit = React.useCallback(
     (values: TemplateConfigValues) => {
       setLoading(true)
-      promise(omit(values, 'repo', 'branch', 'comment'), {
+      const storeMetadata = {
+        storeType: values.storeType,
+        connectorRef:
+          typeof values.connectorRef === 'string'
+            ? values.connectorRef
+            : (values.connectorRef as unknown as ConnectorSelectedValue)?.value,
+        repoName: values.repo,
+        branch: values.branch,
+        filePath: values.filePath
+      }
+
+      promise(omit(values, 'repo', 'branch', 'comment', 'connectorRef', 'storeType', 'filePath'), {
+        isEdit: false,
         ...(!isEmpty(values.repo) && {
           updatedGitDetails: { ...gitDetails, repoIdentifier: values.repo, branch: values.branch }
         }),
+        ...(isGitSimplificationEnabled ? { storeMetadata } : {}),
         ...(!isEmpty(values.comment?.trim()) && { comment: values.comment?.trim() })
       })
         .then(response => {
@@ -217,7 +259,14 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
   }, [formInitialValues])
 
   return (
-    <Container width={'55%'} className={css.basicDetails} background={Color.FORM_BG} padding={'huge'}>
+    <Container
+      width={'55%'}
+      className={classNames(css.basicDetails, {
+        [css.gitBasicDetails]: isGitSimplificationEnabled
+      })}
+      background={Color.FORM_BG}
+      padding={'huge'}
+    >
       {loading && <PageSpinner />}
       <Text
         color={Color.GREY_800}
@@ -238,14 +287,26 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
             })
           }),
           identifier: IdentifierSchema(),
-          versionLabel: TemplateVersionLabelSchema()
+          versionLabel: TemplateVersionLabelSchema(),
+          ...(isGitSimplificationEnabled
+            ? gitSyncFormSchema(getString)
+            : isGitSyncEnabled && showGitFields
+            ? {
+                repo: Yup.string().trim().required(getString('common.git.validation.repoRequired')),
+                branch: Yup.string().trim().required(getString('common.git.validation.branchRequired'))
+              }
+            : {})
         })}
       >
         {(formik: FormikProps<TemplateConfigValues>) => {
           return (
             <FormikForm>
               <Layout.Vertical spacing={'huge'}>
-                <Container>
+                <Container
+                  className={classNames({
+                    [css.gitFormWrapper]: isGitSimplificationEnabled
+                  })}
+                >
                   <Layout.Vertical spacing={'small'}>
                     <Container>
                       <Layout.Vertical>
@@ -256,7 +317,9 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
                             isIdentifierEditable: !disabledFields.includes(Fields.Identifier) && !isReadonly,
                             inputGroupProps: { disabled: disabledFields.includes(Fields.Name) || isReadonly }
                           }}
-                          className={css.nameIdDescriptionTags}
+                          className={classNames(css.nameIdDescriptionTags, {
+                            [css.gitNameIdDescriptionTags]: isGitSimplificationEnabled
+                          })}
                           descriptionProps={{
                             disabled: disabledFields.includes(Fields.Description) || isReadonly
                           }}
@@ -269,6 +332,9 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
                           placeholder={getString('templatesLibrary.createNewModal.versionPlaceholder')}
                           label={getString('common.versionLabel')}
                           disabled={disabledFields.includes(Fields.VersionLabel) || isReadonly}
+                          className={classNames({
+                            [css.gitNameIdDescriptionTags]: isGitSimplificationEnabled
+                          })}
                         />
                         {lastPublishedVersion && (
                           <Container
@@ -306,24 +372,73 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
                             />
                           </Container>
                         )}
-                        {intent === Intent.SAVE && (!isGitSyncEnabled || isEmpty(formik.values.repo)) && (
-                          <FormInput.TextArea
-                            name="comment"
-                            label={getString('optionalField', {
-                              name: getString('common.commentModal.commentLabel')
-                            })}
-                            textArea={{
-                              className: css.comment
-                            }}
-                          />
-                        )}
+                        {intent === Intent.SAVE &&
+                          ((!isGitSimplificationEnabled && shouldGetComment) ||
+                            (isGitSimplificationEnabled &&
+                              formik.values?.storeType === StoreType.INLINE &&
+                              shouldGetComment)) && (
+                            <FormInput.TextArea
+                              name="comment"
+                              label={getString('optionalField', {
+                                name: getString('common.commentModal.commentLabel')
+                              })}
+                              textArea={{
+                                className: classNames(css.comment, {
+                                  [css.gitNameIdDescriptionTags]: isGitSimplificationEnabled
+                                })
+                              }}
+                            />
+                          )}
                       </Layout.Vertical>
                     </Container>
-                    {isGitSyncEnabled && isEmpty(gitDetails) && getScopeFromDTO(formik.values) === Scope.PROJECT && (
-                      <GitSyncStoreProvider>
-                        <GitContextForm formikProps={formik as any} />
-                      </GitSyncStoreProvider>
+                    {isGitSimplificationEnabled && (
+                      <>
+                        <Divider />
+                        <Text font={{ variation: FontVariation.H6 }} className={css.choosePipelineSetupHeader}>
+                          {getString('pipeline.createPipeline.choosePipelineSetupHeader')}
+                        </Text>
+                        <InlineRemoteSelect
+                          className={css.inlineRemoteWrapper}
+                          selected={defaultTo(formik.values?.storeType, StoreType.INLINE)}
+                          onChange={item => {
+                            formik.setFieldValue('storeType', item.type)
+                            if (item.type === StoreType.REMOTE) {
+                              setTimeout(() => {
+                                const elem = document.getElementsByClassName(css.gitFormWrapper)[0]
+                                elem?.scrollTo(0, elem.scrollHeight)
+                              }, 0)
+                            }
+                          }}
+                          getCardDisabledStatus={() => false}
+                        />
+                        {formik.values?.storeType === StoreType.REMOTE && (
+                          <GitSyncForm
+                            formikProps={formik}
+                            isEdit={isEdit}
+                            initialValues={pick(initialValues, 'repo', 'branch', 'filePath', 'connectorRef')}
+                            disableFields={pick(
+                              props.disabledFields?.reduce((fields: Record<string, boolean>, field: string) => {
+                                fields[field] = true
+                                return fields
+                              }, {}),
+                              Fields.ConnectorRef,
+                              Fields.RepoName,
+                              Fields.Branch,
+                              Fields.FilePath
+                            )}
+                          />
+                        )}
+                      </>
                     )}
+                    {isGitSyncEnabled &&
+                      !isGitSimplificationEnabled &&
+                      showGitFields &&
+                      isEmpty(gitDetails) &&
+                      getScopeFromDTO(formik.values) === Scope.PROJECT && (
+                        <GitSyncStoreProvider>
+                          <GitContextForm formikProps={formik as any} />
+                        </GitSyncStoreProvider>
+                      )}
                   </Layout.Vertical>
                 </Container>
                 <Container>

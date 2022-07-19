@@ -19,7 +19,7 @@ import {
 } from 'services/template-ng'
 import { AppStoreContext } from 'framework/AppStore/AppStoreContext'
 import { useStrings } from 'framework/strings'
-import useRBACError from '@rbac/utils/useRBACError/useRBACError'
+import useRBACError, { RBACError } from '@rbac/utils/useRBACError/useRBACError'
 import { useToaster } from '@common/exports'
 import { UseSaveSuccessResponse, useSaveToGitDialog } from '@common/modals/SaveToGitDialog/useSaveToGitDialog'
 import type { SaveToGitFormInterface } from '@common/components/SaveToGitForm/SaveToGitForm'
@@ -33,6 +33,7 @@ import type { PromiseExtraArgs } from 'framework/Templates/TemplateConfigModal/T
 import type { YamlBuilderHandlerBinding } from '@common/interfaces/YAMLBuilderProps'
 import { getScopeFromDTO } from '@common/components/EntityReference/EntityReference'
 import { Scope } from '@common/interfaces/SecretsInterface'
+import { StoreMetadata, StoreType } from '@common/constants/GitSyncTypes'
 
 export interface FetchTemplateUnboundProps {
   forceFetch?: boolean
@@ -61,6 +62,8 @@ interface UseSaveTemplateReturnType {
 
 export interface TemplateContextMetadata {
   yamlHandler?: YamlBuilderHandlerBinding
+  gitDetails?: EntityGitDetails
+  storeMetadata?: StoreMetadata
   setLoading?: (loading: boolean) => void
   fetchTemplate?: (args: FetchTemplateUnboundProps) => Promise<void>
   deleteTemplateCache?: (gitDetails?: EntityGitDetails) => Promise<void>
@@ -73,6 +76,8 @@ export interface TemplateContextMetadata {
 export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata): UseSaveTemplateReturnType {
   const {
     yamlHandler,
+    gitDetails,
+    storeMetadata,
     setLoading,
     fetchTemplate,
     deleteTemplateCache,
@@ -132,8 +137,13 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
     latestTemplate: NGTemplateInfoConfig,
     comments?: string,
     updatedGitDetails?: SaveToGitFormInterface,
-    lastObject?: { lastObjectId?: string }
+    lastObject?: { lastObjectId?: string },
+    currStoreMetadata?: StoreMetadata
   ): Promise<UseSaveSuccessResponse> => {
+    if (storeMetadata) {
+      currStoreMetadata = storeMetadata
+    }
+
     try {
       const response = await updateExistingTemplateLabelPromise({
         templateIdentifier: latestTemplate.identifier,
@@ -146,13 +156,14 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
           comments,
           ...(updatedGitDetails ?? {}),
           ...(lastObject?.lastObjectId ? lastObject : {}),
-          ...(updatedGitDetails && updatedGitDetails.isNewBranch ? { baseBranch: branch } : {})
+          ...(updatedGitDetails && updatedGitDetails.isNewBranch ? { baseBranch: branch } : {}),
+          ...(currStoreMetadata?.storeType === StoreType.REMOTE ? currStoreMetadata : {})
         },
         requestOptions: { headers: { 'Content-Type': 'application/yaml' } }
       })
       setLoading?.(false)
       if (response && response.status === 'SUCCESS') {
-        if (!isGitSyncEnabled) {
+        if (!isGitSyncEnabled && currStoreMetadata?.storeType !== StoreType.REMOTE) {
           clear()
           showSuccess(getString('common.template.updateTemplate.templateUpdated'))
         }
@@ -166,8 +177,8 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
       }
     } catch (error) {
       clear()
-      if (!isGitSyncEnabled) {
-        showError(getRBACErrorMessage(error), undefined, 'template.update.template.error')
+      if (!isGitSyncEnabled && currStoreMetadata?.storeType !== StoreType.REMOTE) {
+        showError(getRBACErrorMessage(error as RBACError), undefined, 'template.update.template.error')
         return { status: 'FAILURE' }
       } else {
         throw error
@@ -180,14 +191,20 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
     comments?: string,
     isEdit = false,
     updatedGitDetails?: SaveToGitFormInterface,
-    lastObject?: { lastObjectId?: string }
+    lastObject?: { lastObjectId?: string },
+    currStoreMetadata?: StoreMetadata
   ): Promise<UseSaveSuccessResponse> => {
     const isGitExperienceEnabled = isGitSyncEnabled && getScopeFromDTO(latestTemplate) === Scope.PROJECT
-    if (!isGitExperienceEnabled) {
+    if (storeMetadata) {
+      currStoreMetadata = storeMetadata
+    }
+
+    if (!isGitExperienceEnabled && currStoreMetadata?.storeType !== StoreType.REMOTE) {
       setLoading?.(true)
     }
+
     if (isEdit) {
-      return updateExistingLabel(latestTemplate, comments, updatedGitDetails, lastObject)
+      return updateExistingLabel(latestTemplate, comments, updatedGitDetails, lastObject, currStoreMetadata)
     } else {
       try {
         const response = await createTemplatePromise({
@@ -198,18 +215,19 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
             orgIdentifier: latestTemplate.orgIdentifier,
             comments,
             ...(updatedGitDetails ?? {}),
-            ...(updatedGitDetails && updatedGitDetails.isNewBranch ? { baseBranch: branch } : {})
+            ...(updatedGitDetails && updatedGitDetails.isNewBranch ? { baseBranch: branch } : {}),
+            ...(currStoreMetadata?.storeType === StoreType.REMOTE ? currStoreMetadata : {})
           },
           requestOptions: { headers: { 'Content-Type': 'application/yaml' } }
         })
-        if (!isGitExperienceEnabled) {
+        if (!isGitExperienceEnabled && currStoreMetadata?.storeType !== StoreType.REMOTE) {
           setLoading?.(false)
         }
         if (response && response.status === 'SUCCESS') {
           if (fireSuccessEvent && response.data?.templateResponseDTO) {
             window.dispatchEvent(new CustomEvent('TEMPLATE_SAVED', { detail: response.data.templateResponseDTO }))
           }
-          if (!isGitExperienceEnabled) {
+          if (!isGitExperienceEnabled && currStoreMetadata?.storeType !== StoreType.REMOTE) {
             clear()
             showSuccess(getString('common.template.saveTemplate.publishTemplate'))
           }
@@ -223,8 +241,8 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
         }
       } catch (error) {
         clear()
-        if (!isGitExperienceEnabled) {
-          showError(getRBACErrorMessage(error), undefined, 'template.save.template.error')
+        if (!isGitExperienceEnabled && currStoreMetadata?.storeType !== StoreType.REMOTE) {
+          showError(getRBACErrorMessage(error as RBACError), undefined, 'template.save.template.error')
           return { status: 'FAILURE' }
         } else {
           throw error
@@ -233,11 +251,12 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
     }
   }
 
-  const saveAngPublishWithGitInfo = async (
+  const saveAndPublishWithGitInfo = async (
     updatedGitDetails: SaveToGitFormInterface,
     payload?: SaveTemplateObj,
     objectId?: string,
-    isEdit = false
+    isEdit = false,
+    currStoreMetadata?: StoreMetadata
   ): Promise<UseSaveSuccessResponse> => {
     let latestTemplate = payload?.template as NGTemplateInfoConfig
 
@@ -245,7 +264,7 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
       try {
         latestTemplate = payload?.template || (parse(yamlHandler.getLatestYaml()).pipeline as NGTemplateInfoConfig)
       } /* istanbul ignore next */ catch (err) {
-        showError(getRBACErrorMessage(err), undefined, 'template.save.gitinfo.error')
+        showError(getRBACErrorMessage(err as RBACError), undefined, 'template.save.gitinfo.error')
       }
     }
 
@@ -254,7 +273,8 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
       '',
       isEdit,
       omit(updatedGitDetails, 'name', 'identifier'),
-      templateIdentifier !== DefaultNewTemplateId ? { lastObjectId: objectId } : {}
+      templateIdentifier !== DefaultNewTemplateId ? { lastObjectId: objectId } : {},
+      currStoreMetadata
     )
     return {
       status: response?.status
@@ -266,8 +286,10 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
       gitData: SaveToGitFormInterface,
       payload?: SaveTemplateObj,
       objectId?: string,
-      isEdit = false
-    ): Promise<UseSaveSuccessResponse> => saveAngPublishWithGitInfo(gitData, payload, defaultTo(objectId, ''), isEdit)
+      isEdit = false,
+      currStoreMetadata?: StoreMetadata
+    ): Promise<UseSaveSuccessResponse> =>
+      saveAndPublishWithGitInfo(gitData, payload, defaultTo(objectId, ''), isEdit, currStoreMetadata)
   })
 
   const getUpdatedGitDetails = (
@@ -286,24 +308,51 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
 
   const saveAndPublish = React.useCallback(
     async (updatedTemplate: NGTemplateInfoConfig, extraInfo: PromiseExtraArgs): Promise<UseSaveSuccessResponse> => {
+      let currStoreMetadata = storeMetadata
+      if (!currStoreMetadata) {
+        currStoreMetadata = extraInfo?.storeMetadata
+      }
+
       const { isEdit, comment, updatedGitDetails } = extraInfo
-      if (updatedGitDetails && !isEmpty(updatedGitDetails)) {
-        openSaveToGitDialog({
-          isEditing: defaultTo(isEdit, false),
-          resource: {
-            type: 'Template',
-            name: updatedTemplate.name,
-            identifier: updatedTemplate.identifier,
-            gitDetails: getUpdatedGitDetails(updatedGitDetails, updatedTemplate, isEdit)
-          },
-          payload: { template: updatedTemplate }
-        })
-        return Promise.resolve({ status: 'SUCCESS' })
+
+      // if Git sync enabled then display modal
+      if (isGitSyncEnabled || currStoreMetadata?.storeType === StoreType.REMOTE) {
+        if (
+          (currStoreMetadata?.storeType !== StoreType.REMOTE && isEmpty(gitDetails?.repoIdentifier)) ||
+          isEmpty(gitDetails?.branch)
+        ) {
+          clear()
+          showError(getString('pipeline.gitExperience.selectRepoBranch'))
+          return Promise.reject(getString('pipeline.gitExperience.selectRepoBranch'))
+        } else if (updatedGitDetails) {
+          openSaveToGitDialog({
+            isEditing: defaultTo(isEdit, false),
+            resource: {
+              type: 'Template',
+              name: updatedTemplate.name,
+              identifier: updatedTemplate.identifier,
+              gitDetails: getUpdatedGitDetails(updatedGitDetails, updatedTemplate, isEdit),
+              storeMetadata: currStoreMetadata
+            },
+            payload: { template: omit(updatedTemplate, 'repo', 'branch') }
+          })
+          return Promise.resolve({ status: 'SUCCESS' })
+        }
       } else {
         return saveAndPublishTemplate(updatedTemplate, comment, isEdit)
       }
     },
-    [templateIdentifier, isGitSyncEnabled, isYaml, yamlHandler, showError, showSuccess, stableVersion]
+    [
+      storeMetadata,
+      isGitSyncEnabled,
+      gitDetails?.repoIdentifier,
+      gitDetails?.branch,
+      clear,
+      showError,
+      getString,
+      openSaveToGitDialog,
+      saveAndPublishTemplate
+    ]
   )
 
   return {

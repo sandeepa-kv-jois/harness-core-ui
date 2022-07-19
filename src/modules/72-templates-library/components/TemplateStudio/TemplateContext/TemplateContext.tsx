@@ -36,6 +36,7 @@ import { PermissionIdentifier } from '@rbac/interfaces/PermissionIdentifier'
 import { usePermission } from '@rbac/hooks/usePermission'
 import type { PermissionCheck } from 'services/rbac'
 import { DefaultNewTemplateId, DefaultNewVersionLabel, DefaultTemplate } from 'framework/Templates/templates'
+import type { StoreMetadata } from '@common/constants/GitSyncTypes'
 import { ActionReturnType, TemplateContextActions } from './TemplateActions'
 import { initialState, TemplateReducer, TemplateReducerState, TemplateViewData } from './TemplateReducer'
 
@@ -56,6 +57,7 @@ interface TemplatePayload {
   versions?: string[]
   stableVersion?: string
   gitDetails?: EntityGitDetails
+  storeMetadata?: StoreMetadata
   entityValidityDetails?: EntityValidityDetails
   templateYaml?: string
   lastPublishedVersion?: string
@@ -180,6 +182,13 @@ const dispatchTemplateSuccess = async (args: DispatchTemplateSuccessArgs): Promi
           templateWithGitDetails?.entityValidityDetails,
           defaultTo(data?.entityValidityDetails, {})
         ),
+        storeMetadata: {
+          connectorRef: templateWithGitDetails?.connectorRef,
+          storeType: templateWithGitDetails?.storeType,
+          repoName: templateWithGitDetails?.gitDetails?.repoName,
+          branch: templateWithGitDetails?.gitDetails?.branch,
+          filePath: templateWithGitDetails?.gitDetails?.filePath
+        },
         templateYaml: data?.templateYaml,
         templateInputsErrorNodeSummary
       })
@@ -494,6 +503,7 @@ export interface TemplateContextInterface {
   deleteTemplateCache: (gitDetails?: EntityGitDetails) => Promise<void>
   setLoading: (loading: boolean) => void
   updateGitDetails: (gitDetails: EntityGitDetails) => Promise<void>
+  updateStoreMetadata: (storeMetadata: StoreMetadata, gitDetails: EntityGitDetails) => Promise<void>
 }
 
 const _deleteTemplateCache = async (
@@ -540,6 +550,42 @@ interface UpdateGitDetailsArgs {
   stableVersion: string
 }
 
+const _updateStoreMetadata = async (
+  args: UpdateGitDetailsArgs,
+  storeMetadata: StoreMetadata,
+  gitDetails: EntityGitDetails
+): Promise<void> => {
+  const { dispatch, queryParams, identifier, originalTemplate, template, versionLabel } = args
+  await _deleteTemplateCache(queryParams, identifier, versionLabel, {})
+  const id = getId(
+    queryParams.accountIdentifier,
+    defaultTo(queryParams.orgIdentifier, ''),
+    defaultTo(queryParams.projectIdentifier, ''),
+    identifier,
+    defaultTo(versionLabel, ''),
+    defaultTo(gitDetails.repoIdentifier, ''),
+    defaultTo(gitDetails.branch, '')
+  )
+  const isUpdated = !isEqual(originalTemplate, template)
+  try {
+    if (IdbTemplate) {
+      const payload: TemplatePayload = {
+        [KeyPath]: id,
+        template,
+        originalTemplate,
+        isUpdated,
+        storeMetadata,
+        gitDetails
+      }
+      await IdbTemplate.put(IdbTemplateStoreName, payload)
+    }
+    dispatch(TemplateContextActions.success({ error: '', template, isUpdated, storeMetadata, gitDetails }))
+  } catch (_) {
+    logger.info('There was no DB found')
+    dispatch(TemplateContextActions.success({ error: '', template, isUpdated, storeMetadata, gitDetails }))
+  }
+}
+
 const _updateGitDetails = async (args: UpdateGitDetailsArgs, gitDetails: EntityGitDetails): Promise<void> => {
   const { dispatch, queryParams, identifier, originalTemplate, template, versionLabel } = args
   await _deleteTemplateCache(queryParams, identifier, versionLabel, {})
@@ -579,7 +625,8 @@ export const TemplateContext = React.createContext<TemplateContextInterface>({
   updateTemplate: /* istanbul ignore next */ () => new Promise<void>(() => undefined),
   deleteTemplateCache: /* istanbul ignore next */ () => new Promise<void>(() => undefined),
   setLoading: /* istanbul ignore next */ () => void 0,
-  updateGitDetails: /* istanbul ignore next */ () => new Promise<void>(() => undefined)
+  updateGitDetails: /* istanbul ignore next */ () => new Promise<void>(() => undefined),
+  updateStoreMetadata: /* istanbul ignore next */ () => new Promise<void>(() => undefined)
 })
 
 export const TemplateProvider: React.FC<{
@@ -636,6 +683,17 @@ export const TemplateProvider: React.FC<{
   })
 
   const updateGitDetails = _updateGitDetails.bind(null, {
+    dispatch,
+    queryParams,
+    identifier: templateIdentifier,
+    versionLabel: versionLabel,
+    originalTemplate: state.originalTemplate,
+    template: state.template,
+    versions: state.versions,
+    stableVersion: state.stableVersion
+  })
+
+  const updateStoreMetadata = _updateStoreMetadata.bind(null, {
     dispatch,
     queryParams,
     identifier: templateIdentifier,
@@ -740,7 +798,8 @@ export const TemplateProvider: React.FC<{
         deleteTemplateCache,
         setYamlHandler,
         setLoading,
-        updateGitDetails
+        updateGitDetails,
+        updateStoreMetadata
       }}
     >
       {children}

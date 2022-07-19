@@ -9,9 +9,9 @@ import React, { useEffect, useState } from 'react'
 import type { FormikContextType } from 'formik'
 import { defaultTo, isEmpty } from 'lodash-es'
 import { useParams } from 'react-router-dom'
-
+import * as Yup from 'yup'
 import { Container, FormInput, Layout, SelectOption } from '@harness/uicore'
-import { useStrings } from 'framework/strings'
+import { useStrings, UseStringsReturn } from 'framework/strings'
 import {
   ConnectorReferenceField,
   ConnectorSelectedValue
@@ -22,11 +22,12 @@ import { useQueryParams } from '@common/hooks'
 import { useFeatureFlag } from '@common/hooks/useFeatureFlag'
 import { FeatureFlag } from '@common/featureFlags'
 import RepositorySelect from '@common/components/RepositorySelect/RepositorySelect'
-import type { StoreMetadata } from '@common/constants/GitSyncTypes'
+import { StoreMetadata, StoreType } from '@common/constants/GitSyncTypes'
 import RepoBranchSelectV2 from '@common/components/RepoBranchSelectV2/RepoBranchSelectV2'
 import type { ResponseMessage } from 'services/cd-ng'
 import { ErrorHandler } from '@common/components/ErrorHandler/ErrorHandler'
 import { Connectors } from '@connectors/constants'
+import { yamlPathRegex } from '@common/utils/StringUtils'
 import css from './GitSyncForm.module.scss'
 
 export interface GitSyncFormFields {
@@ -37,18 +38,46 @@ export interface GitSyncFormFields {
   filePath?: string
 }
 interface GitSyncFormProps<T> {
-  identifier?: string
   formikProps: FormikContextType<T>
   isEdit: boolean
-  modalErrorHandler?: any
-  handleSubmit: () => void
-  closeModal?: () => void
   disableFields?: {
-    [key: string]: boolean
+    connectorRef?: boolean
+    repoName?: boolean
+    branch?: boolean
+    filePath?: boolean
   }
   initialValues?: StoreMetadata
   errorData?: ResponseMessage[]
 }
+
+export const gitSyncFormSchema = (
+  getString: UseStringsReturn['getString']
+): {
+  repo: Yup.MixedSchema
+  branch: Yup.MixedSchema
+  connectorRef: Yup.MixedSchema
+  filePath: Yup.MixedSchema
+} => ({
+  repo: Yup.mixed().when('storeType', {
+    is: StoreType.REMOTE,
+    then: Yup.string().trim().required(getString('common.git.validation.repoRequired'))
+  }),
+  branch: Yup.mixed().when('storeType', {
+    is: StoreType.REMOTE,
+    then: Yup.string().trim().required(getString('common.git.validation.branchRequired'))
+  }),
+  connectorRef: Yup.mixed().when('storeType', {
+    is: StoreType.REMOTE,
+    then: Yup.string().trim().required(getString('validation.sshConnectorRequired'))
+  }),
+  filePath: Yup.mixed().when('storeType', {
+    is: StoreType.REMOTE,
+    then: Yup.string()
+      .trim()
+      .required(getString('gitsync.gitSyncForm.yamlPathRequired'))
+      .matches(yamlPathRegex, getString('gitsync.gitSyncForm.yamlPathInvalid'))
+  })
+})
 
 const getConnectorIdentifierWithScope = (scope: Scope, identifier: string): string => {
   return scope === Scope.ORG || scope === Scope.ACCOUNT ? `${scope}.${identifier}` : identifier

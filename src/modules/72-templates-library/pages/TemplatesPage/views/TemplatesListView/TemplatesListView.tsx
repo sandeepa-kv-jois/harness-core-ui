@@ -153,10 +153,26 @@ const RenderColumnScope: Renderer<CellProps<TemplateSummaryResponse>> = ({ row }
   )
 }
 
+const RenderRepoName: Renderer<CellProps<TemplateSummaryResponse>> = ({ row }) => {
+  const { gitDetails } = row.original
+  const repoName = gitDetails?.repoName
+
+  return (
+    <Text
+      style={{ fontSize: '13px', wordWrap: 'break-word', maxWidth: '100px' }}
+      color={Color.GREY_800}
+      lineClamp={1}
+      title={repoName}
+    >
+      {repoName}
+    </Text>
+  )
+}
+
 export const TemplatesListView: React.FC<TemplatesViewProps> = (props): JSX.Element => {
   const { getString } = useStrings()
   const { data, selectedTemplate, gotoPage, onPreview, onOpenEdit, onOpenSettings, onDelete, onSelect } = props
-  const { isGitSyncEnabled } = useAppStore()
+  const { isGitSyncEnabled, isGitSimplificationEnabled } = useAppStore()
   const hideMenu = !onPreview && !onOpenEdit && !onOpenSettings && !onDelete
 
   const getTemplateNameWidth = (): string => {
@@ -198,7 +214,7 @@ export const TemplatesListView: React.FC<TemplatesViewProps> = (props): JSX.Elem
         Header: getString('common.gitSync.repoDetails').toUpperCase(),
         accessor: 'gitDetails',
         width: '30%',
-        Cell: GitDetailsColumn,
+        Cell: isGitSimplificationEnabled ? RenderRepoName : GitDetailsColumn,
         disableSortBy: true
       },
       {
@@ -220,7 +236,7 @@ export const TemplatesListView: React.FC<TemplatesViewProps> = (props): JSX.Elem
         onDelete
       }
     ],
-    [isGitSyncEnabled, onPreview, onOpenEdit, onOpenSettings, onDelete]
+    [isGitSyncEnabled, isGitSimplificationEnabled, onPreview, onOpenEdit, onOpenSettings, onDelete]
   )
 
   if (hideMenu) {

@@ -8,16 +8,25 @@
 import React from 'react'
 import { useModalHook } from '@harness/use-modal'
 import produce from 'immer'
-import { omit } from 'lodash-es'
+import { defaultTo, merge, omit } from 'lodash-es'
 import { Dialog } from '@blueprintjs/core'
 import { useParams } from 'react-router-dom'
+import classNames from 'classnames'
 import { DefaultTemplate } from 'framework/Templates/templates'
-import { ModalProps, TemplateConfigModal, Intent } from 'framework/Templates/TemplateConfigModal/TemplateConfigModal'
-import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
+import {
+  Fields,
+  ModalProps,
+  TemplateConfigModal,
+  Intent
+} from 'framework/Templates/TemplateConfigModal/TemplateConfigModal'
+import type { ProjectPathProps, GitQueryParams } from '@common/interfaces/RouteInterfaces'
+import { useQueryParams } from '@common/hooks'
 import { useSaveTemplate } from '@pipeline/utils/useSaveTemplate'
 import type { JsonNode } from 'services/cd-ng'
 import type { SaveTemplateButtonProps } from '@pipeline/components/PipelineStudio/SaveTemplateButton/SaveTemplateButton'
 import { useStrings } from 'framework/strings'
+import { StoreType } from '@common/constants/GitSyncTypes'
+import { AppStoreContext } from 'framework/AppStore/AppStoreContext'
 import css from './SaveAsTemplate.module.scss'
 
 interface TemplateActionsReturnType {
@@ -35,12 +44,38 @@ export function useSaveAsTemplate({
   fireSuccessEvent = false
 }: SaveAsTemplateProps): TemplateActionsReturnType {
   const { orgIdentifier, projectIdentifier } = useParams<ProjectPathProps>()
+  const { connectorRef, repoName, repoIdentifier, branch } = useQueryParams<GitQueryParams>()
   const [modalProps, setModalProps] = React.useState<ModalProps>()
+  const { isGitSyncEnabled, isGitSimplificationEnabled } = React.useContext(AppStoreContext)
+
   const { getString } = useStrings()
   const [showConfigModal, hideConfigModal] = useModalHook(
     () => (
-      <Dialog enforceFocus={false} isOpen={true} className={css.configDialog}>
-        {modalProps && <TemplateConfigModal {...modalProps} onClose={hideConfigModal} />}
+      <Dialog
+        enforceFocus={false}
+        isOpen={true}
+        className={classNames(css.configDialog, {
+          [css.gitConfigDialog]: isGitSimplificationEnabled
+        })}
+      >
+        {modalProps && (
+          <TemplateConfigModal
+            {...modalProps}
+            onClose={hideConfigModal}
+            initialValues={merge(modalProps.initialValues, {
+              repo: defaultTo(repoIdentifier, ''),
+              branch: defaultTo(branch, ''),
+              ...(isGitSimplificationEnabled
+                ? {
+                    connectorRef: defaultTo(connectorRef, ''),
+                    repo: defaultTo(repoName, ''),
+                    branch: defaultTo(branch, ''),
+                    storeType: StoreType.INLINE
+                  }
+                : {})
+            })}
+          />
+        )}
       </Dialog>
     ),
     [modalProps]
@@ -72,7 +107,9 @@ export function useSaveAsTemplate({
         gitDetails,
         title: getString('common.template.saveAsNewTemplateHeading'),
         allowScopeChange: true,
-        intent: Intent.SAVE
+        intent: Intent.SAVE,
+        shouldGetComment: !isGitSyncEnabled,
+        disabledFields: [Fields.ConnectorRef, Fields.RepoName, Fields.Branch]
       })
       showConfigModal()
     } catch (_error) {

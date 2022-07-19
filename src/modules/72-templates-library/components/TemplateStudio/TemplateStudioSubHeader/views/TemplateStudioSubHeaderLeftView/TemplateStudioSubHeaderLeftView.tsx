@@ -22,7 +22,7 @@ import {
 import { useModalHook } from '@harness/use-modal'
 import { Color } from '@harness/design-system'
 import { useHistory, useParams } from 'react-router-dom'
-import { isEmpty, isNil } from 'lodash-es'
+import { defaultTo, isEmpty, isNil, merge } from 'lodash-es'
 import { Dialog } from '@blueprintjs/core'
 import {
   Fields,
@@ -32,7 +32,7 @@ import {
   Intent
 } from 'framework/Templates/TemplateConfigModal/TemplateConfigModal'
 import { TagsPopover, useToaster } from '@common/components'
-import useRBACError from '@rbac/utils/useRBACError/useRBACError'
+import useRBACError, { RBACError } from '@rbac/utils/useRBACError/useRBACError'
 import templateFactory from '@templates-library/components/Templates/TemplatesFactory'
 import type {
   GitQueryParams,
@@ -53,7 +53,16 @@ import { AppStoreContext } from 'framework/AppStore/AppStoreContext'
 import { DefaultNewTemplateId, DefaultNewVersionLabel } from 'framework/Templates/templates'
 import type { GitFilterScope } from '@common/components/GitFilters/GitFilters'
 import StudioGitPopover from '@pipeline/components/PipelineStudio/StudioGitPopover'
+import { StoreType } from '@common/constants/GitSyncTypes'
 import css from './TemplateStudioSubHeaderLeftView.module.scss'
+
+interface TemplateWithGitContextFormProps extends NGTemplateInfoConfig {
+  repo?: string
+  branch?: string
+  connectorRef?: string
+  filePath?: string
+  storeType?: StoreType
+}
 
 export interface TemplateStudioSubHeaderLeftViewProps {
   onGitBranchChange?: (selectedFilter: GitFilterScope) => void
@@ -62,15 +71,24 @@ export interface TemplateStudioSubHeaderLeftViewProps {
 export const TemplateStudioSubHeaderLeftView: (props: TemplateStudioSubHeaderLeftViewProps) => JSX.Element = ({
   onGitBranchChange
 }) => {
-  const { state, updateTemplate, deleteTemplateCache, fetchTemplate, view, isReadonly, setLoading, updateGitDetails } =
-    React.useContext(TemplateContext)
-  const { template, versions, stableVersion, isUpdated, gitDetails } = state
+  const {
+    state,
+    updateTemplate,
+    deleteTemplateCache,
+    fetchTemplate,
+    view,
+    isReadonly,
+    setLoading,
+    updateGitDetails,
+    updateStoreMetadata
+  } = React.useContext(TemplateContext)
+  const { template, versions, stableVersion, isUpdated, gitDetails, storeMetadata } = state
   const { accountId, projectIdentifier, orgIdentifier, module, templateType, templateIdentifier } = useParams<
     TemplateStudioPathProps & ModulePathParams
   >()
   const { updateQueryParams } = useUpdateQueryParams<TemplateStudioQueryParams>()
   const { repoIdentifier, branch } = useQueryParams<GitQueryParams>()
-  const { isGitSyncEnabled } = React.useContext(AppStoreContext)
+  const { isGitSyncEnabled, isGitSimplificationEnabled } = React.useContext(AppStoreContext)
   const iconColor = templateFactory.getTemplateColor(templateType) || Color.BLACK
   const [modalProps, setModalProps] = React.useState<ModalProps>()
   const isYaml = view === SelectedView.YAML
@@ -107,7 +125,25 @@ export const TemplateStudioSubHeaderLeftView: (props: TemplateStudioSubHeaderLef
 
     return (
       <Dialog enforceFocus={false} isOpen={true} className={css.createTemplateDialog}>
-        {modalProps && <TemplateConfigModal {...modalProps} onClose={onCloseCreate} />}
+        {modalProps && (
+          <TemplateConfigModal
+            {...modalProps}
+            onClose={onCloseCreate}
+            initialValues={merge(template, {
+              repo: defaultTo(gitDetails.repoIdentifier, ''),
+              branch: defaultTo(gitDetails.branch, ''),
+              ...(isGitSimplificationEnabled
+                ? {
+                    connectorRef: defaultTo(storeMetadata?.connectorRef, ''),
+                    repo: defaultTo(storeMetadata?.repoName, ''),
+                    branch: defaultTo(storeMetadata?.branch, ''),
+                    storeType: defaultTo(storeMetadata?.storeType, StoreType.INLINE),
+                    filePath: defaultTo(storeMetadata?.filePath, '')
+                  }
+                : {})
+            })}
+          />
+        )}
       </Dialog>
     )
   }, [template.identifier, navigateToTemplatesListPage, modalProps])
@@ -122,15 +158,30 @@ export const TemplateStudioSubHeaderLeftView: (props: TemplateStudioSubHeaderLef
       template.versionLabel = data.versionLabel
       template.orgIdentifier = data.orgIdentifier
       template.projectIdentifier = data.projectIdentifier
+      delete (template as TemplateWithGitContextFormProps).repo
+      delete (template as TemplateWithGitContextFormProps).branch
+      delete (template as TemplateWithGitContextFormProps).connectorRef
+      delete (template as TemplateWithGitContextFormProps).filePath
+      delete (template as TemplateWithGitContextFormProps).storeType
 
       try {
         await updateTemplate(template)
-        updateGitDetails(isEmpty(updatedGitDetails) ? {} : { ...gitDetails, ...updatedGitDetails }).then(() => {
-          updateQueryParams(
-            { repoIdentifier: updatedGitDetails?.repoIdentifier, branch: updatedGitDetails?.branch },
-            { skipNulls: true }
-          )
-        })
+
+        if (updatedGitDetails) {
+          if (isGitSimplificationEnabled && extraInfo.storeMetadata) {
+            updateStoreMetadata(extraInfo.storeMetadata, updatedGitDetails)
+          } else if (isGitSyncEnabled) {
+            updateGitDetails(isEmpty(updatedGitDetails) ? {} : { ...gitDetails, ...updatedGitDetails }).then(() => {
+              if (updatedGitDetails) {
+                updateQueryParams(
+                  { repoIdentifier: updatedGitDetails?.repoIdentifier, branch: updatedGitDetails?.branch },
+                  { skipNulls: true }
+                )
+              }
+            })
+          }
+        }
+
         return { status: 'SUCCESS' }
       } catch (error) {
         return { status: 'ERROR' }
@@ -177,7 +228,7 @@ export const TemplateStudioSubHeaderLeftView: (props: TemplateStudioSubHeaderLef
       await fetchTemplate({ forceFetch: true, forceUpdate: true })
     } catch (error) {
       showError(
-        getRBACErrorMessage(error) || getString('common.template.updateTemplate.errorWhileUpdating'),
+        getRBACErrorMessage(error as RBACError) || getString('common.template.updateTemplate.errorWhileUpdating'),
         undefined,
         'template.save.template.error'
       )

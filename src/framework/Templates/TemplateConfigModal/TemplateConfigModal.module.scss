@@ -7,6 +7,30 @@
 
 .basicDetails {
   padding: var(--spacing-10) var(--spacing-11) !important;
+  &.gitBasicDetails {
+    padding: var(--spacing-10) !important;
+    width: 800px !important;
+
+    .choosePipelineSetupHeader {
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 600;
+      margin-top: var(--spacing-medium) !important;
+      margin-bottom: var(--spacing-medium) !important;
+    }
+
+    .inlineRemoteWrapper {
+      display: flex;
+      gap: 20px;
+
+      & > :first-child {
+        flex: 1;
+        & > div {
+          justify-content: flex-start !important;
+        }
+      }
+    }
+  }
   border-radius: 6px;
 
   .nameIdDescriptionTags {
@@ -16,8 +40,18 @@
     }
   }
 
+  .gitNameIdDescriptionTags {
+    width: 350px;
+  }
+
   .comment {
     max-height: 240px !important;
+  }
+
+  .gitFormWrapper {
+    height: 440px !important;
+    overflow-y: auto;
+    scroll-behavior: smooth;
   }
 }
 

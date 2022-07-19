@@ -8,8 +8,13 @@
 // this is an auto-generated file, do not update this manually
 declare const styles: {
   readonly basicDetails: string
+  readonly choosePipelineSetupHeader: string
   readonly closeIcon: string
   readonly comment: string
+  readonly gitBasicDetails: string
+  readonly gitFormWrapper: string
+  readonly gitNameIdDescriptionTags: string
+  readonly inlineRemoteWrapper: string
   readonly nameIdDescriptionTags: string
 }
 export default styles
