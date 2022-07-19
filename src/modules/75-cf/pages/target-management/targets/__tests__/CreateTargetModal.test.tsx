@@ -20,6 +20,7 @@ import userEvent from '@testing-library/user-event'
 import { TestWrapper } from '@common/utils/testUtils'
 import * as useFeaturesMock from '@common/hooks/useFeatures'
 import * as usePlanEnforcementMock from '@cf/hooks/usePlanEnforcement'
+import mockTargets from '@cf/pages/feature-flags-detail/targeting-rules-tab/__tests__/data/mockTargets'
 import type { CheckFeatureReturn } from 'framework/featureStore/featureStoreUtil'
 import { FeatureIdentifier } from 'framework/featureStore/FeatureIdentifier'
 import CreateTargetModal, { CreateTargetModalProps } from '../CreateTargetModal'
@@ -54,15 +55,16 @@ describe('CreateTargetModal', () => {
     const onSubmitTargets = jest.fn()
     const onSubmitTargetFile = jest.fn()
 
-    const { container } = renderComponent({
+    renderComponent({
       loading: false,
-      onSubmitTargets: onSubmitTargets,
-      onSubmitTargetFile: onSubmitTargetFile
+      onSubmitTargets,
+      onSubmitTargetFile
     })
 
-    fireEvent.click(getByText(container, 'cf.targets.create'))
+    userEvent.click(screen.getByRole('button', { name: 'plus cf.targets.create' }))
 
     await waitFor(() => expect(document.querySelector('.bp3-portal')).toBeDefined())
+
     fireEvent.change(document.querySelector('input[placeholder="cf.targets.enterName"]') as HTMLInputElement, {
       target: { value: 'Target1' }
     })
@@ -78,69 +80,101 @@ describe('CreateTargetModal', () => {
       ).toBeNull()
     )
 
-    await act(async () => {
-      userEvent.click(screen.getByRole('button', { name: 'add' }))
-      // fireEvent.click(
-      //   document.querySelector(
-      //     '.bp3-portal [style*="height"] > button[type="button"][class*="intent-primary"]'
-      //   ) as HTMLButtonElement
-      // )
-    })
-    expect(onSubmitTargets).toBeCalledTimes(1)
+    userEvent.click(screen.getByRole('button', { name: 'add' }))
+
+    waitFor(() => expect(onSubmitTargets).toBeCalledTimes(1))
   })
 
   test('CreateTargetModal can add and remove rows', async () => {
-    const { container } = renderComponent()
+    renderComponent()
 
-    expect(getByText(container, 'cf.targets.create')).toBeDefined()
+    expect(screen.getByText('cf.targets.create')).toBeDefined()
 
-    await act(async () => {
-      fireEvent.click(getByText(container, 'cf.targets.create'))
-    })
+    userEvent.click(screen.getByRole('button', { name: 'plus cf.targets.create' }))
 
-    const modal = document.querySelector('.bp3-portal') as HTMLElement
-    await waitFor(() => expect(modal).toBeDefined())
+    const modal = screen.getByTestId('create-target-form')
+    await waitFor(() => expect(modal).toBeInTheDocument())
 
     // add row
     expect(getAllByPlaceholderText(modal, 'cf.targets.enterName').length).toBe(1)
+    expect(getAllByPlaceholderText(modal, 'cf.targets.enterValue').length).toBe(1)
+
+    userEvent.click(screen.getByRole('button', { name: 'plus' }))
+
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'plus' }))
+      expect(getAllByPlaceholderText(modal, 'cf.targets.enterName').length).toBe(2)
+      expect(getAllByPlaceholderText(modal, 'cf.targets.enterValue').length).toBe(2)
     })
-    expect(getAllByPlaceholderText(modal, 'cf.targets.enterName').length).toBe(2)
 
     // remove row
-    await act(async () => {
-      fireEvent.click(document.querySelector('.bp3-icon-minus') as HTMLElement)
-    })
+    userEvent.click(screen.getAllByRole('button', { name: 'minus' })[0])
 
-    expect(getAllByPlaceholderText(modal, 'cf.targets.enterName').length).toBe(1)
+    await act(async () => {
+      expect(getAllByPlaceholderText(modal, 'cf.targets.enterName').length).toBe(1)
+      expect(getAllByPlaceholderText(modal, 'cf.targets.enterValue').length).toBe(1)
+    })
   })
 
   test('CreateTargetModal can toggle upload options', async () => {
-    const { container } = renderComponent()
+    renderComponent()
 
-    expect(getByText(container, 'cf.targets.create')).toBeDefined()
-
-    await act(async () => {
-      fireEvent.click(getByText(container, 'cf.targets.create'))
-    })
+    expect(screen.getByRole('button', { name: 'plus cf.targets.create' })).toBeDefined()
+    userEvent.click(screen.getByRole('button', { name: 'plus cf.targets.create' }))
 
     const modal = document.querySelector('.bp3-portal') as HTMLElement
     await waitFor(() => expect(modal).toBeDefined())
 
     // click upload targets button
-    await act(async () => {
-      fireEvent.click(getByText(modal, 'cf.targets.upload'))
-    })
+    userEvent.click(screen.getByRole('radio', { name: 'cf.targets.upload' }))
 
     expect(getByText(modal, 'cf.targets.uploadYourFile')).toBeDefined()
 
     // click add a target
-    await act(async () => {
-      fireEvent.click(getByText(modal, 'cf.targets.list'))
-    })
+    userEvent.click(screen.getByRole('radio', { name: 'cf.targets.list' }))
 
     expect(getAllByPlaceholderText(modal, 'cf.targets.enterName').length).toBeDefined
+  })
+
+  test('CreateTargetModal should not allow duplicate identifier and show error message', async () => {
+    const onSubmitTargets = jest.fn()
+    renderComponent({ existingTargets: mockTargets, onSubmitTargets })
+
+    userEvent.click(screen.getByRole('button', { name: 'plus cf.targets.create' }))
+
+    const modal = document.querySelector('.bp3-portal') as HTMLElement
+    await waitFor(() => expect(modal).toBeDefined())
+
+    userEvent.type(screen.getByPlaceholderText('cf.targets.enterValue'), 'target4', { allAtOnce: true })
+    userEvent.type(screen.getByPlaceholderText('cf.targets.enterName'), 'new target name', { allAtOnce: true })
+
+    userEvent.click(screen.getByRole('button', { name: 'add' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('cf.targets.duplicateId')).toBeInTheDocument()
+      expect(onSubmitTargets).not.toBeCalled()
+    })
+  })
+
+  test('CreateTargetModal should allow duplicate target name', async () => {
+    const onSubmitTargets = jest.fn()
+    renderComponent({ existingTargets: mockTargets, onSubmitTargets })
+
+    userEvent.click(screen.getByRole('button', { name: 'plus cf.targets.create' }))
+
+    const modal = document.querySelector('.bp3-portal') as HTMLElement
+    await waitFor(() => expect(modal).toBeDefined())
+
+    userEvent.type(screen.getByPlaceholderText('cf.targets.enterValue'), 'unique target identifier', {
+      allAtOnce: true
+    })
+
+    userEvent.type(screen.getByPlaceholderText('cf.targets.enterName'), 'target_4', { allAtOnce: true })
+
+    userEvent.click(screen.getByRole('button', { name: 'add' }))
+
+    await waitFor(() => {
+      expect(onSubmitTargets).toBeCalledTimes(1)
+    })
   })
 
   test('+ New Target button should show CreateTargetModal when user is within MAU limit', async () => {

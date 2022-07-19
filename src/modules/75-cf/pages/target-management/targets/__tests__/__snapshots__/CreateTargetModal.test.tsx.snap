@@ -55,6 +55,7 @@ exports[`CreateTargetModal CreateTargetModal should render initial state correct
         <form
           action="#"
           class="FormikForm--main"
+          data-testid="create-target-form"
         >
           <div>
             <div
@@ -108,7 +109,7 @@ exports[`CreateTargetModal CreateTargetModal should render initial state correct
                     >
                       <div
                         class="bp3-form-group"
-                        data-id="name-0"
+                        data-id="targets.0.name-0"
                         style="width: 285px;"
                       >
                         <div
@@ -120,7 +121,7 @@ exports[`CreateTargetModal CreateTargetModal should render initial state correct
                             <input
                               autocomplete="off"
                               class="bp3-input"
-                              name="name"
+                              name="targets.0.name"
                               placeholder="cf.targets.enterName"
                               type="text"
                               value=""
@@ -130,7 +131,7 @@ exports[`CreateTargetModal CreateTargetModal should render initial state correct
                       </div>
                       <div
                         class="bp3-form-group"
-                        data-id="identifier-1"
+                        data-id="targets.0.identifier-1"
                         style="width: 285px;"
                       >
                         <div
@@ -142,7 +143,7 @@ exports[`CreateTargetModal CreateTargetModal should render initial state correct
                             <input
                               autocomplete="off"
                               class="bp3-input"
-                              name="identifier"
+                              name="targets.0.identifier"
                               placeholder="cf.targets.enterValue"
                               type="text"
                               value=""
