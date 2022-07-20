@@ -1,4 +1,4 @@
-import { featureFlagsCall } from '../../support/70-pipeline/constants'
+import { featureFlagsCall, yamlSnippet } from '../../support/70-pipeline/constants'
 import {
   applyTemplatesCall,
   applyTemplatesResponseForServiceRuntime,
@@ -26,7 +26,8 @@ import {
   savePipelineGetResponse,
   inputSetsTemplateServiceRunTimeInputResponse,
   inputSetsTemplateResponse2,
-  servicesCall
+  servicesCall,
+  strategiesYamlSnippets
 } from '../../support/85-cv/verifyStep/constants'
 
 const connectorsResponse = {
@@ -583,17 +584,22 @@ describe('Verify step add', () => {
         cy.get('.Header--closeBtn').click()
       }
     })
-    cy.contains('p', 'testService').click({ force: true })
+    cy.contains('span', 'New Service').click()
+    cy.fillName('testService')
+    cy.get('[data-id="service-save"]').click()
+    cy.contains('span', 'Service created successfully').should('be.visible')
+    cy.get('[value="testService"]').should('be.visible')
     cy.contains('p', /^Kubernetes$/).click()
+    cy.wait(2000)
     cy.contains('span', 'Continue').click({ force: true })
 
-    cy.wait(1000)
-
-    cy.url().should('contain', 'INFRASTRUCTURE')
-
     // Infrastructure definition
-    cy.get('input[name="environmentRef"]').click({ force: true })
-    cy.contains('p', 'testEnv').click({ force: true })
+    cy.contains('span', 'New Environment').click()
+    cy.fillName('testEnv')
+    cy.contains('p', 'Production').click()
+    cy.get('[data-id="environment-save"]').click()
+    cy.contains('span', 'Environment created successfully').should('be.visible')
+    cy.get('[value="testEnv"]').should('be.visible')
 
     cy.verifyStepSelectConnector()
 

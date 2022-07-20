@@ -340,6 +340,75 @@ Cypress.Commands.add('verifyStepInitialSetup', () => {
   cy.wait('@service')
 })
 
+const connectorsResponse = {
+  status: 'SUCCESS',
+  data: {
+    totalPages: 1,
+    totalItems: 1,
+    pageItemCount: 1,
+    pageSize: 10,
+    content: [
+      {
+        connector: {
+          name: 'test111',
+          identifier: 'fgd_1658312855553',
+          description: null,
+          orgIdentifier: 'default',
+          projectIdentifier: 'project1',
+          tags: {},
+          type: 'K8sCluster',
+          spec: {
+            credential: {
+              type: 'InheritFromDelegate',
+              spec: null
+            },
+            delegateSelectors: ['abcscsa']
+          }
+        },
+        createdAt: 1658312856342,
+        lastModifiedAt: 1658312856334,
+        status: {
+          status: 'FAILURE',
+          errorSummary: ' No Delegate Found ( No Delegate Eligible to perform the request)',
+          errors: [
+            {
+              reason: ' No Delegate Found',
+              message: ' No Delegate Eligible to perform the request',
+              code: 463
+            }
+          ],
+          testedAt: 1658312857733,
+          lastTestedAt: 0,
+          lastConnectedAt: 0
+        },
+        activityDetails: {
+          lastActivityTime: 1658312856364
+        },
+        harnessManaged: false,
+        gitDetails: {
+          objectId: null,
+          branch: null,
+          repoIdentifier: null,
+          rootFolder: null,
+          filePath: null,
+          repoName: null,
+          commitId: null,
+          fileUrl: null
+        },
+        entityValidityDetails: {
+          valid: true,
+          invalidYaml: null
+        },
+        governanceMetadata: null
+      }
+    ],
+    pageIndex: 0,
+    empty: false
+  },
+  metaData: null,
+  correlationId: 'a1b11e33-a628-4abd-af72-932da999b69e'
+}
+
 Cypress.Commands.add('verifyStepSelectConnector', () => {
   cy.intercept('POST', applyTemplatesCall).as('applyTemplatesCall')
   cy.intercept(
@@ -352,11 +421,11 @@ Cypress.Commands.add('verifyStepSelectConnector', () => {
 
   cy.contains('span', 'Select Connector').click({ force: true })
 
-  cy.wait('@connectors')
+  // cy.wait('@connectors')
 
-  cy.contains('p', 'test1111', { timeout: 5000 }).should('be.visible')
+  cy.contains('p', 'test111', { timeout: 5000 }).should('be.visible')
 
-  cy.contains('p', 'test1111').click({ force: true })
+  cy.contains('p', 'test111').click({ force: true })
 
   // cy.wait(500)
 
