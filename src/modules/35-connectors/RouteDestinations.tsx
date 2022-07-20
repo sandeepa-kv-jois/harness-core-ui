@@ -24,6 +24,7 @@ import { String } from 'framework/strings'
 import { AccountSideNavProps } from '@common/RouteDestinations'
 import type { ResourceDTO } from 'services/audit'
 import ConnectorResourceModalBody from './components/ConnectorResourceModalBody/ConnectorResourceModalBody'
+import ConnectorAttributeModalBody from './components/ConnectorAttributeModalBody/ConnectorAttributeModalBody'
 
 RbacFactory.registerResourceTypeHandler(ResourceType.CONNECTOR, {
   icon: 'res-connectors',
@@ -36,7 +37,8 @@ RbacFactory.registerResourceTypeHandler(ResourceType.CONNECTOR, {
     [PermissionIdentifier.ACCESS_CONNECTOR]: <String stringID="rbac.permissionLabels.access" />
   },
   // eslint-disable-next-line react/display-name
-  addResourceModalBody: props => <ConnectorResourceModalBody {...props} />
+  addResourceModalBody: props => <ConnectorResourceModalBody {...props} />,
+  addAttributeModalBody: props => <ConnectorAttributeModalBody {...props} />
 })
 
 const platformLabel = 'auditTrail.Platform'
