@@ -16,11 +16,12 @@ import useAddResourceModal from '@rbac/modals/AddResourceModal/useAddResourceMod
 import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
 import { isDynamicResourceSelector } from '@rbac/utils/utils'
+import type { ResourceSelectorValue } from '@rbac/pages/ResourceGroupDetails/utils'
 import css from './ResourcesCard.module.scss'
 
 interface ResourcesCardProps {
   resourceType: ResourceType
-  resourceValues: string | string[]
+  resourceValues: ResourceSelectorValue
   onResourceSelectionChange: (resourceType: ResourceType, isAdd: boolean, identifiers?: string[] | undefined) => void
   disableAddingResources?: boolean
   disableSelection?: boolean
