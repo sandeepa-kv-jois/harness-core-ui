@@ -14,6 +14,7 @@ import type { AccountPathProps } from '@common/interfaces/RouteInterfaces'
 import { useStrings } from 'framework/strings'
 import { useDashboardsContext } from '@dashboards/pages/DashboardsContext'
 import { SHARED_FOLDER_ID } from '@dashboards/constants'
+import { LookerEvents } from '@dashboards/constants/LookerEvents'
 import {
   ErrorResponse,
   useCreateSignedUrl,
@@ -58,8 +59,8 @@ const DashboardViewPage: React.FC = () => {
   React.useEffect(() => {
     const lookerEventHandler = (event: MessageEvent<string>): void => {
       if (event.origin === DASHBOARDS_ORIGIN) {
-        const onChangeData = JSON.parse(event.data)
-        if (onChangeData && onChangeData.type === 'page:changed' && onChangeData.page?.url?.includes('embed/explore')) {
+        const eventData = JSON.parse(event.data)
+        if (eventData?.type === LookerEvents.PAGE_CHANGED && eventData.page?.url?.includes('embed/explore')) {
           history.go(0)
         }
       }
