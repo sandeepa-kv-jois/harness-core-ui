@@ -9,10 +9,11 @@ import React, { useMemo } from 'react'
 import { Layout, useToaster, useConfirmationDialog } from '@wings-software/uicore'
 import { Intent } from '@harness/design-system'
 import cx from 'classnames'
-import { cloneDeep, debounce, isNil } from 'lodash-es'
+import { cloneDeep, debounce, isNil, isEmpty } from 'lodash-es'
 import type { NodeModelListener, LinkModelListener } from '@projectstorm/react-diagrams-core'
 import SplitPane from 'react-split-pane'
 import produce from 'immer'
+import { HelpPanel, HelpPanelType } from '@harness/help-panel'
 import { DynamicPopover, DynamicPopoverHandlerBinding } from '@common/components/DynamicPopover/DynamicPopover'
 import { useTelemetry } from '@common/hooks/useTelemetry'
 import { StageActions } from '@common/constants/TrackingConstants'
@@ -24,7 +25,7 @@ import { useValidationErrors } from '@pipeline/components/PipelineStudio/Pipline
 import HoverCard from '@pipeline/components/HoverCard/HoverCard'
 import { StepMode as Modes } from '@pipeline/utils/stepUtils'
 import ConditionalExecutionTooltip from '@pipeline/components/ConditionalExecutionToolTip/ConditionalExecutionTooltip'
-import { useGlobalEventListener } from '@common/hooks'
+import { useGlobalEventListener, useQueryParams } from '@common/hooks'
 import type { StageElementWrapper } from '@pipeline/utils/pipelineTypes'
 import { StageType } from '@pipeline/utils/stageHelpers'
 import { getPipelineGraphData } from '@pipeline/components/PipelineDiagram/PipelineGraph/PipelineGraphUtils'
@@ -38,6 +39,7 @@ import StartNodeStage from '@pipeline/components/PipelineDiagram/Nodes/StartNode
 import DiagramLoader from '@pipeline/components/DiagramLoader/DiagramLoader'
 import { useFeatureFlag } from '@common/hooks/useFeatureFlag'
 import { FeatureFlag } from '@common/featureFlags'
+import type { DeploymentStageConfig } from 'services/cd-ng'
 import {
   CanvasWidget,
   createEngine,
@@ -62,13 +64,15 @@ import {
   getNodeEventListerner,
   MoveDirection,
   MoveStageDetailsType,
-  moveStage
+  moveStage,
+  getFlattenedStages
 } from './StageBuilderUtil'
 import { useStageBuilderCanvasState } from './useStageBuilderCanvasState'
 import { StageList } from './views/StageList'
 import { SplitViewTypes } from '../PipelineContext/PipelineActions'
 import { usePipelineContext } from '../PipelineContext/PipelineContext'
 import { getNodeListenersOld, getLinkListernersOld } from './StageBuildOldUtils'
+import type { PipelineSelectionState } from '../PipelineQueryParamState/usePipelineQueryParam'
 import css from './StageBuilder.module.scss'
 
 const diagram = new DiagramFactory('graph')
@@ -226,6 +230,7 @@ function StageBuilder(): JSX.Element {
     getStageFromPipeline,
     setSelection
   } = usePipelineContext()
+  const { sectionId, storeType } = useQueryParams<PipelineSelectionState>()
 
   // NOTE: we are using ref as setSelection is getting cached somewhere
   const setSelectionRef = React.useRef(setSelection)
@@ -245,11 +250,30 @@ function StageBuilder(): JSX.Element {
 
   const [deleteId, setDeleteId] = React.useState<string | undefined>(undefined)
   const { showSuccess, showError } = useToaster()
+
+  let deletionContentText = `${getString('stageConfirmationText', {
+    name: getStageFromPipeline(deleteId || '').stage?.stage?.name || deleteId,
+    id: deleteId
+  })} `
+
+  if (deleteId) {
+    const propagatingStages = getFlattenedStages(pipeline)
+      .stages?.filter(
+        currentStage =>
+          (currentStage.stage?.spec as DeploymentStageConfig)?.serviceConfig?.useFromStage?.stage === deleteId
+      )
+      ?.reduce((prev, next) => {
+        return prev ? `${prev}, ${next.stage?.name}` : next.stage?.name || ''
+      }, '')
+
+    if (propagatingStages)
+      deletionContentText = getString('pipeline.parentStageDeleteWarning', {
+        propagatingStages
+      })
+  }
+
   const { openDialog: confirmDeleteStage } = useConfirmationDialog({
-    contentText: `${getString('stageConfirmationText', {
-      name: getStageFromPipeline(deleteId || '').stage?.stage?.name || deleteId,
-      id: deleteId
-    })} `,
+    contentText: deletionContentText,
     titleText: getString('deletePipelineStage'),
     confirmButtonText: getString('delete'),
     cancelButtonText: getString('cancel'),
@@ -626,7 +650,8 @@ function StageBuilder(): JSX.Element {
     updateMoveStageDetails,
     confirmMoveStage,
     stageMap,
-    newPipelineStudioEnabled
+    newPipelineStudioEnabled,
+    sectionId
   )
 
   const resetPipelineStages = (stages: StageElementWrapperConfig[]): void => {
@@ -754,6 +779,20 @@ function StageBuilder(): JSX.Element {
     })
   }, [pipeline, errorMap, templateTypes])
 
+  const referenceId = (sectionIdPassed: string | null | undefined): string => {
+    switch (sectionIdPassed) {
+      case 'SERVICE':
+        return 'ServicePipelineStudio'
+      case 'INFRASTRUCTURE':
+        return 'InfrastructurePipelineStudio'
+      case 'EXECUTION':
+        return 'ExecutionPipelineStudio'
+      case 'ADVANCED':
+        return 'AdvancedStagePipelineStudio'
+      default:
+        return 'PipelineStudio'
+    }
+  }
   return (
     <Layout.Horizontal className={cx(css.canvasContainer)} padding="medium">
       <div className={css.canvasWrapper}>
@@ -819,6 +858,9 @@ function StageBuilder(): JSX.Element {
           </div>
         </SplitPane>
       </div>
+      {!isEmpty(sectionId) || (storeType === 'INLINE' && isEmpty(sectionId)) ? (
+        <HelpPanel referenceId={referenceId(sectionId)} type={HelpPanelType.FLOATING_CONTAINER} />
+      ) : null}
     </Layout.Horizontal>
   )
 }

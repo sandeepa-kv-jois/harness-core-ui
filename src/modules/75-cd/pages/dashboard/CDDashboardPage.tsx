@@ -17,7 +17,7 @@ import { Page } from '@common/exports'
 import { useStrings } from 'framework/strings'
 import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import CardRailView from '@pipeline/components/Dashboards/CardRailView/CardRailView'
-import { useGetWorkloads, useGetDeployments, CDPipelineModuleInfo, ExecutionStatusInfo } from 'services/cd-ng'
+import { useGetWorkloads, useGetDeployments, ExecutionStatusInfo, ServiceDeploymentInfo } from 'services/cd-ng'
 import type { CIBuildCommit, CIWebhookInfoDTO } from 'services/ci'
 import { PipelineExecutionSummary, useGetListOfExecutions } from 'services/pipeline-ng'
 import {
@@ -51,6 +51,11 @@ import DeploymentExecutionsChart from './DeploymentExecutionsChart'
 import WorkloadCard from './DeploymentCards/WorkloadCard'
 import bgImage from './images/CD-OverviewImageBG-compressed.png'
 import styles from './CDDashboardPage.module.scss'
+
+export interface CDModuleInfoProps {
+  serviceIdentifier: ServiceDeploymentInfo[]
+  envIdentifiers: string[]
+}
 
 const NoDataOverviewPage = (): JSX.Element => {
   const { projectIdentifier, orgIdentifier, accountId } = useParams<ProjectPathProps>()
@@ -100,10 +105,8 @@ export function executionStatusInfoToExecutionSummary(
   info: ExecutionStatusInfo,
   caller: string
 ): PipelineExecutionSummary {
-  const cd: CDPipelineModuleInfo = {
-    serviceIdentifiers: info.serviceInfoList?.map(item =>
-      item && caller === DashboardSelected.OVERVIEW ? item.serviceName : item.serviceTag
-    ) as string[],
+  const cd = {
+    serviceIdentifiers: info.serviceInfoList,
     envIdentifiers: info.environmentInfoList?.map(item => item.envName) as string[]
   }
 

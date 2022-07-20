@@ -6,19 +6,40 @@
  */
 
 import React from 'react'
-import { render } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { DashboardSelected, ServiceExecutionsCard, ServiceExecutionsCardProps } from '../ServiceExecutionsCard'
 
 const props: ServiceExecutionsCardProps = {
   envIdentifiers: ['e1', 'e2'],
-  serviceIdentifiers: ['s1', 's2'],
+  serviceIdentifiers: [
+    {
+      image: 'imageCustom',
+      serviceName: 'serviceName',
+      serviceTag: 'tag1'
+    },
+    {
+      image: 'imageCustom2',
+      serviceName: 'serviceName2',
+      serviceTag: 'tag2'
+    },
+    {
+      image: 'imageCustom3',
+      serviceName: 'serviceName3',
+      serviceTag: 'tag3'
+    },
+    {
+      image: 'imageCustom4',
+      serviceName: 'serviceName4',
+      serviceTag: 'tag4'
+    }
+  ],
   caller: DashboardSelected.SERVICEDETAIL
 }
 
 describe('ServiceExecutionsCard ', () => {
-  test('initial render', () => {
+  test('initial render', async () => {
     const { container } = render(<ServiceExecutionsCard {...props} />)
-    expect(container).toMatchSnapshot()
+    await waitFor(() => expect(container).toMatchSnapshot())
   })
   test('render when called from overview dashboard', () => {
     props.caller = DashboardSelected.OVERVIEW

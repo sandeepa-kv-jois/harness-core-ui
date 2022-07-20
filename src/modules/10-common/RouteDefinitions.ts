@@ -1603,17 +1603,17 @@ const routes = {
   ),
 
   // These RoutesDestinations are defined in the MicroFrontend
-  toChaosWorkflows: withAccountId(
+  toChaosScenarios: withAccountId(
     ({ orgIdentifier, projectIdentifier }: Partial<ProjectPathProps>) =>
-      `/chaos/orgs/${orgIdentifier}/projects/${projectIdentifier}/workflows`
+      `/chaos/orgs/${orgIdentifier}/projects/${projectIdentifier}/scenarios`
   ),
   toChaosHubs: withAccountId(
     ({ orgIdentifier, projectIdentifier }: Partial<ProjectPathProps>) =>
       `/chaos/orgs/${orgIdentifier}/projects/${projectIdentifier}/chaos-hubs`
   ),
-  toChaosAgents: withAccountId(
+  toChaosDelegate: withAccountId(
     ({ orgIdentifier, projectIdentifier }: Partial<ProjectPathProps>) =>
-      `/chaos/orgs/${orgIdentifier}/projects/${projectIdentifier}/agents`
+      `/chaos/orgs/${orgIdentifier}/projects/${projectIdentifier}/chaos-delegates`
   )
 }
 

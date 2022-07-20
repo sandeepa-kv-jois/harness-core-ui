@@ -267,6 +267,7 @@ export function PrometheusHealthSource(props: PrometheusHealthSourceProps): JSX.
                           expressions={expressions}
                           metricPackResponse={metricPackResponse}
                           labelNamesResponse={labelNamesResponse}
+                          isConnectorRuntimeOrExpression={isConnectorRuntimeOrExpression}
                         />
                       }
                     />
@@ -304,6 +305,7 @@ export function PrometheusHealthSource(props: PrometheusHealthSourceProps): JSX.
               onNext={async () => {
                 formikProps.setTouched({
                   ...formikProps.touched,
+                  [PrometheusMonitoringSourceFieldNames.QUERY]: true,
                   [PrometheusMonitoringSourceFieldNames.PROMETHEUS_METRIC]: true,
                   [PrometheusMonitoringSourceFieldNames.GROUP_NAME]: true,
                   [PrometheusMonitoringSourceFieldNames.SERVICE_FILTER]: true,

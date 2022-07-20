@@ -7,7 +7,16 @@
 
 import * as Yup from 'yup'
 import { useStrings, UseStringsReturn } from 'framework/strings'
-import { illegalIdentifiers, regexEmail, regexIdentifier, regexName } from '@common/utils/StringUtils'
+import {
+  illegalIdentifiers,
+  regexEmail,
+  regexIdentifier,
+  regexName,
+  regexVersionLabel
+} from '@common/utils/StringUtils'
+
+const MAX_VERSION_LABEL_LENGTH = 63
+
 interface EmailProps {
   allowMultiple?: boolean
   emailSeparator?: string
@@ -128,4 +137,29 @@ export const ConnectorRefSchema = (config?: { requiredErrorMsg?: string }): Yup.
   return Yup.mixed().required(
     config?.requiredErrorMsg ? config?.requiredErrorMsg : getString('pipelineSteps.build.create.connectorRequiredError')
   )
+}
+
+export function TemplateVersionLabelSchema() {
+  const { getString } = useStrings()
+  const versionLabelText = getString('common.versionLabel')
+  return Yup.string()
+    .trim()
+    .required(
+      getString('common.validation.fieldIsRequired', {
+        name: versionLabelText
+      })
+    )
+    .matches(
+      regexVersionLabel,
+      getString('common.validation.fieldMustStartWithAlphanumericAndCanNotHaveSpace', {
+        name: versionLabelText
+      })
+    )
+    .max(
+      MAX_VERSION_LABEL_LENGTH,
+      getString('common.validation.fieldCannotbeLongerThanN', {
+        name: versionLabelText,
+        n: MAX_VERSION_LABEL_LENGTH
+      })
+    )
 }

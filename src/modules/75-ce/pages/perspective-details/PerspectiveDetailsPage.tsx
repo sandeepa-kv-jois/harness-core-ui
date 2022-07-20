@@ -12,6 +12,7 @@ import qs from 'qs'
 import cx from 'classnames'
 import { Button, Container, Text, PageHeader, PageBody, Icon, useToaster } from '@wings-software/uicore'
 import { FontVariation, Color } from '@harness/design-system'
+import { Popover, Position, Switch } from '@blueprintjs/core'
 import routes from '@common/RouteDefinitions'
 import {
   PerspectiveAnomalyData,
@@ -32,7 +33,8 @@ import {
   ViewChartType,
   ViewType,
   QlceViewAggregateOperation,
-  useFetchPerspectiveTotalCountQuery
+  useFetchPerspectiveTotalCountQuery,
+  QlceViewPreferencesInput
 } from 'services/ce/services'
 import { useStrings } from 'framework/strings'
 import PerspectiveGrid from '@ce/components/PerspectiveGrid/PerspectiveGrid'
@@ -50,7 +52,8 @@ import {
   highlightNode,
   resetNodeState,
   clusterInfoUtil,
-  getQueryFiltersFromPerspectiveResponse
+  getQueryFiltersFromPerspectiveResponse,
+  UnallocatedCostClusterFields
 } from '@ce/utils/perspectiveUtils'
 import { AGGREGATE_FUNCTION, getGridColumnsByGroupBy } from '@ce/components/PerspectiveGrid/Columns'
 import { getGMTStartDateTime, getGMTEndDateTime, DEFAULT_TIME_RANGE } from '@ce/utils/momentUtils'
@@ -295,12 +298,26 @@ const PerspectiveDetailsPage: React.FC = () => {
     ],
     [perspectiveId, timeRange, filters]
   )
+  const [preferences, setPreferences] = useState<QlceViewPreferencesInput>({
+    includeOthers: false,
+    includeUnallocatedCost: false
+  })
+
+  useEffect(() => {
+    if (perspectiveData?.viewPreferences) {
+      setPreferences({
+        includeOthers: Boolean(perspectiveData?.viewPreferences?.includeOthers),
+        includeUnallocatedCost: Boolean(perspectiveData?.viewPreferences?.includeUnallocatedCost)
+      })
+    }
+  }, [perspectiveData])
 
   const [chartResult, executePerspectiveChartQuery] = useFetchPerspectiveTimeSeriesQuery({
     variables: {
       filters: queryFilters,
       limit: 12,
-      groupBy: [getTimeRangeFilter(aggregation), getGroupByFilter(groupBy)]
+      groupBy: [getTimeRangeFilter(aggregation), getGroupByFilter(groupBy)],
+      preferences
     }
   })
 
@@ -408,6 +425,9 @@ const PerspectiveDetailsPage: React.FC = () => {
   const { licenseInformation } = useLicenseStore()
   const isFreeEdition = licenseInformation['CE']?.edition === ModuleLicenseType.FREE
 
+  const isClusterDatasource =
+    perspectiveData?.dataSources?.length === 1 && perspectiveData?.dataSources.includes('CLUSTER')
+
   return (
     <>
       <PerspectiveHeader title={persName} viewType={perspectiveData?.viewType || ViewType.Default} />
@@ -442,6 +462,16 @@ const PerspectiveDetailsPage: React.FC = () => {
               groupBy={groupBy}
               setGroupBy={setGroupBy}
               timeFilter={getTimeFilters(getGMTStartDateTime(timeRange.from), getGMTEndDateTime(timeRange.to))}
+              preferencesDropDown={
+                <PreferencesDropDown
+                  preferences={preferences}
+                  setPreferences={setPreferences}
+                  showIncludeUnallocatedCost={
+                    isClusterDatasource &&
+                    (Object.values(UnallocatedCostClusterFields) as string[]).includes(groupBy.fieldId)
+                  }
+                />
+              }
             />
             {!isChartGridEmpty && (
               <CloudCostInsightChart
@@ -517,3 +547,51 @@ const PerspectiveDetailsPage: React.FC = () => {
 }
 
 export default PerspectiveDetailsPage
+
+const PreferencesDropDown: React.FC<{
+  preferences: QlceViewPreferencesInput
+  setPreferences: React.Dispatch<React.SetStateAction<QlceViewPreferencesInput>>
+  showIncludeUnallocatedCost: boolean
+}> = ({ preferences, setPreferences, showIncludeUnallocatedCost }) => {
+  const { getString } = useStrings()
+
+  return (
+    <Popover
+      interactionKind="click"
+      targetClassName={css.preferencesPopover}
+      content={
+        <Container className={css.preferenceMenu}>
+          <Switch
+            large
+            checked={Boolean(preferences.includeOthers)}
+            label={getString('ce.perspectives.createPerspective.preferences.includeOthers')}
+            className={css.prefLabel}
+            onChange={event => {
+              setPreferences(prevPref => ({ ...prevPref, includeOthers: event.currentTarget.checked }))
+            }}
+          />
+          {showIncludeUnallocatedCost ? (
+            <Switch
+              large
+              checked={Boolean(preferences.includeUnallocatedCost)}
+              label={getString('ce.perspectives.createPerspective.preferences.includeUnallocated')}
+              className={css.prefLabel}
+              onChange={event => {
+                setPreferences(prevPref => ({ ...prevPref, includeUnallocatedCost: event.currentTarget.checked }))
+              }}
+            />
+          ) : null}
+        </Container>
+      }
+      minimal
+      position={Position.BOTTOM}
+    >
+      <Container className={css.preferencesContainer}>
+        <Text color={Color.GREY_800} font={{ variation: FontVariation.SMALL_SEMI }}>
+          {getString('preferences')}
+        </Text>
+        <Icon name="chevron-down" />
+      </Container>
+    </Popover>
+  )
+}

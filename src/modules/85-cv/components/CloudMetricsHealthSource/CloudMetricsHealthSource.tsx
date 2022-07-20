@@ -143,6 +143,7 @@ export default function CloudMetricsHealthSource<T>(props: CloudMetricsHealthSou
                   {metricDetailsContent}
                   <Container className={css.healthServicesContainer}>
                     <SelectHealthSourceServices
+                      key={formikProps.values?.identifier}
                       values={{
                         sli,
                         healthScore,
@@ -182,7 +183,11 @@ export default function CloudMetricsHealthSource<T>(props: CloudMetricsHealthSou
                     isConnectorRuntimeOrExpression={isConnectorRuntimeOrExpression}
                   />
                   <MetricsValidationChart
-                    submitQueryText={'cv.monitoringSources.datadogLogs.submitQueryToSeeRecords'}
+                    submitQueryText={
+                      isConnectorRuntimeOrExpression
+                        ? 'cv.customHealthSource.chartRuntimeWarning'
+                        : 'cv.monitoringSources.datadogLogs.submitQueryToSeeRecords'
+                    }
                     loading={timeseriesDataLoading}
                     error={timeseriesDataError}
                     sampleData={sampleData}

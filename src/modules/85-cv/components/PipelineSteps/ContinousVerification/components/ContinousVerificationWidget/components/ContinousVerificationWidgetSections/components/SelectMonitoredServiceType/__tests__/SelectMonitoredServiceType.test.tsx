@@ -7,11 +7,22 @@
 
 import React from 'react'
 import { render } from '@testing-library/react'
-import type { MultiTypeInputType } from '@harness/uicore'
+import type { AllowedTypesWithRunTime } from '@harness/uicore'
 import { TestWrapper } from '@common/utils/testUtils'
 
 import SelectMonitoredServiceType, { SelectMonitoredServiceTypeProps } from '../SelectMonitoredServiceType'
-import { mockedFormikWithTemplatesData } from './SelectMonitoredServiceType.mock'
+import {
+  mockedFormikWithTemplatesData,
+  mockedTemplateData,
+  mockedTemplateInputYaml,
+  updatedSpecs
+} from './SelectMonitoredServiceType.mock'
+import {
+  getInitialHealthSources,
+  getInitialHealthSourceVariables,
+  getInitialServiceAndEnv,
+  getUpdatedSpecs
+} from '../SelectMonitoredServiceType.utils'
 
 jest.mock('services/cv', () => {
   return {
@@ -62,7 +73,7 @@ describe('Unit tests for SelectMonitoredServiceType', () => {
   test('Verify if correct template inputs are rendered in the verify step', async () => {
     const props = {
       formik: mockedFormikWithTemplatesData,
-      allowableTypes: ['FIXED', 'RUNTIME', 'EXPRESSION'] as MultiTypeInputType[]
+      allowableTypes: ['FIXED', 'RUNTIME', 'EXPRESSION'] as AllowedTypesWithRunTime[]
     }
     const { getByText } = render(<WrapperComponent {...props} />)
     // validate service and env.
@@ -85,10 +96,50 @@ describe('Unit tests for SelectMonitoredServiceType', () => {
   test('Verify if select button template button is present to select the template', () => {
     const props = {
       formik: mockedFormikWithTemplatesData,
-      allowableTypes: ['FIXED', 'RUNTIME', 'EXPRESSION'] as MultiTypeInputType[]
+      allowableTypes: ['FIXED', 'RUNTIME', 'EXPRESSION'] as AllowedTypesWithRunTime[]
     }
     const { queryByText } = render(<WrapperComponent {...props} />)
     const useTemplateButton = queryByText('common.useTemplate')
     expect(useTemplateButton).toBeInTheDocument()
+  })
+
+  test('Validate getUpdatedSpecs method', () => {
+    expect(getUpdatedSpecs(mockedFormikWithTemplatesData.values, mockedTemplateInputYaml, mockedTemplateData)).toEqual(
+      updatedSpecs
+    )
+  })
+
+  test('Validate getInitialHealthSourceVariables method', () => {
+    expect(getInitialHealthSourceVariables(mockedFormikWithTemplatesData.values)).toEqual([
+      { name: 'connectorVariable', type: 'String', value: '<+input>' }
+    ])
+  })
+
+  test('Validate getInitialServiceAndEnv method', () => {
+    expect(getInitialServiceAndEnv(mockedFormikWithTemplatesData.values)).toEqual({
+      environmentRef: '<+input>',
+      serviceRef: '<+input>'
+    })
+  })
+
+  test('Validate getInitialHealthSources method', () => {
+    expect(getInitialHealthSources(mockedFormikWithTemplatesData.values)).toEqual([
+      {
+        identifier: 'Appd',
+        spec: {
+          applicationName: '<+input>',
+          connectorRef: '<+input>',
+          metricDefinitions: [
+            {
+              analysis: { deploymentVerification: { serviceInstanceMetricPath: '<+input>' } },
+              completeMetricPath: '<+input>',
+              identifier: 'appdMetric'
+            }
+          ],
+          tierName: '<+input>'
+        },
+        type: 'AppDynamics'
+      }
+    ])
   })
 })

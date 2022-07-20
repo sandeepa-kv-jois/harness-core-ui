@@ -22,7 +22,8 @@ import {
   ButtonSize,
   ButtonVariation,
   SplitButtonOption,
-  Text
+  Text,
+  AllowedTypes
 } from '@harness/uicore'
 import { useModalHook } from '@harness/use-modal'
 
@@ -64,7 +65,7 @@ function DeployEnvironmentOrEnvGroup({
   initialValues: DeployStageConfig
   readonly: boolean
   formik?: FormikProps<DeployStageConfig>
-  allowableTypes: MultiTypeInputType[]
+  allowableTypes: AllowedTypes
 }): JSX.Element {
   const { accountId, projectIdentifier, orgIdentifier } = useParams<PipelinePathProps>()
   const { getString } = useStrings()
@@ -83,7 +84,8 @@ function DeployEnvironmentOrEnvGroup({
     },
     body: {
       filterType: 'Environment'
-    }
+    },
+    lazy: !orgIdentifier
   })
 
   const [environments, setEnvironments] = useState<EnvironmentResponseDTO[]>()
@@ -205,7 +207,8 @@ function DeployEnvironmentOrEnvGroup({
     },
     body: {
       filterType: 'EnvironmentGroup'
-    }
+    },
+    lazy: !orgIdentifier
   })
 
   const [environmentGroups, setEnvironmentGroups] = useState<EnvironmentGroupResponseDTO[]>()

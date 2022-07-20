@@ -185,11 +185,9 @@ const SelectGitProviderRef = (
           return
         }
         if (event.origin !== getBackendServerUrl() && !isEnvironmentAllowedForOAuth()) {
-          markOAuthAsFailed()
           return
         }
         if (!event || !event.data) {
-          markOAuthAsFailed()
           return
         }
         const { accessTokenRef, refreshTokenRef, status, errorMessage } = event.data
@@ -329,13 +327,13 @@ const SelectGitProviderRef = (
     let url = ''
     switch (gitProvider?.type) {
       case Connectors.GITHUB:
-        url = getString('ci.getStartedWithCI.gitProviderURLs.github')
+        url = getString('common.git.gitHubUrlPlaceholder')
         break
       case Connectors.BITBUCKET:
-        url = getString('ci.getStartedWithCI.gitProviderURLs.bitbucket')
+        url = getString('common.git.bitbucketUrlPlaceholder')
         break
       case Connectors.GITLAB:
-        url = getString('ci.getStartedWithCI.gitProviderURLs.gitlab')
+        url = getString('common.git.gitLabUrlPlaceholder')
         break
     }
     return url ? url.replace('/account/', '') : ''

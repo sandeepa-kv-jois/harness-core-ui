@@ -122,6 +122,7 @@ export default function DatadogMetricsDetailsContent(props: DatadogMetricsDetail
     formikProps.values.isManualQuery,
     selectedMetricData?.metricPath
   ])
+
   const onRebuildMetricData = (
     activeMetric?: string,
     aggregator?: DatadogAggregationType,
@@ -181,6 +182,9 @@ export default function DatadogMetricsDetailsContent(props: DatadogMetricsDetail
         groupNames={metricGroupNames}
         onChange={(fieldName: string, chosenOption: SelectOption) => {
           formikProps.setFieldValue(fieldName, chosenOption)
+          if (chosenOption.value) {
+            return
+          }
           const filteredMetricTags = formikProps.values.metricTags?.filter(tag => tag.value)
           onRebuildMetricData(
             formikProps.values.metric,

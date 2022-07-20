@@ -14,7 +14,8 @@ import {
   MultiTypeInputType,
   RUNTIME_INPUT_VALUE,
   SelectOption,
-  MultiSelectWithSubmenuOption
+  MultiSelectWithSubmenuOption,
+  AllowedTypes
 } from '@harness/uicore'
 import type { EnvironmentResponseDTO } from 'services/cd-ng'
 import type { UseStringsReturn } from 'framework/strings'
@@ -28,7 +29,7 @@ export interface DeployInfrastructureProps {
   initialValues: DeployStageConfig
   onUpdate?: (data: DeployStageConfig) => void
   readonly: boolean
-  allowableTypes: MultiTypeInputType[]
+  allowableTypes: AllowedTypes
   stepViewType?: StepViewType
   serviceRef?: string
   inputSetData?: {
@@ -36,6 +37,7 @@ export interface DeployInfrastructureProps {
     path?: string
     readonly?: boolean
   }
+  gitOpsEnabled?: boolean
 }
 
 export function isEditEnvironment(data?: EnvironmentResponseDTO): boolean {
@@ -183,11 +185,15 @@ export function processGitOpsEnvironmentFormValues(data: DeployStageConfig, getS
         data.environmentOrEnvGroupRef === RUNTIME_INPUT_VALUE
           ? RUNTIME_INPUT_VALUE
           : defaultTo((data.environmentOrEnvGroupRef as SelectOption)?.value, ''),
-      deployToAll: data.environmentOrEnvGroupRef === RUNTIME_INPUT_VALUE ? true : allClustersSelected,
+      deployToAll:
+        data.environmentOrEnvGroupRef === RUNTIME_INPUT_VALUE || data.clusterRef === RUNTIME_INPUT_VALUE
+          ? RUNTIME_INPUT_VALUE
+          : allClustersSelected,
       ...(data.environmentOrEnvGroupRef && data.environmentOrEnvGroupRef === RUNTIME_INPUT_VALUE
         ? {
             environmentInputs: RUNTIME_INPUT_VALUE,
-            serviceOverrideInputs: RUNTIME_INPUT_VALUE
+            serviceOverrideInputs: RUNTIME_INPUT_VALUE,
+            gitOpsClusters: RUNTIME_INPUT_VALUE
           }
         : {
             ...(data.environment?.environmentInputs && { environmentInputs: data.environment?.environmentInputs }),

@@ -60,6 +60,7 @@ clickToExpandErrorDetails: Click to expand error details
 totalCount: 'Total: {{ count }}'
 approvalStage:
   settingUpStage: Getting stage data
+  approvalStageLogsViewMessage: This step is waiting for your approval. Please click on the Approval button on the right to approve or reject.
 filters:
   pipelineNamePlaceholder: Enter Pipeline Name
   deploymentTypePlaceholder: Search/Select Deployment Type
@@ -118,9 +119,10 @@ queueStep:
   keyRequired: Resource Key is required
   scopeRequired: Scope is required
   scopePlaceholder: Select Scope
-  scope: Scope (to release constraint)
+  scope: Run next queued execution after completion of
   queuedExecutions: Queued Executions
   queuedByResourceKey: 'Queued by Resource Key:'
+  noQueuedExecutions: No queued executions
 jenkinsStep:
   addJobParameters: Add Job Parameter
   validations:
@@ -175,6 +177,7 @@ jiraCreateStep:
   selectFieldListHelp: Select your project and issue type to list available fields to choose from.
   fetchingFields: Fetching your fields
   fieldsSelectorPlaceholder: Your fields will be populated here
+  unsupportedRequiredFieldsError: "Changes can't be saved as unsupported fields are present - {{ fields }}"
   selectProject: Select Project
   validations:
     summary: Summary is required
@@ -265,6 +268,7 @@ customApprovalStep:
     wasApproved: 'Approval Criteria was met for Custom Shell Script Approval'
     wasRejected: 'Rejection Criteria was met for Custom Shell Script Approval'
     wasExpired: 'Custom Shell Script Approval expired'
+    wasAborted: 'Custom Shell Script Approval aborted'
     customApprovalTicket: 'Custom Shell Script Approval Pending Approval'
     conditions:
       equals: '{{ key }} equals'
@@ -335,6 +339,7 @@ manifestType:
   customRemoteExtractedFileLocation: Extracted Manifest File Location
   customRemoteExtractedFileLocationPlaceholder: Enter Extracted Manifest File Location
   paramsYamlPath: Openshift Parameters
+  manifestScope: Specify a folder path as the scope of reference
   http:
     chartName: 'Chart Name'
     chartVersion: 'Chart Version'
@@ -1134,6 +1139,7 @@ cannotRunInvalidPipeline: Cannot run the pipeline because it's invalid, please r
 cannotAddTriggerInvalidPipeline: Cannot add a trigger because pipeline is invalid, please review the configuration.
 cannotAddInputSetInvalidPipeline: Cannot add an input set because pipeline is invalid, please review the configuration.
 cannotEditTriggerInvalidPipeline: Cannot edit the trigger because pipeline is invalid, please review the configuration.
+parentStageDeleteWarning: "Warning: this Stage's settings are propagated to another Stage(s) in this Pipeline ({{propagatingStages}}). If you delete this Stage, you must update the other Stages' settings or the Pipeline will fail."
 outOfSyncErrorStrip:
   reconcile: Reconcile
   unsyncedTemplateInfo: Some template(s) referenced in this {{entity}} have gone out of sync.
@@ -1158,6 +1164,21 @@ ACR:
   repositoryPlaceholder: 'Select or add Repository'
   repositoryError: 'No repository found with given Registry'
   tagError: 'No tags found with given Connector, Subscription Id, Registry and Repository'
+configFiles:
+  title: 'Config File {{type}}'
+  source: 'Config File Source'
+  selectFileType: 'Select file type'
+  plainText: 'Plain text'
+  identifierLabel: 'Config File Identifier'
+  encryptedFiles: 'Encrypted file(s)'
+  fileType: 'File Type'
+  encryptedLocation: 'Secrets Manager Name'
+  addConfigFile: '+ Add Config File'
+  error:
+    fileType: 'File type is required'
+    identifier: 'Config file identifier is required'
+    files: 'File(s) is required'
+    file: 'This field is required'
 OverviewEmptyStates:
   createPipelineHeaderMsg: Set up a Pipeline and run your first deployment!
   createPipelineInfo: A Harness Pipeline is a series of stages that performs operations like building and deploying software.
@@ -1176,3 +1197,35 @@ codeSource: 'Code Source'
 recentTenExecutions: 'Recent 10 Executions'
 lastExecution: 'Last Execution'
 lastModified: 'Last Modified'
+executionId: Execution Id
+lastExecutedBy: Last Executed By
+imageTag: 'image: {{image}}'
+appServiceConfig:
+  title: App Services Configuration
+  applicationSettings:
+    name: Application Settings
+    file: '{{$.pipeline.appServiceConfig.applicationSettings.name}} File'
+    scriptFile: '{{$.pipeline.appServiceConfig.applicationSettings.name}} Script File'
+    scriptFileSource: '{{$.pipeline.appServiceConfig.applicationSettings.name}} Script File Source'
+    scriptFileDetails: '{{$.pipeline.appServiceConfig.applicationSettings.name}} Script File Details'
+    fileDetails: '{{$.pipeline.appServiceConfig.applicationSettings.name}} File Details'
+    fileSource: '{{$.pipeline.appServiceConfig.applicationSettings.name}} File Source'
+    filePath: '{{$.pipeline.appServiceConfig.applicationSettings.name}} File Path'
+    subtitle: 'Specify {{$.pipeline.appServiceConfig.applicationSettings.name}} Script File Type'
+  connectionStrings:
+    name: Connection Strings
+    file: '{{$.pipeline.appServiceConfig.connectionStrings.name}} File'
+    scriptFile: '{{$.pipeline.appServiceConfig.connectionStrings.name}} Script File'
+    scriptFileSource: '{{$.pipeline.appServiceConfig.connectionStrings.name}} Script File Source'
+    scriptFileDetails: '{{$.pipeline.appServiceConfig.connectionStrings.name}} Script File Details'
+    fileDetails: '{{$.pipeline.appServiceConfig.connectionStrings.name}} File Details'
+    fileSource: '{{$.pipeline.appServiceConfig.connectionStrings.name}} File Source'
+    filePath: '{{$.pipeline.appServiceConfig.connectionStrings.name}} File Path'
+    subtitle: 'Specify {{$.pipeline.appServiceConfig.connectionStrings.name}} Script File Type'
+startupScript:
+  name: Startup Script
+  subtitle: 'Specify Azure Web App Startup Script Type'
+  file: '{{$.pipeline.startupScript.name}} File'
+  fileDetails: '{{$.pipeline.startupScript.name}} File Details'
+  fileSource: '{{$.pipeline.startupScript.name}} File Source'
+  scriptFilePath: 'Script File Path'

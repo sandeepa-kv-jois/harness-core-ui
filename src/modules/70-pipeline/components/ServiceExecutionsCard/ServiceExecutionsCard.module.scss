@@ -38,10 +38,6 @@
     font-size: var(--font-size-small);
     color: var(--grey-800);
 
-    .servicesIcon {
-      margin-right: var(--spacing-3) !important;
-    }
-
     p {
       color: var(--grey-800) !important;
       font-size: var(--font-size-small) !important;
@@ -83,4 +79,27 @@
       font-size: var(--font-size-small) !important;
     }
   }
+}
+
+.servicesIcon {
+  margin-right: var(--spacing-3) !important;
+}
+
+.mainPopover {
+  font-size: var(--font-size-small);
+  padding: var(--spacing-medium);
+  line-height: var(--sfont-size-medium);
+
+  & .titlePopover {
+    color: var(--grey-400);
+    margin-bottom: var(--spacing-xsmall);
+
+    &:not(:first-child) {
+      margin-top: var(--spacing-medium);
+    }
+  }
+}
+
+.table {
+  font-size: var(--font-size-small) !important;
 }

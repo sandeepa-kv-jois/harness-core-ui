@@ -7,7 +7,11 @@
 
 import React from 'react'
 import { cloneDeep, get, isEmpty, isEqual, noop } from 'lodash-es'
-import { MultiTypeInputType, VisualYamlSelectedView as SelectedView } from '@wings-software/uicore'
+import {
+  AllowedTypesWithRunTime,
+  MultiTypeInputType,
+  VisualYamlSelectedView as SelectedView
+} from '@wings-software/uicore'
 import merge from 'lodash-es/merge'
 import {
   findAllByKey,
@@ -60,13 +64,16 @@ export function TemplatePipelineProvider({
   contextType,
   children
 }: React.PropsWithChildren<TemplatePipelineProviderProps>): React.ReactElement {
-  const allowableTypes = [MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]
+  const allowableTypes: AllowedTypesWithRunTime[] = [
+    MultiTypeInputType.FIXED,
+    MultiTypeInputType.RUNTIME,
+    MultiTypeInputType.EXPRESSION
+  ]
   const { licenseInformation } = useLicenseStore()
   const isCDEnabled = useFeatureFlag(FeatureFlag.CDNG_ENABLED) && !!licenseInformation['CD']
   const isCIEnabled = useFeatureFlag(FeatureFlag.CING_ENABLED) && !!licenseInformation['CI']
   const isCFEnabled = useFeatureFlag(FeatureFlag.CFNG_ENABLED) && !!licenseInformation['CF']
   const isSTOEnabled = useFeatureFlag(FeatureFlag.SECURITY_STAGE)
-  const isCustomStageEnabled = useFeatureFlag(FeatureFlag.NG_CUSTOM_STAGE)
   const { getString } = useStrings()
   const [state, dispatch] = React.useReducer(PipelineReducer, initialState)
   const [view, setView] = useLocalStorage<SelectedView>('pipeline_studio_view', SelectedView.VISUAL)
@@ -92,7 +99,7 @@ export function TemplatePipelineProvider({
         {stagesCollection.getStage(StageType.FEATURE, isCFEnabled, getString)}
         {stagesCollection.getStage(StageType.SECURITY, isSTOEnabled, getString)}
         {stagesCollection.getStage(StageType.PIPELINE, false, getString)}
-        {stagesCollection.getStage(StageType.CUSTOM, isCustomStageEnabled, getString)}
+        {stagesCollection.getStage(StageType.CUSTOM, true, getString)}
         {stagesCollection.getStage(StageType.Template, false, getString)}
       </PipelineStages>
     )
@@ -152,20 +159,26 @@ export function TemplatePipelineProvider({
       })
     )
     if (templateRefs.length > 0) {
+      const { templateTypes, templateServiceData } = await getTemplateTypesByRef(
+        {
+          accountIdentifier: queryParams.accountIdentifier,
+          orgIdentifier: queryParams.orgIdentifier,
+          projectIdentifier: queryParams.projectIdentifier,
+          templateListType: 'Stable',
+          repoIdentifier: queryParams.repoIdentifier,
+          branch: queryParams.branch,
+          getDefaultFromOtherRepo: true
+        },
+        templateRefs
+      )
       dispatch(
         PipelineContextActions.setTemplateTypes({
-          templateTypes: await getTemplateTypesByRef(
-            {
-              accountIdentifier: queryParams.accountIdentifier,
-              orgIdentifier: queryParams.orgIdentifier,
-              projectIdentifier: queryParams.projectIdentifier,
-              templateListType: 'Stable',
-              repoIdentifier: queryParams.repoIdentifier,
-              branch: queryParams.branch,
-              getDefaultFromOtherRepo: true
-            },
-            templateRefs
-          )
+          templateTypes
+        })
+      )
+      dispatch(
+        PipelineContextActions.setTemplateServiceData({
+          templateServiceData
         })
       )
     }
@@ -208,7 +221,10 @@ export function TemplatePipelineProvider({
       },
       templateRefs
     ).then(resp => {
-      PipelineContextActions.setTemplateTypes({ templateTypes: merge(state.templateTypes, resp) })
+      PipelineContextActions.setTemplateTypes({ templateTypes: merge(state.templateTypes, resp.templateTypes) })
+      PipelineContextActions.setTemplateServiceData({
+        templateServiceData: merge(state.templateServiceData, resp.templateServiceData)
+      })
     })
   }, [state.pipeline])
 
@@ -247,7 +263,8 @@ export function TemplatePipelineProvider({
         setSelectedSectionId: noop,
         setSelection,
         getStagePathFromPipeline,
-        setTemplateTypes: noop
+        setTemplateTypes: noop,
+        setTemplateServiceData: noop
       }}
     >
       {children}

@@ -98,7 +98,7 @@ function ExecutionStrategyRef(
 ): JSX.Element {
   const { selectedStage } = props
   const {
-    state: { pipelineView },
+    state: { pipelineView, templateServiceData },
     updateStage,
     updatePipelineView,
     getStageFromPipeline
@@ -113,8 +113,15 @@ function ExecutionStrategyRef(
   const logger = loggerFor(ModuleName.CD)
 
   const serviceDefinitionType = useCallback((): GetExecutionStrategyYamlQueryParams['serviceDefinitionType'] => {
-    return getServiceDefinitionType(selectedStage, getStageFromPipeline, isNewServiceEnvEntity, isSvcEnvEntityEnabled)
-  }, [getStageFromPipeline, isSvcEnvEntityEnabled, selectedStage])
+    return getServiceDefinitionType(
+      selectedStage,
+      getStageFromPipeline,
+      isNewServiceEnvEntity,
+      isSvcEnvEntityEnabled,
+      templateServiceData
+    )
+  }, [getStageFromPipeline, isSvcEnvEntityEnabled, selectedStage, templateServiceData])
+
   const [selectedStrategy, setSelectedStrategy] = useState<StrategyType>(
     serviceDefinitionType() === ServiceDeploymentType.ServerlessAwsLambda ? 'Basic' : 'Rolling'
   )

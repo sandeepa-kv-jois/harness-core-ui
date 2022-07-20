@@ -1000,6 +1000,8 @@ export const buildVaultPayload = (formData: FormData): BuildVaultPayloadReturnTy
         formData.engineType === 'manual' ? formData.secretEngineName : formData.secretEngine?.split('@@@')[0],
       secretEngineVersion:
         formData.engineType === 'manual' ? formData.secretEngineVersion : formData.secretEngine?.split('@@@')[1],
+      k8sAuthEndpoint:
+        formData.accessType === HashiCorpVaultAccessTypes.K8s_AUTH ? formData.k8sAuthEndpoint : undefined,
       vaultK8sAuthRole:
         formData.accessType === HashiCorpVaultAccessTypes.K8s_AUTH ? formData?.vaultK8sAuthRole : undefined,
       serviceAccountTokenPath:
@@ -1879,6 +1881,7 @@ export const setupVaultFormData = async (connectorInfo: ConnectorInfoDTO, accoun
     useAwsIam: connectorInfoSpec.useAwsIam,
     awsRegion: connectorInfoSpec.awsRegion,
     useK8sAuth: connectorInfoSpec.useK8sAuth,
+    k8sAuthEndpoint: connectorInfoSpec?.k8sAuthEndpoint || '',
     vaultK8sAuthRole: connectorInfoSpec?.vaultK8sAuthRole || '',
     serviceAccountTokenPath: connectorInfoSpec?.serviceAccountTokenPath || ''
   }
@@ -2273,4 +2276,33 @@ export const showCustomErrorSuggestion = (connectorType: string) => {
 export const showEditAndViewPermission = (connectorType: string) => {
   const connectorsList: string[] = [Connectors.CE_KUBERNETES, Connectors.CEAWS, Connectors.CE_AZURE, Connectors.CE_GCP]
   return Boolean(connectorsList.includes(connectorType))
+}
+
+export enum GitAuthenticationProtocol {
+  HTTP = 'http',
+  HTTPS = 'https',
+  SSH = 'ssh'
+}
+
+export const getCompleteConnectorUrl = ({
+  partialUrl,
+  repoName,
+  connectorType,
+  gitAuthProtocol
+}: {
+  partialUrl: string
+  repoName: string
+  connectorType: ConnectorConfigDTO['type']
+  gitAuthProtocol: GitAuthenticationProtocol
+}): string => {
+  if (!partialUrl || !repoName || !connectorType) {
+    return ''
+  }
+  return (partialUrl[partialUrl.length - 1] === '/' ? partialUrl : partialUrl + '/')
+    .concat(
+      connectorType === Connectors.AZURE_REPO && gitAuthProtocol.toLowerCase() !== GitAuthenticationProtocol.SSH
+        ? '_git/'
+        : ''
+    )
+    .concat(repoName)
 }

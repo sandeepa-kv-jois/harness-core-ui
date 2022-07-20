@@ -158,7 +158,8 @@ export const ActivityType: ActivityType = {
 export const connectorUrlType = {
   ACCOUNT: 'Account',
   REPO: 'Repo',
-  REGION: 'Region'
+  REGION: 'Region',
+  PROJECT: 'Project'
 }
 
 export const CONNECTOR_CREDENTIALS_STEP_IDENTIFIER = 'CONNECTOR_CREDENTIALS_STEP_IDENTIFIER'

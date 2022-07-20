@@ -245,6 +245,7 @@ hashiCorpVault:
   sinkPath: Sink Path
   sinkPathIsRequired: Sink Path is required
   k8s_auth: 'Kubernetes Auth'
+  k8sAuthEndpoint: Kubernetes Auth Endpoint
   vaultK8sAuthRole: Role Name
   serviceAccountTokenPath: Service Account Token Path
   vaultK8sAuthRoleRequired: Role Required
@@ -412,7 +413,7 @@ cdng:
     applicationNameValidation: Application Name is required.
     tierNameValidation: Tier Name is required.
     completeMetricPathValidation: Complete Metric Path is required.
-    serviceInstanceMetricPathValidation: Service Instance Metric Path is required.
+    serviceInstanceMetricPathValidation: Service Instance Label Path is required.
     serviceInstanceFieldNameValidation: Service Instance Field Name is required.
   verificationSensitivityLabel:
     high: High

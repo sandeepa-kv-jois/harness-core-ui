@@ -34,7 +34,8 @@ export interface FileStoreSelectProps {
   placeholder?: string
   readonly?: boolean
   formik: FormikContextType<any>
-  onChange: (value: string) => void
+  onChange?: (value: string, id?: any) => void
+  fileUsage?: string
 }
 
 interface FormikFileStoreInput extends FileStoreSelectProps {
@@ -48,7 +49,7 @@ export interface FileStoreFieldData {
 
 function FileStoreInput(props: FormikFileStoreInput): React.ReactElement {
   const { getString } = useStrings()
-  const { formik, label, name, tooltipProps, placeholder, readonly = false, onChange } = props
+  const { formik, label, name, tooltipProps, placeholder, readonly = false, onChange, fileUsage = '' } = props
   const fileStoreValue = get(formik?.values, name)
   const prepareFileStoreValue = (scopeType: string, path: string): string => {
     switch (scopeType) {
@@ -62,8 +63,10 @@ function FileStoreInput(props: FormikFileStoreInput): React.ReactElement {
   const modalFileStore = useFileStoreModal({
     applySelected: value => {
       const { scope, path } = value
-      onChange(prepareFileStoreValue(scope, path))
-    }
+      onChange?.(prepareFileStoreValue(scope, path))
+      formik.setFieldValue(name, prepareFileStoreValue(scope, path))
+    },
+    fileUsage
   })
   const placeholder_ = defaultTo(placeholder, getString('select'))
 
@@ -115,7 +118,7 @@ function FileStoreInput(props: FormikFileStoreInput): React.ReactElement {
           }}
         >
           {fileStoreValue && path ? (
-            <Container flex>
+            <Container flex className={css.pathWrapper}>
               <Text lineClamp={1} color={Color.GREY_900} padding={{ left: 'xsmall' }}>
                 {path}
               </Text>

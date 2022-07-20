@@ -45,7 +45,7 @@ import {
   buildGitlabPayload
 } from '@connectors/pages/connectors/utils/ConnectorUtils'
 import { useQueryParams } from '@common/hooks/useQueryParams'
-import { allowedManifestTypes, manifestStoreTypes, showAddManifestBtn } from '../../Manifesthelper'
+import { allowedManifestTypes, gitStoreTypes, showAddManifestBtn } from '../../Manifesthelper'
 
 import type { ManifestStores } from '../../ManifestInterface'
 
@@ -70,7 +70,6 @@ interface ReleaseRepoStepInitData {
 function ReleaseRepoListView({
   updateStage,
   stage,
-  isPropagating,
   connectors,
   refetchConnectors,
   listOfManifests,
@@ -108,9 +107,7 @@ function ReleaseRepoListView({
   }
 
   const updateStageData = (): void => {
-    const path = isPropagating
-      ? 'stage.spec.serviceConfig.stageOverrides.manifests'
-      : 'stage.spec.serviceConfig.serviceDefinition.spec.manifests'
+    const path = 'stage.spec.serviceConfig.serviceDefinition.spec.manifests'
 
     /* istanbul ignore next */
     /* istanbul ignore else */
@@ -357,7 +354,7 @@ function ReleaseRepoListView({
         <div className={css.createConnectorWizard}>
           <ReleaseRepoWizard
             types={allowedManifestTypes[deploymentType]}
-            manifestStoreTypes={manifestStoreTypes}
+            manifestStoreTypes={gitStoreTypes}
             labels={getLabels()}
             newConnectorView={connectorView}
             expressions={expressions}

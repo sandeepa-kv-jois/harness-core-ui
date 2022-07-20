@@ -51,6 +51,7 @@ export interface DatadogLogsQueryDefinition {
   query: string
   serviceInstanceIdentifier?: string
   indexes: string[] | string
+  identifier?: string
 }
 
 export type DatadogLogsHealthSpec = HealthSourceSpec & {

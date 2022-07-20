@@ -170,6 +170,11 @@ export function PrometheusQueryViewer(props: PrometheusQueryViewerProps): JSX.El
           key={values?.identifier}
           name={PrometheusMonitoringSourceFieldNames.QUERY}
           expressions={defaultTo(expressions, [])}
+          allowedTypes={
+            isConnectorRuntimeOrExpression
+              ? [MultiTypeInputType.EXPRESSION, MultiTypeInputType.RUNTIME]
+              : [MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]
+          }
           disableFetchButton={isConnectorRuntimeOrExpression || isEmpty(query)}
           fetchRecords={async () => {
             cancel()

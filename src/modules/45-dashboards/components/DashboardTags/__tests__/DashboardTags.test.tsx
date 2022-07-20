@@ -105,4 +105,15 @@ describe('DashboardTags', () => {
     const expectedText: StringKeys = 'common.purpose.cf.continuous'
     expect(screen.getByText(expectedText)).toBeInTheDocument()
   })
+
+  test('it should display a Security Test tag when Dashboard Tag is STO', async () => {
+    const mockDashboard: DashboardModel = {
+      ...defaultTestDashboard,
+      data_source: ['STO']
+    }
+    renderComponent({ dashboard: mockDashboard })
+
+    const expectedText: StringKeys = 'common.purpose.sto.continuous'
+    expect(screen.getByText(expectedText)).toBeInTheDocument()
+  })
 })

@@ -19,6 +19,7 @@ import CIPipelineDeploymentList from '@ci/pages/pipeline-deployment-list/CIPipel
 import CIPipelineStudio from '@ci/pages/pipeline-studio/CIPipelineStudio'
 import { GovernanceRouteDestinations } from '@governance/RouteDestinations'
 import { SecretRouteDestinations } from '@secrets/RouteDestinations'
+import { UserLabel } from '@common/components'
 import { FeatureFlag } from '@common/featureFlags'
 import { useFeatureFlag } from '@common/hooks/useFeatureFlag'
 import type { SidebarContext } from '@common/navigation/SidebarProvider'
@@ -142,23 +143,27 @@ const RouteDestinations: React.FC = () => {
       </RouteWithLayout>
 
       <RouteWithLayout
+        exact
+        // licenseRedirectData={licenseRedirectData}
         sidebarProps={STOSideNavProps}
         path={[
           routes.toSTOTargets({ ...accountPathProps }),
           routes.toSTOProjectTargets({ ...accountPathProps, ...projectPathProps })
         ]}
       >
-        <ChildAppMounter ChildApp={RemoteSTOApp} />
+        <ChildAppMounter ChildApp={RemoteSTOApp} customComponents={{ UserLabel }} />
       </RouteWithLayout>
 
       <RouteWithLayout
+        exact
+        // licenseRedirectData={licenseRedirectData}
         sidebarProps={STOSideNavProps}
         path={[
           routes.toSTOSecurityReview({ ...accountPathProps }),
           routes.toSTOProjectSecurityReview({ ...accountPathProps, ...projectPathProps })
         ]}
       >
-        <ChildAppMounter ChildApp={RemoteSTOApp} />
+        <ChildAppMounter ChildApp={RemoteSTOApp} customComponents={{ UserLabel }} />
       </RouteWithLayout>
 
       <Route path="/account/:accountId/:module(sto)">

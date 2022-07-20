@@ -8,6 +8,7 @@
 import React from 'react'
 import {
   Accordion,
+  AllowedTypes,
   Button,
   ButtonVariation,
   Formik,
@@ -40,7 +41,7 @@ import css from '../K8sValuesManifest/ManifestDetails.module.scss'
 interface CustomRemoteManifestPropType {
   stepName: string
   expressions: string[]
-  allowableTypes: MultiTypeInputType[]
+  allowableTypes: AllowedTypes
   initialValues: ManifestConfig
   selectedManifest: ManifestTypes | null
   handleSubmit: (data: ManifestConfigWrapper) => void
@@ -106,9 +107,7 @@ function CustomRemoteManifest({
     }
   }
 
-  const submitFormData = (
-    formData: CustomManifestManifestDataType & { store?: string; connectorRef?: string }
-  ): void => {
+  const submitFormData = (formData: CustomManifestManifestDataType & { store?: string }): void => {
     /* istanbul ignore else */
     if (formData) {
       const manifestObj: ManifestConfigWrapper = {
@@ -161,7 +160,7 @@ function CustomRemoteManifest({
 
       <Formik
         initialValues={getInitialValues()}
-        formName="manifestDetails"
+        formName="customRemoteManifest"
         validationSchema={Yup.object().shape({
           ...ManifestIdentifierValidation(manifestIdsList, initialValues?.identifier, getString('pipeline.uniqueName')),
           paths: Yup.lazy((value): Yup.Schema<unknown> => {

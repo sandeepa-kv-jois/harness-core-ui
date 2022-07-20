@@ -54,6 +54,13 @@ const DashboardTags: React.FC<DashboardTagProps> = ({ dashboard }) => {
             </section>
           )
         }
+        if (tag === 'STO') {
+          return (
+            <section key={`tag-${tag.toLowerCase()}-${dashboard.id}`} className={moduleTagCss.stoTag}>
+              {getString('common.purpose.sto.continuous')}
+            </section>
+          )
+        }
         return <></>
       })}
       {dashboard?.description &&

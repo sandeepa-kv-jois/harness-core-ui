@@ -10,7 +10,7 @@ import { useParams, useHistory } from 'react-router-dom'
 import moment from 'moment'
 import ReactTimeago from 'react-timeago'
 import { Intent } from '@blueprintjs/core'
-import { Container, ExpandingSearchInput, Layout, Pagination, TableV2, Text } from '@wings-software/uicore'
+import { Container, ExpandingSearchInput, Layout, Pagination, TableV2, Text } from '@harness/uicore'
 import type { Cell, Column } from 'react-table'
 import { Color } from '@harness/design-system'
 import ListingPageTemplate from '@cf/components/ListingPageTemplate/ListingPageTemplate'
@@ -272,7 +272,6 @@ export const SegmentsPage: React.FC = () => {
     </Container>
   ) : noSegmentExists ? (
     <NoSegmentsView
-      hasEnvironment={!!environments?.length}
       onNewSegmentCreated={segmentIdentifier => {
         gotoSegmentDetailPage(segmentIdentifier)
         showToaster(getString('cf.messages.segmentCreated'))

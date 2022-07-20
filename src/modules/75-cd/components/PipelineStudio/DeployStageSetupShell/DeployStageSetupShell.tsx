@@ -40,7 +40,7 @@ import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
 import { SaveTemplateButton } from '@pipeline/components/PipelineStudio/SaveTemplateButton/SaveTemplateButton'
 import { useAddStepTemplate } from '@pipeline/hooks/useAddStepTemplate'
 import {
-  getSelectedDeploymentType,
+  getServiceDefinitionType,
   isServerlessDeploymentType,
   ServiceDeploymentType,
   StageType
@@ -84,7 +84,8 @@ export default function DeployStageSetupShell(): JSX.Element {
       originalPipeline,
       pipelineView,
       selectionState: { selectedStageId, selectedStepId, selectedSectionId },
-      templateTypes
+      templateTypes,
+      templateServiceData
     },
     contextType,
     stagesMap,
@@ -117,6 +118,16 @@ export default function DeployStageSetupShell(): JSX.Element {
     ),
     [updateStage]
   )
+
+  const serviceDefinitionType = useCallback((): GetExecutionStrategyYamlQueryParams['serviceDefinitionType'] => {
+    return getServiceDefinitionType(
+      selectedStage,
+      getStageFromPipeline,
+      isNewServiceEnvEntity,
+      NG_SVC_ENV_REDESIGN,
+      templateServiceData
+    )
+  }, [getStageFromPipeline, NG_SVC_ENV_REDESIGN, selectedStage, templateServiceData])
 
   const setDefaultServiceSchema = useCallback((): Promise<void> => {
     const stageData = produce(selectedStage, draft => {
@@ -176,16 +187,7 @@ export default function DeployStageSetupShell(): JSX.Element {
     }
   }, [selectedTabId])
 
-  const selectedDeploymentType = isNewServiceEnvEntity(
-    NG_SVC_ENV_REDESIGN,
-    selectedStage as DeploymentStageElementConfig
-  )
-    ? selectedStage?.stage?.spec?.deploymentType
-    : getSelectedDeploymentType(
-        selectedStage,
-        getStageFromPipeline,
-        !!selectedStage?.stage?.spec?.serviceConfig?.useFromStage?.stage
-      )
+  const selectedDeploymentType = serviceDefinitionType()
 
   const strategyType = isNewServiceEnvEntity(NG_SVC_ENV_REDESIGN, selectedStage as DeploymentStageElementConfig)
     ? 'GitOps'
@@ -294,6 +296,10 @@ export default function DeployStageSetupShell(): JSX.Element {
 
   React.useEffect(() => {
     // if serviceDefinition not selected, redirect to SERVICE - preventing strategies drawer to be opened
+    if (!selectedDeploymentType) {
+      setSelectedTabId(DeployTabs.SERVICE)
+      return
+    }
     if (selectedTabId === DeployTabs.EXECUTION) {
       /* istanbul ignore else */
       if (selectedStage?.stage && selectedStage?.stage.type === StageType.DEPLOY) {
@@ -338,6 +344,10 @@ export default function DeployStageSetupShell(): JSX.Element {
   }, [selectedStage, selectedTabId, selectedStageId, selectedDeploymentType, selectedSectionId])
 
   React.useEffect(() => {
+    if (!selectedDeploymentType) {
+      setSelectedTabId(DeployTabs.SERVICE)
+      return
+    }
     validate()
   }, [JSON.stringify(selectedStage)])
 

@@ -18,7 +18,8 @@ const DEFAULT_FILTER: MappedDashboardTagOptions = {
   CE: false,
   CD: false,
   CI: false,
-  CF: false
+  CF: false,
+  STO: false
 }
 
 const renderComponent = (props: Partial<ModuleTagsFilterProps> = {}): RenderResult =>
@@ -37,7 +38,8 @@ describe('ModuleTagsFilter', () => {
       CENG_ENABLED: true,
       CING_ENABLED: true,
       CDNG_ENABLED: true,
-      CFNG_ENABLED: true
+      CFNG_ENABLED: true,
+      SECURITY: true
     })
   })
 
@@ -49,6 +51,7 @@ describe('ModuleTagsFilter', () => {
     expect(screen.getByText('buildsText')).toBeInTheDocument()
     expect(screen.getByText('deploymentsText')).toBeInTheDocument()
     expect(screen.getByText('common.purpose.cf.continuous')).toBeInTheDocument()
+    expect(screen.getByText('common.purpose.sto.continuous')).toBeInTheDocument()
   })
 
   test('it should only display HARNESS and any enabled modules', function () {
@@ -56,7 +59,8 @@ describe('ModuleTagsFilter', () => {
       CENG_ENABLED: true,
       CING_ENABLED: true,
       CDNG_ENABLED: false,
-      CFNG_ENABLED: false
+      CFNG_ENABLED: false,
+      SECURITY: false
     })
 
     renderComponent()
@@ -66,6 +70,7 @@ describe('ModuleTagsFilter', () => {
     expect(screen.getByText('buildsText')).toBeInTheDocument()
     expect(screen.queryByText('deploymentsText')).not.toBeInTheDocument()
     expect(screen.queryByText('common.purpose.cf.continuous')).not.toBeInTheDocument()
+    expect(screen.queryByText('common.purpose.sto.continuous')).not.toBeInTheDocument()
   })
 
   test('it should call the setPredefinedFilter callback when an option is toggled', async () => {
@@ -89,14 +94,15 @@ describe('ModuleTagsFilter', () => {
       CE: true,
       CI: true,
       CD: false,
-      CF: false
+      CF: false,
+      STO: false
     }
     renderComponent({ selectedFilter })
 
     const allCheckboxes = [...document.querySelectorAll('input[type="checkbox"]')] as HTMLInputElement[]
 
-    expect(allCheckboxes).toHaveLength(5)
+    expect(allCheckboxes).toHaveLength(6)
     expect(allCheckboxes.filter(({ checked }) => checked)).toHaveLength(3)
-    expect(allCheckboxes.filter(({ checked }) => !checked)).toHaveLength(2)
+    expect(allCheckboxes.filter(({ checked }) => !checked)).toHaveLength(3)
   })
 })

@@ -74,6 +74,19 @@ const Content = (props: ManifestSourceRenderProps): React.ReactElement => {
           />
         </div>
       )}
+      {isFieldRuntime(`${manifestPath}.spec.manifestScope`, template) && (
+        <div className={css.verticalSpacingInput}>
+          <FormInput.MultiTextInput
+            disabled={isFieldDisabled(`${manifestPath}.spec.manifestScope`)}
+            name={`${path}.${manifestPath}.spec.manifestScope`}
+            multiTextInputProps={{
+              expressions,
+              allowableTypes
+            }}
+            label={getString('pipeline.manifestType.manifestScope')}
+          />
+        </div>
+      )}
       {isFieldRuntime(`${manifestPath}.spec.patchesPaths`, template) && (
         <div className={css.verticalSpacingInput}>
           <List

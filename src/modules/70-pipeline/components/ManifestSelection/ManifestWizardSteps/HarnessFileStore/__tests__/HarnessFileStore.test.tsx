@@ -16,7 +16,7 @@ import {
   getByText as getElementByText,
   queryByText
 } from '@testing-library/react'
-import { MultiTypeInputType, RUNTIME_INPUT_VALUE } from '@wings-software/uicore'
+import { AllowedTypesWithRunTime, MultiTypeInputType, RUNTIME_INPUT_VALUE } from '@wings-software/uicore'
 import userEvent from '@testing-library/user-event'
 import { omit } from 'lodash-es'
 import { TestWrapper } from '@common/utils/testUtils'
@@ -34,7 +34,11 @@ jest.mock('services/portal', () => ({
 const props = {
   stepName: 'Manifest details',
   expressions: [],
-  allowableTypes: [MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION],
+  allowableTypes: [
+    MultiTypeInputType.FIXED,
+    MultiTypeInputType.RUNTIME,
+    MultiTypeInputType.EXPRESSION
+  ] as AllowedTypesWithRunTime[],
   handleSubmit: jest.fn(),
   selectedManifest: 'K8sManifest' as ManifestTypes,
   manifestIdsList: [],
@@ -49,7 +53,7 @@ const initialValues = {
   valuesPaths: []
 }
 
-describe('Custom remote tests', () => {
+describe('Harness File Store tests', () => {
   beforeEach(() => jest.spyOn(uuid, 'v5').mockReturnValue('MockedUUID'))
 
   test('initial rendering', () => {
@@ -86,6 +90,32 @@ describe('Custom remote tests', () => {
     expect(container).toMatchSnapshot()
   })
 
+  test('Params Path field is displayed when manifest is OpenshiftTemplate', () => {
+    const defaultProps = {
+      ...omit(props, 'selectedManifest'),
+      stepName: 'Manifest details',
+      selectedManifest: ManifestDataType.OpenshiftTemplate,
+      expressions: [],
+      initialValues: {
+        identifier: 'test',
+        files: RUNTIME_INPUT_VALUE,
+        valuesPaths: RUNTIME_INPUT_VALUE
+      },
+      prevStepData: {
+        store: 'Harness'
+      },
+      handleSubmit: jest.fn()
+    }
+    const { container, getByText } = render(
+      <TestWrapper>
+        <HarnessFileStore {...defaultProps} initialValues={initialValues} />
+      </TestWrapper>
+    )
+    const paramsPaths = getByText('pipeline.manifestType.paramsYamlPath')
+    expect(paramsPaths).toBeDefined()
+    expect(container).toMatchSnapshot()
+  })
+
   test('submits with right payload', async () => {
     const prevStepData = {
       store: 'Harness'
@@ -112,7 +142,11 @@ describe('Custom remote tests', () => {
       stepName: 'Manifest details',
       manifestIdsList: [],
       expressions: [],
-      allowableTypes: [MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION],
+      allowableTypes: [
+        MultiTypeInputType.FIXED,
+        MultiTypeInputType.RUNTIME,
+        MultiTypeInputType.EXPRESSION
+      ] as AllowedTypesWithRunTime[],
       initialValues: {
         identifier: 'testidentifier',
         type: ManifestDataType.K8sManifest,
@@ -182,7 +216,11 @@ describe('Custom remote tests', () => {
       stepName: 'Manifest details',
       manifestIdsList: [],
       expressions: [],
-      allowableTypes: [MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION],
+      allowableTypes: [
+        MultiTypeInputType.FIXED,
+        MultiTypeInputType.RUNTIME,
+        MultiTypeInputType.EXPRESSION
+      ] as AllowedTypesWithRunTime[],
       initialValues: {
         identifier: 'testidentifier',
         type: ManifestDataType.K8sManifest,
@@ -221,7 +259,11 @@ describe('Custom remote tests', () => {
     const manifestProps = {
       stepName: 'Manifest details',
       expressions: [],
-      allowableTypes: [MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION],
+      allowableTypes: [
+        MultiTypeInputType.FIXED,
+        MultiTypeInputType.RUNTIME,
+        MultiTypeInputType.EXPRESSION
+      ] as AllowedTypesWithRunTime[],
       handleSubmit: jest.fn(),
       selectedManifest: 'Values' as ManifestTypes,
       manifestIdsList: [],

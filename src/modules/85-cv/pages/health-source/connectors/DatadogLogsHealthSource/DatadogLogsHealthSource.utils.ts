@@ -105,7 +105,7 @@ export function transformDatadogHealthSourceToDatadogLogsSetupSource(sourceData:
         query: logQueryDefinition.query || '',
         serviceInstanceIdentifierTag: logQueryDefinition.serviceInstanceIdentifier,
         indexes:
-          getMultiTypeFromValue(logQueryDefinition?.indexes) === MultiTypeInputType.RUNTIME
+          getMultiTypeFromValue(logQueryDefinition?.indexes) !== MultiTypeInputType.FIXED
             ? (logQueryDefinition?.indexes as unknown as SelectOption[])
             : Array.isArray(logQueryDefinition.indexes)
             ? logQueryDefinition.indexes?.map(logIndex => {
@@ -145,6 +145,7 @@ export function transformDatadogLogsSetupSourceToHealthSource(
     logsHealthSpec.queries.push({
       query,
       name: metricName,
+      identifier: metricName.split(' ').join('_'),
       serviceInstanceIdentifier: serviceInstanceIdentifierTag,
       indexes:
         typeof indexes === 'string' ? indexes : indexes?.map(logIndexOption => logIndexOption.value as string) || []

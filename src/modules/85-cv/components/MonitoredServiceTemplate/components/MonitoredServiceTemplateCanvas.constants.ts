@@ -5,6 +5,17 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-.open-modal-btn {
-  padding: var(--spacing-small) var(--spacing-huge) !important;
+export const DefaultSpec = {
+  serviceRef: '',
+  environmentRef: '',
+  type: 'Application' as 'Application' | 'Infrastructure',
+  sources: {
+    changeSources: [],
+    healthSources: []
+  },
+  variables: '',
+  isEdit: false,
+  identifier: '',
+  name: '',
+  tags: {}
 }

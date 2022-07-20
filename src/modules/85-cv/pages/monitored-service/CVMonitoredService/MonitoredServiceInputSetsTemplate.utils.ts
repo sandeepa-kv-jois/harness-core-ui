@@ -130,7 +130,11 @@ export const getValidationLabelByNameForTemplateInputs = (
       return `Category for ${getString('cv.monitoringSources.riskCategoryLabel')}`
     case 'metricType':
       return `Metric type for ${getString('cv.monitoringSources.riskCategoryLabel')}`
+    case 'serviceInstanceIdentifier':
+      return getString('cv.monitoringSources.prometheus.validation.serviceInstanceIdentifier')
+    case 'indexes':
+      return `${getString('cv.monitoringSources.datadogLogs.logIndexesLabel')} is required`
     default:
-      return name
+      return `${name} is required`
   }
 }

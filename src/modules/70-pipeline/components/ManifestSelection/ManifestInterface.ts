@@ -5,11 +5,16 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import type { MultiTypeInputType, SelectOption } from '@wings-software/uicore'
+import type { AllowedTypes, SelectOption } from '@wings-software/uicore'
 import type { ConnectorSelectedValue } from '@connectors/components/ConnectorReferenceField/ConnectorReferenceField'
-import type { ManifestConfig, ManifestConfigWrapper, PageConnectorResponse, ServiceDefinition } from 'services/cd-ng'
-import type { StageElementWrapper } from '@pipeline/utils/pipelineTypes'
-import type { PipelineInfoConfig, StageElementConfig } from 'services/pipeline-ng'
+import type { PipelineInfoConfig } from 'services/pipeline-ng'
+import type {
+  ManifestConfig,
+  ConnectorConfigDTO,
+  ManifestConfigWrapper,
+  PageConnectorResponse,
+  ServiceDefinition
+} from 'services/cd-ng'
 
 export type ManifestTypes =
   | 'K8sManifest'
@@ -52,15 +57,15 @@ export interface ManifestSelectionProps {
 
 export interface ManifestListViewProps {
   pipeline: PipelineInfoConfig
-  updateStage: (stage: StageElementConfig) => Promise<void>
-  stage: StageElementWrapper | undefined
-  isPropagating?: boolean
   connectors: PageConnectorResponse | undefined
-  refetchConnectors: () => void
-  listOfManifests: Array<any>
+  listOfManifests: ManifestConfigWrapper[]
   isReadonly: boolean
   deploymentType: ServiceDefinition['type']
-  allowableTypes: MultiTypeInputType[]
+  allowableTypes: AllowedTypes
+  updateManifestList: (obj: ManifestConfigWrapper, idx: number) => void
+  removeManifestConfig: (idx: number) => void
+  attachPathYaml: (formData: ConnectorConfigDTO, manifestId: string, manifestType: PrimaryManifestType) => void
+  removeValuesYaml: (index: number, manifestId: string, manifestType: PrimaryManifestType) => void
   allowOnlyOne?: boolean
 }
 
@@ -83,7 +88,7 @@ export interface ManifestLastStepProps {
   key: string
   name: string
   expressions: string[]
-  allowableTypes: MultiTypeInputType[]
+  allowableTypes: AllowedTypes
   stepName: string
   initialValues: ManifestConfig
   handleSubmit: (data: ManifestConfigWrapper) => void
@@ -192,12 +197,21 @@ export interface InlineDataType {
 export interface HarnessFileStoreDataType {
   identifier: string
   files: string[]
-  valuesPaths: any
+  valuesPaths: string[]
+  paramsPaths: string[]
 }
 export interface HarnessFileStoreFormData {
   identifier: string
-  files: any[]
-  valuesPaths: any[]
+  files: Array<{ path: string }> | string
+  valuesPaths?: Array<{ path: string }> | string
+  paramsPaths?: Array<{ path: string }> | string
+}
+export interface KustomizeWithHarnessStorePropTypeDataType {
+  identifier: string
+  files: string[] | string
+  patchesPaths: string[] | string
+  manifestScope: string
+  skipResourceVersioning: boolean
 }
 export interface CustomManifestManifestDataType {
   identifier: string

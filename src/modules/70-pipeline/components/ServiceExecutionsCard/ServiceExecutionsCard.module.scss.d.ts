@@ -13,11 +13,14 @@ declare const styles: {
   readonly environments: string
   readonly heading: string
   readonly main: string
+  readonly mainPopover: string
   readonly moduleData: string
   readonly moduleIcon: string
   readonly serviceName: string
   readonly serviceWrapper: string
   readonly services: string
   readonly servicesIcon: string
+  readonly table: string
+  readonly titlePopover: string
 }
 export default styles

@@ -7,7 +7,7 @@
 
 import React, { useEffect, useMemo } from 'react'
 import { Classes } from '@blueprintjs/core'
-import { Container, FormInput, Label, SelectOption, Text } from '@wings-software/uicore'
+import { Container, FormInput, Label, MultiTypeInputType, SelectOption, Text } from '@wings-software/uicore'
 import { useToaster } from '@common/exports'
 import { useStrings } from 'framework/strings'
 import type { useGetMetricPacks, useGetLabelNames } from 'services/cv'
@@ -25,6 +25,7 @@ interface RiskProfileProps {
   riskCategory?: string
   isTemplate?: boolean
   expressions?: string[]
+  isConnectorRuntimeOrExpression?: boolean
 }
 
 export function RiskProfile(props: RiskProfileProps): JSX.Element {
@@ -35,7 +36,8 @@ export function RiskProfile(props: RiskProfileProps): JSX.Element {
     serviceInstance,
     riskCategory,
     isTemplate,
-    expressions
+    expressions,
+    isConnectorRuntimeOrExpression
   } = props
   const { error, loading, data } = metricPackResponse
   const { getString } = useStrings()
@@ -108,6 +110,9 @@ export function RiskProfile(props: RiskProfileProps): JSX.Element {
               selectItems={transformedLabelNames}
               multiTypeInputProps={{
                 expressions,
+                allowableTypes: isConnectorRuntimeOrExpression
+                  ? [MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION]
+                  : [MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION],
                 value: serviceInstance ? { label: serviceInstance, value: serviceInstance } : undefined
               }}
             />

@@ -21,7 +21,7 @@ export const getLabelByName = (name: string, getString: UseStringsReturn['getStr
     case 'completeMetricPath':
       return getString('cv.healthSource.connectors.AppDynamics.metricPathType.text')
     case 'serviceInstanceMetricPath':
-      return getString('cv.healthSource.connectors.AppDynamics.serviceInstance')
+      return getString('cv.monitoringSources.appD.serviceInstanceMetricPath')
     case 'serviceInstanceFieldName':
     case 'serviceInstanceIdentifier':
       return getString('cv.monitoringSources.serviceInstanceIdentifier')
@@ -53,10 +53,10 @@ export const getNestedByCondition = (
     } else if (typeof item[1] === 'object') {
       if (Array.isArray(item[1])) {
         item[1].forEach((metric, index) => {
-          clonedList = getNestedRuntimeInputs(metric, clonedList, `${basePath}.${item[0]}.${index}`)
+          clonedList = getNestedByCondition(metric, clonedList, `${basePath}.${item[0]}.${index}`, isValid)
         })
       } else {
-        clonedList = getNestedRuntimeInputs(spec[item[0]], clonedList, `${basePath}.${item[0]}`)
+        clonedList = getNestedByCondition(spec[item[0]], clonedList, `${basePath}.${item[0]}`, isValid)
       }
     }
   })
