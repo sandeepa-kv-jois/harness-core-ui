@@ -3113,6 +3113,8 @@ export interface StringsMap {
   'pipeline.filters.environmentPlaceholder': string
   'pipeline.filters.pipelineNamePlaceholder': string
   'pipeline.filters.servicePlaceholder': string
+  'pipeline.gitCloneStep.cloneDirectory': string
+  'pipeline.gitCloneStep.validation.associatedBuildInput': string
   'pipeline.gitDetails': string
   'pipeline.gitExperience.noEntityFound': string
   'pipeline.gitExperience.selectDiffBranch': string
@@ -3535,6 +3537,7 @@ export interface StringsMap {
   'pipeline.stepDescription.FlagConfiguration': string
   'pipeline.stepDescription.GCR': string
   'pipeline.stepDescription.GCS': string
+  'pipeline.stepDescription.GitClone': string
   'pipeline.stepDescription.HTTP': string
   'pipeline.stepDescription.HarnessApproval': string
   'pipeline.stepDescription.HelmDeploy': string
