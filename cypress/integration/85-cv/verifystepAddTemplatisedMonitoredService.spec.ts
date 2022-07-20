@@ -578,9 +578,13 @@ describe('Verify step add', () => {
   it('should check verify step add inputs are correct as given', () => {
     // service definition
     cy.get('input[name="serviceRef"]').click({ force: true })
+    cy.get('.FloatingContainer--floatingContent').then($body => {
+      if ($body.find('.Header--closeBtn').length > 0) {
+        cy.get('.Header--closeBtn').click()
+      }
+    })
     cy.contains('p', 'testService').click({ force: true })
     cy.contains('p', /^Kubernetes$/).click()
-
     cy.contains('span', 'Continue').click({ force: true })
 
     cy.wait(1000)
