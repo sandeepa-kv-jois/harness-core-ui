@@ -2850,6 +2850,19 @@ export interface StringsMap {
   'pipeline.conditionalExecution.toolTip.resolvedVariables': string
   'pipeline.conditionalExecution.toolTip.stageTitle': string
   'pipeline.conditionalExecution.toolTip.stepTitle': string
+  'pipeline.configFiles.addConfigFile': string
+  'pipeline.configFiles.encryptedFiles': string
+  'pipeline.configFiles.encryptedLocation': string
+  'pipeline.configFiles.error.file': string
+  'pipeline.configFiles.error.fileType': string
+  'pipeline.configFiles.error.files': string
+  'pipeline.configFiles.error.identifier': string
+  'pipeline.configFiles.fileType': string
+  'pipeline.configFiles.identifierLabel': string
+  'pipeline.configFiles.plainText': string
+  'pipeline.configFiles.selectFileType': string
+  'pipeline.configFiles.source': string
+  'pipeline.configFiles.title': string
   'pipeline.createANewPipeline': string
   'pipeline.createPipeline.choosePipelineSetupHeader': string
   'pipeline.createPipeline.learnMore': string
@@ -3364,6 +3377,7 @@ export interface StringsMap {
   'pipeline.provisionerSteps': string
   'pipeline.queueStep.keyPlaceholder': string
   'pipeline.queueStep.keyRequired': string
+  'pipeline.queueStep.noQueuedExecutions': string
   'pipeline.queueStep.queuedByResourceKey': string
   'pipeline.queueStep.queuedExecutions': string
   'pipeline.queueStep.resourceKey': string
@@ -3924,6 +3938,7 @@ export interface StringsMap {
   'cd.cloudFormation.errors.templateRequired': string
   'cd.cloudFormation.errors.value': string
   'cd.cloudFormation.inlineParameterFiles': string
+  'cd.cloudFormation.overrideParameterFileDetails': string
   'cd.cloudFormation.paramFileConnector': string
   'cd.cloudFormation.parameterFileDetails': string
   'cd.cloudFormation.parameterFilePaths': string
@@ -4691,6 +4706,7 @@ export interface StringsMap {
   'ce.co.ruleDetailsHeader.resourcesManaged': string
   'ce.co.ruleDrawer.dbInstances': string
   'ce.co.ruleDrawer.dbInstancesPlural': string
+  'ce.co.ruleDrawer.lastWeekDataLabel': string
   'ce.co.ruleDrawer.logs': string
   'ce.co.ruleDrawer.spendVsSavings': string
   'ce.co.ruleDrawer.usageTime': string
@@ -5816,9 +5832,6 @@ export interface StringsMap {
   'ci.getStartedWithCI.flexibleInfra': string
   'ci.getStartedWithCI.flexibleInfraHelpText': string
   'ci.getStartedWithCI.genericGit': string
-  'ci.getStartedWithCI.gitProviderURLs.bitbucket': string
-  'ci.getStartedWithCI.gitProviderURLs.github': string
-  'ci.getStartedWithCI.gitProviderURLs.gitlab': string
   'ci.getStartedWithCI.hostedByHarness': string
   'ci.getStartedWithCI.hostedByHarnessBuildLocation': string
   'ci.getStartedWithCI.hosting': string
