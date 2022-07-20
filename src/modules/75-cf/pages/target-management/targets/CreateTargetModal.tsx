@@ -306,20 +306,24 @@ const CreateTargetModal: React.FC<CreateTargetModalProps> = ({
         <Formik
           initialValues={initialValues}
           formName="addTargetDialog"
-          validationSchema={yup.object().shape({
-            targets: yup.array().of(
-              yup.object().shape({
-                name: yup.string().trim().required(getString('cf.targets.nameRequired')),
-                identifier: yup
-                  .string()
-                  .trim()
-                  .required(getString('cf.targets.idRequired'))
-                  .test('Unique', getString('cf.targets.duplicateId'), identifier => {
-                    return duplicateIdCheck(identifier)
-                  })
-              })
-            )
-          })}
+          validationSchema={
+            !isList
+              ? yup.object().shape({})
+              : yup.object().shape({
+                  targets: yup.array().of(
+                    yup.object().shape({
+                      name: yup.string().trim().required(getString('cf.targets.nameRequired')),
+                      identifier: yup
+                        .string()
+                        .trim()
+                        .required(getString('cf.targets.idRequired'))
+                        .test('Unique', getString('cf.targets.duplicateId'), identifier => {
+                          return duplicateIdCheck(identifier)
+                        })
+                    })
+                  )
+                })
+          }
           onSubmit={handleSubmit}
           onReset={handleCancel}
         >
