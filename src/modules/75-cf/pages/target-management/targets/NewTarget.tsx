@@ -86,7 +86,7 @@ export const NewTargets: React.FC<NewTargetsProps> = ({
           .filter(res => res.status === 'rejected')
           .forEach((res: SettledTarget) => {
             clear()
-            showError(get(res, 'error.data.message', get(res, 'error.message')), 0, 'cf.create.bulk.target..error')
+            showError(get(res, 'error.data.message', get(res, 'error.message')), 0, 'cf.create.bulk.target.error')
           })
       })
       .then(() => {
