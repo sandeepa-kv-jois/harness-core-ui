@@ -1138,3 +1138,5 @@ businessMapping:
     lastEdit: Last Edit
     unallocated: Unallocated
   costCategory: Cost Category
+commitmentOrchestration:
+  sideNavLabel: 'Commitment Orchestration'

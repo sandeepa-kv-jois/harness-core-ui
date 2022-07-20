@@ -160,6 +160,13 @@ const SideNavItems = () => {
           onClick={() => {
             trackEvent(USER_JOURNEY_EVENTS.AS_NAV_CLICK, {})
           }}
+          label={getString('ce.commitmentOrchestration.sideNavLabel')}
+          to={routes.toCommitmentOrchestration({ accountId })}
+        />
+        <SidebarLink
+          onClick={() => {
+            trackEvent(USER_JOURNEY_EVENTS.AS_NAV_CLICK, {})
+          }}
           label={getString('ce.co.breadCrumb.rules')}
           to={routes.toCECORules({ accountId, params: '' })}
         />

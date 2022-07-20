@@ -58,6 +58,7 @@ import formatCost from './utils/formatCost'
 import BusinessMapping from './pages/business-mapping/BusinessMapping'
 import ECSRecommendationDetailsPage from './pages/ecs-recommendation-details/ECSRecommendationDetailsPage'
 import OverviewAddCluster from './components/OverviewPage/OverviewAddCluster'
+import CommitmentOrchestration from './pages/CommitmentOrchestration/CommitmentOrchestration'
 
 featureFactory.registerFeaturesByModule('ce', {
   features: [FeatureIdentifier.PERSPECTIVES],
@@ -579,6 +580,17 @@ const CERoutes: React.FC = () => {
             />
           </RouteWithLayout>
         ) : null}
+
+        <RouteWithLayout
+          licenseRedirectData={licenseRedirectData}
+          sidebarProps={CESideNavProps}
+          path={routes.toCommitmentOrchestration({ ...accountPathProps })}
+          exact
+          pageName={PAGE_NAME.CECommitmentOrchestrationPage}
+        >
+          <CommitmentOrchestration />
+        </RouteWithLayout>
+
         <Route path="*">
           <NotFoundPage />
         </Route>

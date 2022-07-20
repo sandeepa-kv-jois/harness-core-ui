@@ -1562,6 +1562,7 @@ const routes = {
     ({ recommendation, recommendationName }: { recommendation: string; recommendationName: string }) =>
       `/ce/recommendations/ecs/${recommendation}/name/${recommendationName}/details`
   ),
+  toCommitmentOrchestration: withAccountId(() => `/ce/commitment-orchestration`),
   /********************************************************************************************************************/
   toSTO: withAccountId(() => `/sto`),
   toSTOHome: withAccountId(() => `/sto/home`),

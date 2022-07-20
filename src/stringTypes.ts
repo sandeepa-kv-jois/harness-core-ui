@@ -4756,6 +4756,7 @@ export interface StringsMap {
   'ce.co.summarySection.totalSavings': string
   'ce.co.summarySection.totalSpend': string
   'ce.co.totalEmissions': string
+  'ce.commitmentOrchestration.sideNavLabel': string
   'ce.common.and': string
   'ce.common.budget': string
   'ce.common.collapse': string

@@ -96,6 +96,7 @@ export enum PAGE_NAME {
   CETrialHomePage = 'CETrialHomePage',
   CEHomePage = 'CEHomePage',
   CEOverviewPage = 'CEOverviewPage',
+  CECommitmentOrchestrationPage = 'CECommitmentOrchestrationPage',
   CECODashboardPage = 'CECODashboardPage',
   CECOCreateGatewayPage = 'CECOCreateGatewayPage',
   CECOEditGatewayPage = 'CECOEditGatewayPage',
