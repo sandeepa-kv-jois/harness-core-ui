@@ -24,6 +24,12 @@ export interface RbacResourceRendererProps {
   onResourceSelectionChange: (resourceType: ResourceType, isAdd: boolean, identifiers?: string[] | undefined) => void
   resourceType: ResourceType
 }
+
+export interface RbacAttributeModalProps {
+  selectedData: string[]
+  onSelectChange: (items: string[]) => void
+  resourceScope: ResourceScope
+}
 export interface ResourceHandler {
   icon: IconName
   label: keyof StringsMap
@@ -32,6 +38,7 @@ export interface ResourceHandler {
     [key in PermissionIdentifier]?: string | React.ReactElement
   }
   addResourceModalBody?: (props: RbacResourceModalProps) => React.ReactElement
+  addAttributeModalBody?: (props: RbacAttributeModalProps) => React.ReactElement
   staticResourceRenderer?: (props: RbacResourceRendererProps) => React.ReactElement
   category?: ResourceCategory
 }

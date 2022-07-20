@@ -108,6 +108,7 @@ export interface StringsMap {
   'common.blank': string
   'common.branchName': string
   'common.by': string
+  'common.byType': string
   'common.capsAll': string
   'common.cardNumber': string
   'common.ce.autostopping': string

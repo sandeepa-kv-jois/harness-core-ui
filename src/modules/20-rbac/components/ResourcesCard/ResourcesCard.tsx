@@ -14,6 +14,7 @@ import { useStrings } from 'framework/strings'
 import type { ResourceType } from '@rbac/interfaces/ResourceType'
 import useAddResourceModal from '@rbac/modals/AddResourceModal/useAddResourceModal'
 import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
+import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
 import { isDynamicResourceSelector } from '@rbac/utils/utils'
 import css from './ResourcesCard.module.scss'
 
@@ -39,10 +40,13 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
       onResourceSelectionChange(resourceType, true, resources)
     }
   })
+  const { ATTRIBUTE_TYPE_ACL_ENABLED } = useFeatureFlags()
 
   const resourceDetails = RbacFactory.getResourceTypeHandler(resourceType)
   if (!resourceDetails) return null
-  const { label, icon, addResourceModalBody, staticResourceRenderer } = resourceDetails
+  const { label, icon, addResourceModalBody, addAttributeModalBody, staticResourceRenderer } = resourceDetails
+  const attributeModalEnabled = !ATTRIBUTE_TYPE_ACL_ENABLED && addAttributeModalBody
+
   return (
     <Card className={css.selectedResourceGroupCardDetails} key={resourceType}>
       <Layout.Vertical>
@@ -65,6 +69,16 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
                 checked={isDynamicResourceSelector(resourceValues)}
                 onChange={e => onResourceSelectionChange(resourceType, e.currentTarget.checked)}
               />
+              {attributeModalEnabled && (
+                <Layout.Horizontal spacing="small" flex padding={{ left: 'huge' }} className={css.radioBtn}>
+                  <Radio
+                    label={getString('common.byType')}
+                    data-testid={`attr-${resourceType}`}
+                    checked={!isDynamicResourceSelector(resourceValues)}
+                    onChange={e => onResourceSelectionChange(resourceType, e.currentTarget.checked, [])}
+                  />
+                </Layout.Horizontal>
+              )}
               {addResourceModalBody && (
                 <Layout.Horizontal spacing="small" flex padding={{ left: 'huge' }} className={css.radioBtn}>
                   <Radio

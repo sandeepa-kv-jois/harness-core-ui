@@ -711,6 +711,7 @@ module:
   governance: POLICY ENGINE
 customPricing: for Custom Pricing
 specified: Specified
+byType: By Type
 file: File
 entityReferenceTitle: 'Create or Select an Existing {{compName}}'
 entityReferenceSubTitle: 'Choose {{compName}} based on the scope'

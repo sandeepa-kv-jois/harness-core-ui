@@ -55,6 +55,7 @@ import LandingDashboardDeploymentsWidget from '@pipeline/components/LandingDashb
 import PipelineResourceModal from '@pipeline/components/RbacResourceModals/PipelineResourceModal/PipelineResourceModal'
 import ServiceResourceModal from '@pipeline/components/RbacResourceModals/ServiceResourceModal/ServiceResourceModal'
 import EnvironmentResourceModal from '@pipeline/components/RbacResourceModals/EnvironmentResourceModal/EnvironmentResourceModal'
+import EnvironmentAttributeModal from '@pipeline/components/RbacResourceModals/EnvironmentAttributeModal/EnvironmentAttributeModal'
 import EnvironmentGroupsResourceModal from '@pipeline/components/RbacResourceModals/EnvironmentGroupsResourceModal/EnvironmentGroupsResourceModal'
 import { HarnessApprovalView } from '@pipeline/components/execution/StepDetails/views/HarnessApprovalView/HarnessApprovalView'
 import { HarnessApprovalLogsView } from '@pipeline/components/execution/StepDetails/views/HarnessApprovalView/HarnessApprovalLogsView'
@@ -113,7 +114,8 @@ RbacFactory.registerResourceTypeHandler(ResourceType.ENVIRONMENT, {
     [PermissionIdentifier.RUNTIMEACCESS_ENVIRONMENT]: <String stringID="rbac.permissionLabels.access" />
   },
   // eslint-disable-next-line react/display-name
-  addResourceModalBody: props => <EnvironmentResourceModal {...props} />
+  addResourceModalBody: props => <EnvironmentResourceModal {...props} />,
+  addAttributeModalBody: props => <EnvironmentAttributeModal {...props} />
 })
 
 RbacFactory.registerResourceTypeHandler(ResourceType.ENVIRONMENT_GROUP, {
