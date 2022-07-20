@@ -169,7 +169,6 @@ export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): Re
         title: getString('templatesLibrary.saveAsNewLabelModal.heading'),
         intent: Intent.SAVE,
         disabledFields: [Fields.Name, Fields.Identifier, Fields.Description, Fields.Tags],
-        emptyFields: [Fields.VersionLabel],
         shouldGetComment: !isGitSyncEnabled && storeMetadata?.storeType !== StoreType.REMOTE,
         lastPublishedVersion
       })
@@ -189,7 +188,6 @@ export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): Re
         title: getString('common.template.saveAsNewTemplateHeading'),
         intent: Intent.SAVE,
         allowScopeChange: true,
-        emptyFields: [Fields.Name, Fields.Identifier, Fields.VersionLabel],
         shouldGetComment: !isGitSyncEnabled && storeMetadata?.storeType !== StoreType.REMOTE
       })
       showConfigModal()

@@ -83,7 +83,6 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
     deleteTemplateCache,
     view,
     isPipelineStudio,
-    stableVersion,
     fireSuccessEvent
   } = TemplateContextMetadata
   const { isGitSyncEnabled } = React.useContext(AppStoreContext)
@@ -317,14 +316,7 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
 
       // if Git sync enabled then display modal
       if (isGitSyncEnabled || currStoreMetadata?.storeType === StoreType.REMOTE) {
-        if (
-          (currStoreMetadata?.storeType !== StoreType.REMOTE && isEmpty(gitDetails?.repoIdentifier)) ||
-          isEmpty(gitDetails?.branch)
-        ) {
-          clear()
-          showError(getString('pipeline.gitExperience.selectRepoBranch'))
-          return Promise.reject(getString('pipeline.gitExperience.selectRepoBranch'))
-        } else if (updatedGitDetails) {
+        if (updatedGitDetails) {
           openSaveToGitDialog({
             isEditing: defaultTo(isEdit, false),
             resource: {
@@ -338,9 +330,9 @@ export function useSaveTemplate(TemplateContextMetadata: TemplateContextMetadata
           })
           return Promise.resolve({ status: 'SUCCESS' })
         }
-      } else {
-        return saveAndPublishTemplate(updatedTemplate, comment, isEdit)
       }
+
+      return saveAndPublishTemplate(updatedTemplate, comment, isEdit)
     },
     [
       storeMetadata,

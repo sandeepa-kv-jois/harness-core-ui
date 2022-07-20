@@ -78,7 +78,7 @@ export enum Intent {
 }
 
 export interface ModalProps {
-  initialValues: NGTemplateInfoConfig
+  initialValues: NGTemplateInfoConfig & StoreMetadata
   promise: (values: NGTemplateInfoConfig, extraInfo: PromiseExtraArgs) => Promise<UseSaveSuccessResponse>
   gitDetails?: EntityGitDetails
   title: string
@@ -169,10 +169,12 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
         if (isEqual(initialValues.versionLabel, DefaultNewVersionLabel)) {
           unset(draft, 'versionLabel')
         }
-        draft.repo = gitDetails?.repoIdentifier
-        draft.branch = gitDetails?.branch
+        if (isGitSyncEnabled) {
+          draft.repo = gitDetails?.repoIdentifier
+          draft.branch = gitDetails?.branch
+        }
       }),
-    [initialValues, gitDetails]
+    [initialValues]
   )
 
   const getSubmitButtonLabel = React.useCallback(
@@ -243,12 +245,14 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
       produce(formik.values, draft => {
         draft.projectIdentifier = value === Scope.PROJECT ? projectIdentifier : undefined
         draft.orgIdentifier = value === Scope.ACCOUNT ? undefined : orgIdentifier
-        if (value === Scope.PROJECT) {
-          draft.repo = gitDetails?.repoIdentifier
-          draft.branch = gitDetails?.branch
-        } else {
-          unset(draft, 'repo')
-          unset(draft, 'branch')
+        if (isGitSyncEnabled) {
+          if (value === Scope.PROJECT) {
+            draft.repo = gitDetails?.repoIdentifier
+            draft.branch = gitDetails?.branch
+          } else {
+            unset(draft, 'repo')
+            unset(draft, 'branch')
+          }
         }
       })
     )
