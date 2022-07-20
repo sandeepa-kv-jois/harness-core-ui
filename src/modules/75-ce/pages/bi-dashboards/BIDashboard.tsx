@@ -12,25 +12,27 @@ import {
   PageHeader,
   Text
 } from '@harness/uicore'
+import { Link, useParams } from 'react-router-dom'
 import { NGBreadcrumbs } from '@common/components/NGBreadcrumbs/NGBreadcrumbs'
 import { useStrings } from 'framework/strings'
 import { getResourceIcon, getServiceIcons } from '@ce/utils/iconsUtils'
+import routes from '@common/RouteDefinitions'
 import { QuickFilters } from '../perspective-list/PerspectiveListPage'
 import css from './BIDashboard.module.scss'
 
 const data = [
   {
     dashboardName: 'AWS EC2 Inventory Cost Dashboard',
-    dashboardId: 661,
+    dashboardId: 156,
     cloudProvider: 'AWS',
-    service: 'AWS EC2',
+    service: 'RDS',
     description: 'This contains all the AWS EC2 instances inventory'
   },
   {
     dashboardName: 'AWS EC2 Inventory Cost Dashboard',
     dashboardId: 662,
     cloudProvider: 'AWS',
-    service: 'AWS EC2',
+    service: 'RDS',
     description: 'This contains all the AWS EC2 instances inventory'
   },
   {
@@ -106,6 +108,7 @@ const BIDashboard: React.FC = () => {
   const { getString } = useStrings()
   const [quickFilters, setQuickFilters] = useState<Record<string, boolean>>({})
   const [searchParam, setSearchParam] = useState<string>('')
+  const { accountId } = useParams<{ accountId: string }>()
 
   const filteredDashboardData = useMemo(() => {
     return filterDashboardData(data, searchParam, quickFilters)
@@ -158,21 +161,29 @@ const BIDashboard: React.FC = () => {
             gutter={25}
             items={filteredDashboardData || []}
             renderItem={item => (
-              <Card style={{ width: '196px' }}>
-                <Layout.Vertical spacing={'medium'}>
-                  <Text
-                    font={{ variation: FontVariation.H6 }}
-                    icon={getResourceIcon(item.cloudProvider as string)}
-                    iconProps={{ size: 24, padding: { right: 'small' } }}
-                  >
-                    {item.dashboardName}
-                  </Text>
-                  <Icon size={62} name={getServiceIcons(item.service as string)} style={{ alignSelf: 'center' }} />
-                  <Text font={{ variation: FontVariation.SMALL }} color={Color.GREY_600}>
-                    {item.description}
-                  </Text>
-                </Layout.Vertical>
-              </Card>
+              <Link
+                to={routes.toViewCustomDashboard({
+                  viewId: String(item.dashboardId),
+                  accountId: accountId,
+                  folderId: 'shared'
+                })}
+              >
+                <Card style={{ width: '196px' }}>
+                  <Layout.Vertical spacing={'medium'}>
+                    <Text
+                      font={{ variation: FontVariation.H6 }}
+                      icon={getResourceIcon(item.cloudProvider as string)}
+                      iconProps={{ size: 24, padding: { right: 'small' } }}
+                    >
+                      {item.dashboardName}
+                    </Text>
+                    <Icon size={62} name={getServiceIcons(item.service as string)} style={{ alignSelf: 'center' }} />
+                    <Text font={{ variation: FontVariation.SMALL }} color={Color.GREY_600}>
+                      {item.description}
+                    </Text>
+                  </Layout.Vertical>
+                </Card>
+              </Link>
             )}
             keyOf={item => String(item.dashboardId)}
           />
