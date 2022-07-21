@@ -33,7 +33,8 @@ export enum InfraDeploymentType {
   AmazonSAM = 'AwsSAM',
   AzureFunctions = 'AzureFunctions',
   SshWinRmAzure = 'SshWinRmAzure',
-  AzureWebApp = 'AzureWebApp'
+  AzureWebApp = 'AzureWebApp',
+  ECS = 'ECS'
 }
 
 export const deploymentTypeToInfraTypeMap = {
@@ -198,6 +199,8 @@ export const getInfrastructureDefinitionValidationSchema = (
       return Yup.object().shape({})
     }
     return getValidationSchema(getString)
+  } else if (deploymentType === ServiceDeploymentType.ECS) {
+    return getECSInfraValidationSchema(getString)
   } else {
     return Yup.object().shape({
       connectorRef: getConnectorSchema(getString),
@@ -264,5 +267,19 @@ export function getCDStageValidationSchema(
     }),
     failureStrategies: getFailureStrategiesValidationSchema(getString),
     ...getVariablesValidationField(getString)
+  })
+}
+
+export function getECSInfraValidationSchema(getString: UseStringsReturn['getString']) {
+  return Yup.object().shape({
+    connectorRef: getConnectorSchema(getString),
+    region: Yup.lazy((): Yup.Schema<unknown> => {
+      return Yup.string().required(getString('validation.regionRequired'))
+    }),
+    cluster: Yup.lazy((): Yup.Schema<unknown> => {
+      return Yup.string().required(
+        getString('common.validation.fieldIsRequired', { name: getString('common.cluster') })
+      )
+    })
   })
 }

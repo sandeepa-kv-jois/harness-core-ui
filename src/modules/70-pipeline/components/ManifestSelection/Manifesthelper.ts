@@ -30,11 +30,11 @@ import type {
 
 export type ReleaseRepoPipeline = PipelineInfoConfig & { gitOpsEnabled: boolean }
 
-export const isAllowedManifestDeploymentTypes = (deploymentType: ServiceDefinition['type']): boolean => {
-  return (
-    deploymentType === ServiceDeploymentType.Kubernetes ||
-    deploymentType === ServiceDeploymentType.NativeHelm ||
-    deploymentType === ServiceDeploymentType.ServerlessAwsLambda
+export const isManifestAdditionAllowed = (deploymentType: ServiceDefinition['type']): boolean => {
+  return !(
+    deploymentType === ServiceDeploymentType.Ssh ||
+    deploymentType === ServiceDeploymentType.WinRm ||
+    deploymentType === ServiceDeploymentType.AzureWebApp
   )
 }
 
@@ -48,7 +48,7 @@ export const showAddManifestBtn = (
     return false
   }
   if (deploymentType) {
-    return !isReadonly && isAllowedManifestDeploymentTypes(deploymentType)
+    return !isReadonly && isManifestAdditionAllowed(deploymentType)
   }
   return !isReadonly
 }
@@ -65,7 +65,11 @@ export const ManifestDataType: Record<ManifestTypes, ManifestTypes> = {
   OpenshiftTemplate: 'OpenshiftTemplate',
   OpenshiftParam: 'OpenshiftParam',
   KustomizePatches: 'KustomizePatches',
-  ServerlessAwsLambda: 'ServerlessAwsLambda'
+  ServerlessAwsLambda: 'ServerlessAwsLambda',
+  EcsTaskDefinition: 'EcsTaskDefinition',
+  EcsServiceDefinition: 'EcsServiceDefinition',
+  EcsScalingPolicyDefinition: 'EcsScalingPolicyDefinition',
+  EcsScalableTargetDefinition: 'EcsScalableTargetDefinition'
 }
 
 export const ManifestToPathMap: Record<PrimaryManifestType, string> = {
@@ -116,7 +120,13 @@ export const allowedManifestTypes: Record<string, Array<ManifestTypes>> = {
   ServerlessAwsLambda: [ManifestDataType.ServerlessAwsLambda],
   Ssh: [],
   WinRm: [],
-  AzureWebApp: []
+  AzureWebApp: [],
+  ECS: [
+    ManifestDataType.EcsTaskDefinition,
+    ManifestDataType.EcsServiceDefinition,
+    ManifestDataType.EcsScalingPolicyDefinition,
+    ManifestDataType.EcsScalableTargetDefinition
+  ]
 }
 
 export const gitStoreTypes: Array<ManifestStores> = [
@@ -140,7 +150,11 @@ export const ManifestTypetoStoreMap: Record<ManifestTypes, ManifestStores[]> = {
   OpenshiftTemplate: [...gitStoreTypes, ManifestStoreMap.Harness],
   OpenshiftParam: [...gitStoreTypes, ManifestStoreMap.InheritFromManifest, ManifestStoreMap.Harness],
   KustomizePatches: [...gitStoreTypes, ManifestStoreMap.InheritFromManifest, ManifestStoreMap.Harness],
-  ServerlessAwsLambda: gitStoreTypes
+  ServerlessAwsLambda: gitStoreTypes,
+  EcsTaskDefinition: gitStoreTypes,
+  EcsServiceDefinition: gitStoreTypes,
+  EcsScalingPolicyDefinition: gitStoreTypes,
+  EcsScalableTargetDefinition: gitStoreTypes
 }
 
 export const manifestTypeIcons: Record<ManifestTypes, IconName> = {
@@ -151,7 +165,11 @@ export const manifestTypeIcons: Record<ManifestTypes, IconName> = {
   OpenshiftTemplate: 'openshift',
   OpenshiftParam: 'openshift-params',
   KustomizePatches: 'kustomizeparam',
-  ServerlessAwsLambda: 'service-serverless-aws'
+  ServerlessAwsLambda: 'service-serverless-aws',
+  EcsTaskDefinition: 'service-kubernetes',
+  EcsServiceDefinition: 'service-helm',
+  EcsScalingPolicyDefinition: 'service-serverless-azure',
+  EcsScalableTargetDefinition: 'service-serverless-aws'
 }
 
 export const manifestTypeLabels: Record<ManifestTypes, StringKeys> = {
@@ -162,7 +180,11 @@ export const manifestTypeLabels: Record<ManifestTypes, StringKeys> = {
   OpenshiftTemplate: 'pipeline.manifestTypeLabels.OpenshiftTemplate',
   OpenshiftParam: 'pipeline.manifestTypeLabels.OpenshiftParam',
   KustomizePatches: 'pipeline.manifestTypeLabels.KustomizePatches',
-  ServerlessAwsLambda: 'pipeline.manifestTypeLabels.ServerlessAwsLambda'
+  ServerlessAwsLambda: 'pipeline.manifestTypeLabels.ServerlessAwsLambda',
+  EcsTaskDefinition: 'pipeline.manifestTypeLabels.EcsTaskDefinition',
+  EcsServiceDefinition: 'pipeline.manifestTypeLabels.EcsServiceDefinition',
+  EcsScalingPolicyDefinition: 'pipeline.manifestTypeLabels.EcsScalingPolicyDefinition',
+  EcsScalableTargetDefinition: 'pipeline.manifestTypeLabels.EcsScalableTargetDefinition'
 }
 
 export const helmVersions: Array<{ label: string; value: HelmVersionOptions }> = [
@@ -284,7 +306,11 @@ export function getManifestLocation(manifestType: ManifestTypes, manifestStore: 
       ManifestDataType.KustomizePatches,
       ManifestDataType.OpenshiftParam,
       ManifestDataType.OpenshiftTemplate,
-      ManifestDataType.ServerlessAwsLambda
+      ManifestDataType.ServerlessAwsLambda,
+      ManifestDataType.EcsTaskDefinition,
+      ManifestDataType.EcsServiceDefinition,
+      ManifestDataType.EcsScalableTargetDefinition,
+      ManifestDataType.EcsScalingPolicyDefinition
     ].includes(manifestType):
       return 'store.spec.paths'
     case manifestType === ManifestDataType.Kustomize:

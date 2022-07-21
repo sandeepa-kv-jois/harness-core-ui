@@ -2390,7 +2390,7 @@ export interface DeploymentInfo {
 }
 
 export type DeploymentStageConfig = StageInfoConfig & {
-  deploymentType?: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp'
+  deploymentType?: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp' | 'ECS'
   environment?: EnvironmentYamlV2
   environmentGroup?: EnvironmentGroupYaml
   execution: ExecutionElementConfig
@@ -2577,6 +2577,35 @@ export interface EcrRequestDTO {
 
 export interface EcrResponseDTO {
   buildDetailsList?: EcrBuildDetailsDTO[]
+}
+
+export type EcsInfrastructure = Infrastructure & {
+  cluster: string
+  connectorRef: string
+  metadata?: string
+  region: string
+}
+
+export type EcsScalableTargetDefinitionManifest = ManifestAttributes & {
+  metadata?: string
+  store?: StoreConfigWrapper
+}
+
+export type EcsScalingPolicyDefinitionManifest = ManifestAttributes & {
+  metadata?: string
+  store?: StoreConfigWrapper
+}
+
+export type EcsServiceDefinitionManifest = ManifestAttributes & {
+  metadata?: string
+  store?: StoreConfigWrapper
+}
+
+export type EcsServiceSpec = ServiceSpec & {}
+
+export type EcsTaskDefinitionManifest = ManifestAttributes & {
+  metadata?: string
+  store?: StoreConfigWrapper
 }
 
 export interface EditionActionDTO {
@@ -5546,6 +5575,7 @@ export interface InfrastructureDef {
     | 'ServerlessAwsLambda'
     | 'AzureWebApp'
     | 'SshWinRmAws'
+    | 'ECS'
 }
 
 export interface InfrastructureDefinitionConfig {
@@ -5569,6 +5599,7 @@ export interface InfrastructureDefinitionConfig {
     | 'ServerlessAwsLambda'
     | 'AzureWebApp'
     | 'SshWinRmAws'
+    | 'ECS'
 }
 
 export interface InfrastructureDetails {
@@ -5594,6 +5625,7 @@ export interface InfrastructureRequestDTO {
     | 'ServerlessAwsLambda'
     | 'AzureWebApp'
     | 'SshWinRmAws'
+    | 'ECS'
   yaml?: string
 }
 
@@ -5623,6 +5655,7 @@ export interface InfrastructureResponseDTO {
     | 'ServerlessAwsLambda'
     | 'AzureWebApp'
     | 'SshWinRmAws'
+    | 'ECS'
   yaml?: string
 }
 
@@ -6304,6 +6337,11 @@ export interface LdapGroupSettings {
   userMembershipAttr?: string
 }
 
+export interface LdapLinkGroupRequest {
+  ldapGroupDN?: string
+  ldapGroupName?: string
+}
+
 export type LdapSettings = SSOSettings & {
   connectionSettings: LdapConnectionSettings
   cronExpression?: string
@@ -6422,6 +6460,10 @@ export interface ManifestConfig {
     | 'Values'
     | 'ServerlessAwsLambda'
     | 'ReleaseRepo'
+    | 'EcsTaskDefinition'
+    | 'EcsServiceDefinition'
+    | 'EcsScalableTargetDefinition'
+    | 'EcsScalingPolicyDefinition'
 }
 
 export interface ManifestConfigWrapper {
@@ -8745,7 +8787,7 @@ export interface ResponseListServiceAccountDTO {
 
 export interface ResponseListServiceDefinitionType {
   correlationId?: string
-  data?: ('Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp')[]
+  data?: ('Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp' | 'ECS')[]
   metaData?: { [key: string]: any }
   status?: 'SUCCESS' | 'FAILURE' | 'ERROR'
 }
@@ -10787,7 +10829,7 @@ export interface ServiceDashboardInfo {
 
 export interface ServiceDefinition {
   spec: ServiceSpec
-  type: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp'
+  type: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp' | 'ECS'
 }
 
 export interface ServiceDeployment {
@@ -11813,6 +11855,7 @@ export interface UserGroupDTO {
   identifier: string
   linkedSsoDisplayName?: string
   linkedSsoId?: string
+  linkedSsoType?: string
   name: string
   notificationConfigs?: NotificationSettingConfigDTO[]
   orgIdentifier?: string
@@ -12206,9 +12249,9 @@ export type ScimUserRequestBody = ScimUser
 
 export type ScopingRuleDetailsNgArrayRequestBody = ScopingRuleDetailsNg[]
 
-export type SecretRequestWrapperRequestBody = SecretRequestWrapper
+export type SecretRequestWrapperRequestBody = void
 
-export type SecretRequestWrapper2RequestBody = void
+export type SecretRequestWrapper2RequestBody = SecretRequestWrapper
 
 export type ServiceAccountDTORequestBody = ServiceAccountDTO
 
@@ -12238,7 +12281,7 @@ export type GetBuildDetailsForAcrArtifactWithYamlBodyRequestBody = string
 
 export type GetBuildDetailsForArtifactoryArtifactWithYamlBodyRequestBody = string
 
-export type UnsubscribeBodyRequestBody = string[]
+export type ProcessPollingResultNgBodyRequestBody = string[]
 
 export type UpdateWhitelistedDomainsBodyRequestBody = string[]
 
@@ -31277,6 +31320,379 @@ export const getTopProjectsPromise = (
     void
   >('POST', getConfig('ng/api'), `/landingDashboards/topProjects`, props, signal)
 
+export interface ValidateLdapConnectionSettingsQueryParams {
+  accountIdentifier: string
+  orgIdentifier?: string
+  projectIdentifier?: string
+}
+
+export type ValidateLdapConnectionSettingsProps = Omit<
+  MutateProps<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapConnectionSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >,
+  'path' | 'verb'
+>
+
+/**
+ * Validates Ldap Connection Setting
+ */
+export const ValidateLdapConnectionSettings = (props: ValidateLdapConnectionSettingsProps) => (
+  <Mutate<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapConnectionSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >
+    verb="POST"
+    path={`/ldap/settings/test/connection`}
+    base={getConfig('ng/api')}
+    {...props}
+  />
+)
+
+export type UseValidateLdapConnectionSettingsProps = Omit<
+  UseMutateProps<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapConnectionSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >,
+  'path' | 'verb'
+>
+
+/**
+ * Validates Ldap Connection Setting
+ */
+export const useValidateLdapConnectionSettings = (props: UseValidateLdapConnectionSettingsProps) =>
+  useMutate<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapConnectionSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >('POST', `/ldap/settings/test/connection`, { base: getConfig('ng/api'), ...props })
+
+/**
+ * Validates Ldap Connection Setting
+ */
+export const validateLdapConnectionSettingsPromise = (
+  props: MutateUsingFetchProps<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapConnectionSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >,
+  signal?: RequestInit['signal']
+) =>
+  mutateUsingFetch<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapConnectionSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >('POST', getConfig('ng/api'), `/ldap/settings/test/connection`, props, signal)
+
+export interface ValidateLdapGroupSettingsQueryParams {
+  accountIdentifier: string
+  orgIdentifier?: string
+  projectIdentifier?: string
+}
+
+export type ValidateLdapGroupSettingsProps = Omit<
+  MutateProps<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapGroupSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >,
+  'path' | 'verb'
+>
+
+/**
+ * Validates Ldap Group Setting
+ */
+export const ValidateLdapGroupSettings = (props: ValidateLdapGroupSettingsProps) => (
+  <Mutate<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapGroupSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >
+    verb="POST"
+    path={`/ldap/settings/test/group`}
+    base={getConfig('ng/api')}
+    {...props}
+  />
+)
+
+export type UseValidateLdapGroupSettingsProps = Omit<
+  UseMutateProps<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapGroupSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >,
+  'path' | 'verb'
+>
+
+/**
+ * Validates Ldap Group Setting
+ */
+export const useValidateLdapGroupSettings = (props: UseValidateLdapGroupSettingsProps) =>
+  useMutate<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapGroupSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >('POST', `/ldap/settings/test/group`, { base: getConfig('ng/api'), ...props })
+
+/**
+ * Validates Ldap Group Setting
+ */
+export const validateLdapGroupSettingsPromise = (
+  props: MutateUsingFetchProps<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapGroupSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >,
+  signal?: RequestInit['signal']
+) =>
+  mutateUsingFetch<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapGroupSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >('POST', getConfig('ng/api'), `/ldap/settings/test/group`, props, signal)
+
+export interface ValidateLdapUserSettingsQueryParams {
+  accountIdentifier: string
+  orgIdentifier?: string
+  projectIdentifier?: string
+}
+
+export type ValidateLdapUserSettingsProps = Omit<
+  MutateProps<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapUserSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >,
+  'path' | 'verb'
+>
+
+/**
+ * Validates Ldap User Setting
+ */
+export const ValidateLdapUserSettings = (props: ValidateLdapUserSettingsProps) => (
+  <Mutate<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapUserSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >
+    verb="POST"
+    path={`/ldap/settings/test/user`}
+    base={getConfig('ng/api')}
+    {...props}
+  />
+)
+
+export type UseValidateLdapUserSettingsProps = Omit<
+  UseMutateProps<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapUserSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >,
+  'path' | 'verb'
+>
+
+/**
+ * Validates Ldap User Setting
+ */
+export const useValidateLdapUserSettings = (props: UseValidateLdapUserSettingsProps) =>
+  useMutate<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapUserSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >('POST', `/ldap/settings/test/user`, { base: getConfig('ng/api'), ...props })
+
+/**
+ * Validates Ldap User Setting
+ */
+export const validateLdapUserSettingsPromise = (
+  props: MutateUsingFetchProps<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapUserSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >,
+  signal?: RequestInit['signal']
+) =>
+  mutateUsingFetch<
+    RestResponseLdapTestResponse,
+    Failure | Error,
+    ValidateLdapUserSettingsQueryParams,
+    LdapSettingsRequestBody,
+    void
+  >('POST', getConfig('ng/api'), `/ldap/settings/test/user`, props, signal)
+
+export interface SyncLdapGroupsQueryParams {
+  accountIdentifier?: string
+  orgIdentifier?: string
+  projectIdentifier?: string
+}
+
+export type SyncLdapGroupsProps = Omit<
+  GetProps<RestResponseBoolean, Failure | Error, SyncLdapGroupsQueryParams, void>,
+  'path'
+>
+
+/**
+ * Sync Ldap groups within an account
+ */
+export const SyncLdapGroups = (props: SyncLdapGroupsProps) => (
+  <Get<RestResponseBoolean, Failure | Error, SyncLdapGroupsQueryParams, void>
+    path={`/ldap/sync-groups`}
+    base={getConfig('ng/api')}
+    {...props}
+  />
+)
+
+export type UseSyncLdapGroupsProps = Omit<
+  UseGetProps<RestResponseBoolean, Failure | Error, SyncLdapGroupsQueryParams, void>,
+  'path'
+>
+
+/**
+ * Sync Ldap groups within an account
+ */
+export const useSyncLdapGroups = (props: UseSyncLdapGroupsProps) =>
+  useGet<RestResponseBoolean, Failure | Error, SyncLdapGroupsQueryParams, void>(`/ldap/sync-groups`, {
+    base: getConfig('ng/api'),
+    ...props
+  })
+
+/**
+ * Sync Ldap groups within an account
+ */
+export const syncLdapGroupsPromise = (
+  props: GetUsingFetchProps<RestResponseBoolean, Failure | Error, SyncLdapGroupsQueryParams, void>,
+  signal?: RequestInit['signal']
+) =>
+  getUsingFetch<RestResponseBoolean, Failure | Error, SyncLdapGroupsQueryParams, void>(
+    getConfig('ng/api'),
+    `/ldap/sync-groups`,
+    props,
+    signal
+  )
+
+export interface SearchLdapGroupsQueryParams {
+  accountIdentifier?: string
+  orgIdentifier?: string
+  projectIdentifier?: string
+  name?: string
+}
+
+export interface SearchLdapGroupsPathParams {
+  ldapId: string
+}
+
+export type SearchLdapGroupsProps = Omit<
+  GetProps<
+    RestResponseCollectionLdapGroupResponse,
+    Failure | Error,
+    SearchLdapGroupsQueryParams,
+    SearchLdapGroupsPathParams
+  >,
+  'path'
+> &
+  SearchLdapGroupsPathParams
+
+/**
+ * Search Ldap groups with matching name
+ */
+export const SearchLdapGroups = ({ ldapId, ...props }: SearchLdapGroupsProps) => (
+  <Get<
+    RestResponseCollectionLdapGroupResponse,
+    Failure | Error,
+    SearchLdapGroupsQueryParams,
+    SearchLdapGroupsPathParams
+  >
+    path={`/ldap/${ldapId}/search/group`}
+    base={getConfig('ng/api')}
+    {...props}
+  />
+)
+
+export type UseSearchLdapGroupsProps = Omit<
+  UseGetProps<
+    RestResponseCollectionLdapGroupResponse,
+    Failure | Error,
+    SearchLdapGroupsQueryParams,
+    SearchLdapGroupsPathParams
+  >,
+  'path'
+> &
+  SearchLdapGroupsPathParams
+
+/**
+ * Search Ldap groups with matching name
+ */
+export const useSearchLdapGroups = ({ ldapId, ...props }: UseSearchLdapGroupsProps) =>
+  useGet<
+    RestResponseCollectionLdapGroupResponse,
+    Failure | Error,
+    SearchLdapGroupsQueryParams,
+    SearchLdapGroupsPathParams
+  >((paramsInPath: SearchLdapGroupsPathParams) => `/ldap/${paramsInPath.ldapId}/search/group`, {
+    base: getConfig('ng/api'),
+    pathParams: { ldapId },
+    ...props
+  })
+
+/**
+ * Search Ldap groups with matching name
+ */
+export const searchLdapGroupsPromise = (
+  {
+    ldapId,
+    ...props
+  }: GetUsingFetchProps<
+    RestResponseCollectionLdapGroupResponse,
+    Failure | Error,
+    SearchLdapGroupsQueryParams,
+    SearchLdapGroupsPathParams
+  > & { ldapId: string },
+  signal?: RequestInit['signal']
+) =>
+  getUsingFetch<
+    RestResponseCollectionLdapGroupResponse,
+    Failure | Error,
+    SearchLdapGroupsQueryParams,
+    SearchLdapGroupsPathParams
+  >(getConfig('ng/api'), `/ldap/${ldapId}/search/group`, props, signal)
+
 export interface GetAccountLicensesQueryParams {
   accountIdentifier?: string
 }
@@ -31905,329 +32321,6 @@ export const getModuleLicenseByIdPromise = (
     GetModuleLicenseByIdQueryParams,
     GetModuleLicenseByIdPathParams
   >(getConfig('ng/api'), `/licenses/${identifier}`, props, signal)
-
-export interface ValidateLdapConnectionSettingsQueryParams {
-  accountIdentifier: string
-  orgIdentifier?: string
-  projectIdentifier?: string
-}
-
-export type ValidateLdapConnectionSettingsProps = Omit<
-  MutateProps<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapConnectionSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >,
-  'path' | 'verb'
->
-
-/**
- * Validates Ldap Connection Setting
- */
-export const ValidateLdapConnectionSettings = (props: ValidateLdapConnectionSettingsProps) => (
-  <Mutate<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapConnectionSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >
-    verb="POST"
-    path={`/ng/ldap/settings/test/connection`}
-    base={getConfig('ng/api')}
-    {...props}
-  />
-)
-
-export type UseValidateLdapConnectionSettingsProps = Omit<
-  UseMutateProps<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapConnectionSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >,
-  'path' | 'verb'
->
-
-/**
- * Validates Ldap Connection Setting
- */
-export const useValidateLdapConnectionSettings = (props: UseValidateLdapConnectionSettingsProps) =>
-  useMutate<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapConnectionSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >('POST', `/ng/ldap/settings/test/connection`, { base: getConfig('ng/api'), ...props })
-
-/**
- * Validates Ldap Connection Setting
- */
-export const validateLdapConnectionSettingsPromise = (
-  props: MutateUsingFetchProps<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapConnectionSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >,
-  signal?: RequestInit['signal']
-) =>
-  mutateUsingFetch<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapConnectionSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >('POST', getConfig('ng/api'), `/ng/ldap/settings/test/connection`, props, signal)
-
-export interface ValidateLdapGroupSettingsQueryParams {
-  accountIdentifier: string
-  orgIdentifier?: string
-  projectIdentifier?: string
-}
-
-export type ValidateLdapGroupSettingsProps = Omit<
-  MutateProps<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapGroupSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >,
-  'path' | 'verb'
->
-
-/**
- * Validates Ldap Group Setting
- */
-export const ValidateLdapGroupSettings = (props: ValidateLdapGroupSettingsProps) => (
-  <Mutate<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapGroupSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >
-    verb="POST"
-    path={`/ng/ldap/settings/test/group`}
-    base={getConfig('ng/api')}
-    {...props}
-  />
-)
-
-export type UseValidateLdapGroupSettingsProps = Omit<
-  UseMutateProps<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapGroupSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >,
-  'path' | 'verb'
->
-
-/**
- * Validates Ldap Group Setting
- */
-export const useValidateLdapGroupSettings = (props: UseValidateLdapGroupSettingsProps) =>
-  useMutate<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapGroupSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >('POST', `/ng/ldap/settings/test/group`, { base: getConfig('ng/api'), ...props })
-
-/**
- * Validates Ldap Group Setting
- */
-export const validateLdapGroupSettingsPromise = (
-  props: MutateUsingFetchProps<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapGroupSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >,
-  signal?: RequestInit['signal']
-) =>
-  mutateUsingFetch<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapGroupSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >('POST', getConfig('ng/api'), `/ng/ldap/settings/test/group`, props, signal)
-
-export interface ValidateLdapUserSettingsQueryParams {
-  accountIdentifier: string
-  orgIdentifier?: string
-  projectIdentifier?: string
-}
-
-export type ValidateLdapUserSettingsProps = Omit<
-  MutateProps<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapUserSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >,
-  'path' | 'verb'
->
-
-/**
- * Validates Ldap User Setting
- */
-export const ValidateLdapUserSettings = (props: ValidateLdapUserSettingsProps) => (
-  <Mutate<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapUserSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >
-    verb="POST"
-    path={`/ng/ldap/settings/test/user`}
-    base={getConfig('ng/api')}
-    {...props}
-  />
-)
-
-export type UseValidateLdapUserSettingsProps = Omit<
-  UseMutateProps<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapUserSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >,
-  'path' | 'verb'
->
-
-/**
- * Validates Ldap User Setting
- */
-export const useValidateLdapUserSettings = (props: UseValidateLdapUserSettingsProps) =>
-  useMutate<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapUserSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >('POST', `/ng/ldap/settings/test/user`, { base: getConfig('ng/api'), ...props })
-
-/**
- * Validates Ldap User Setting
- */
-export const validateLdapUserSettingsPromise = (
-  props: MutateUsingFetchProps<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapUserSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >,
-  signal?: RequestInit['signal']
-) =>
-  mutateUsingFetch<
-    RestResponseLdapTestResponse,
-    Failure | Error,
-    ValidateLdapUserSettingsQueryParams,
-    LdapSettingsRequestBody,
-    void
-  >('POST', getConfig('ng/api'), `/ng/ldap/settings/test/user`, props, signal)
-
-export interface SearchLdapGroupsQueryParams {
-  accountIdentifier?: string
-  orgIdentifier?: string
-  projectIdentifier?: string
-  name?: string
-}
-
-export interface SearchLdapGroupsPathParams {
-  ldapId: string
-}
-
-export type SearchLdapGroupsProps = Omit<
-  GetProps<
-    RestResponseCollectionLdapGroupResponse,
-    Failure | Error,
-    SearchLdapGroupsQueryParams,
-    SearchLdapGroupsPathParams
-  >,
-  'path'
-> &
-  SearchLdapGroupsPathParams
-
-/**
- * Search Ldap groups with matching name
- */
-export const SearchLdapGroups = ({ ldapId, ...props }: SearchLdapGroupsProps) => (
-  <Get<
-    RestResponseCollectionLdapGroupResponse,
-    Failure | Error,
-    SearchLdapGroupsQueryParams,
-    SearchLdapGroupsPathParams
-  >
-    path={`/ng/ldap/${ldapId}/search/group`}
-    base={getConfig('ng/api')}
-    {...props}
-  />
-)
-
-export type UseSearchLdapGroupsProps = Omit<
-  UseGetProps<
-    RestResponseCollectionLdapGroupResponse,
-    Failure | Error,
-    SearchLdapGroupsQueryParams,
-    SearchLdapGroupsPathParams
-  >,
-  'path'
-> &
-  SearchLdapGroupsPathParams
-
-/**
- * Search Ldap groups with matching name
- */
-export const useSearchLdapGroups = ({ ldapId, ...props }: UseSearchLdapGroupsProps) =>
-  useGet<
-    RestResponseCollectionLdapGroupResponse,
-    Failure | Error,
-    SearchLdapGroupsQueryParams,
-    SearchLdapGroupsPathParams
-  >((paramsInPath: SearchLdapGroupsPathParams) => `/ng/ldap/${paramsInPath.ldapId}/search/group`, {
-    base: getConfig('ng/api'),
-    pathParams: { ldapId },
-    ...props
-  })
-
-/**
- * Search Ldap groups with matching name
- */
-export const searchLdapGroupsPromise = (
-  {
-    ldapId,
-    ...props
-  }: GetUsingFetchProps<
-    RestResponseCollectionLdapGroupResponse,
-    Failure | Error,
-    SearchLdapGroupsQueryParams,
-    SearchLdapGroupsPathParams
-  > & { ldapId: string },
-  signal?: RequestInit['signal']
-) =>
-  getUsingFetch<
-    RestResponseCollectionLdapGroupResponse,
-    Failure | Error,
-    SearchLdapGroupsQueryParams,
-    SearchLdapGroupsPathParams
-  >(getConfig('ng/api'), `/ng/ldap/${ldapId}/search/group`, props, signal)
 
 export interface ConfigureOauthQueryParams {
   accountIdentifier?: string
@@ -33254,7 +33347,7 @@ export const getServiceDefinitionTypesPromise = (
   )
 
 export interface GetStepsQueryParams {
-  serviceDefinitionType: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp'
+  serviceDefinitionType: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp' | 'ECS'
 }
 
 export type GetStepsProps = Omit<GetProps<ResponseStepCategory, Failure | Error, GetStepsQueryParams, void>, 'path'>
@@ -33391,7 +33484,7 @@ export const getProvisionerExecutionStrategyYamlPromise = (
   )
 
 export interface GetExecutionStrategyYamlQueryParams {
-  serviceDefinitionType: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp'
+  serviceDefinitionType: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp' | 'ECS'
   strategyType: 'Basic' | 'Canary' | 'BlueGreen' | 'Rolling' | 'Default' | 'GitOps'
   includeVerify?: boolean
 }
@@ -33453,7 +33546,7 @@ export type ProcessPollingResultNgProps = Omit<
     void,
     Failure | Error,
     ProcessPollingResultNgQueryParams,
-    UnsubscribeBodyRequestBody,
+    ProcessPollingResultNgBodyRequestBody,
     ProcessPollingResultNgPathParams
   >,
   'path' | 'verb'
@@ -33465,7 +33558,7 @@ export const ProcessPollingResultNg = ({ perpetualTaskId, ...props }: ProcessPol
     void,
     Failure | Error,
     ProcessPollingResultNgQueryParams,
-    UnsubscribeBodyRequestBody,
+    ProcessPollingResultNgBodyRequestBody,
     ProcessPollingResultNgPathParams
   >
     verb="POST"
@@ -33480,7 +33573,7 @@ export type UseProcessPollingResultNgProps = Omit<
     void,
     Failure | Error,
     ProcessPollingResultNgQueryParams,
-    UnsubscribeBodyRequestBody,
+    ProcessPollingResultNgBodyRequestBody,
     ProcessPollingResultNgPathParams
   >,
   'path' | 'verb'
@@ -33492,7 +33585,7 @@ export const useProcessPollingResultNg = ({ perpetualTaskId, ...props }: UseProc
     void,
     Failure | Error,
     ProcessPollingResultNgQueryParams,
-    UnsubscribeBodyRequestBody,
+    ProcessPollingResultNgBodyRequestBody,
     ProcessPollingResultNgPathParams
   >(
     'POST',
@@ -33508,7 +33601,7 @@ export const processPollingResultNgPromise = (
     void,
     Failure | Error,
     ProcessPollingResultNgQueryParams,
-    UnsubscribeBodyRequestBody,
+    ProcessPollingResultNgBodyRequestBody,
     ProcessPollingResultNgPathParams
   > & { perpetualTaskId: string },
   signal?: RequestInit['signal']
@@ -33517,17 +33610,17 @@ export const processPollingResultNgPromise = (
     void,
     Failure | Error,
     ProcessPollingResultNgQueryParams,
-    UnsubscribeBodyRequestBody,
+    ProcessPollingResultNgBodyRequestBody,
     ProcessPollingResultNgPathParams
   >('POST', getConfig('ng/api'), `/polling/delegate-response/${perpetualTaskId}`, props, signal)
 
 export type SubscribeProps = Omit<
-  MutateProps<ResponsePollingResponseDTO, Failure | Error, void, UnsubscribeBodyRequestBody, void>,
+  MutateProps<ResponsePollingResponseDTO, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>,
   'path' | 'verb'
 >
 
 export const Subscribe = (props: SubscribeProps) => (
-  <Mutate<ResponsePollingResponseDTO, Failure | Error, void, UnsubscribeBodyRequestBody, void>
+  <Mutate<ResponsePollingResponseDTO, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>
     verb="POST"
     path={`/polling/subscribe`}
     base={getConfig('ng/api')}
@@ -33536,22 +33629,28 @@ export const Subscribe = (props: SubscribeProps) => (
 )
 
 export type UseSubscribeProps = Omit<
-  UseMutateProps<ResponsePollingResponseDTO, Failure | Error, void, UnsubscribeBodyRequestBody, void>,
+  UseMutateProps<ResponsePollingResponseDTO, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>,
   'path' | 'verb'
 >
 
 export const useSubscribe = (props: UseSubscribeProps) =>
-  useMutate<ResponsePollingResponseDTO, Failure | Error, void, UnsubscribeBodyRequestBody, void>(
+  useMutate<ResponsePollingResponseDTO, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>(
     'POST',
     `/polling/subscribe`,
     { base: getConfig('ng/api'), ...props }
   )
 
 export const subscribePromise = (
-  props: MutateUsingFetchProps<ResponsePollingResponseDTO, Failure | Error, void, UnsubscribeBodyRequestBody, void>,
+  props: MutateUsingFetchProps<
+    ResponsePollingResponseDTO,
+    Failure | Error,
+    void,
+    ProcessPollingResultNgBodyRequestBody,
+    void
+  >,
   signal?: RequestInit['signal']
 ) =>
-  mutateUsingFetch<ResponsePollingResponseDTO, Failure | Error, void, UnsubscribeBodyRequestBody, void>(
+  mutateUsingFetch<ResponsePollingResponseDTO, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>(
     'POST',
     getConfig('ng/api'),
     `/polling/subscribe`,
@@ -33560,12 +33659,12 @@ export const subscribePromise = (
   )
 
 export type UnsubscribeProps = Omit<
-  MutateProps<boolean, Failure | Error, void, UnsubscribeBodyRequestBody, void>,
+  MutateProps<boolean, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>,
   'path' | 'verb'
 >
 
 export const Unsubscribe = (props: UnsubscribeProps) => (
-  <Mutate<boolean, Failure | Error, void, UnsubscribeBodyRequestBody, void>
+  <Mutate<boolean, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>
     verb="POST"
     path={`/polling/unsubscribe`}
     base={getConfig('ng/api')}
@@ -33574,21 +33673,22 @@ export const Unsubscribe = (props: UnsubscribeProps) => (
 )
 
 export type UseUnsubscribeProps = Omit<
-  UseMutateProps<boolean, Failure | Error, void, UnsubscribeBodyRequestBody, void>,
+  UseMutateProps<boolean, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>,
   'path' | 'verb'
 >
 
 export const useUnsubscribe = (props: UseUnsubscribeProps) =>
-  useMutate<boolean, Failure | Error, void, UnsubscribeBodyRequestBody, void>('POST', `/polling/unsubscribe`, {
-    base: getConfig('ng/api'),
-    ...props
-  })
+  useMutate<boolean, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>(
+    'POST',
+    `/polling/unsubscribe`,
+    { base: getConfig('ng/api'), ...props }
+  )
 
 export const unsubscribePromise = (
-  props: MutateUsingFetchProps<boolean, Failure | Error, void, UnsubscribeBodyRequestBody, void>,
+  props: MutateUsingFetchProps<boolean, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>,
   signal?: RequestInit['signal']
 ) =>
-  mutateUsingFetch<boolean, Failure | Error, void, UnsubscribeBodyRequestBody, void>(
+  mutateUsingFetch<boolean, Failure | Error, void, ProcessPollingResultNgBodyRequestBody, void>(
     'POST',
     getConfig('ng/api'),
     `/polling/unsubscribe`,
@@ -36770,7 +36870,7 @@ export interface GetServiceListQueryParams {
   searchTerm?: string
   serviceIdentifiers?: string[]
   sort?: string[]
-  type?: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp'
+  type?: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp' | 'ECS'
   gitOpsEnabled?: boolean
 }
 
@@ -37112,7 +37212,7 @@ export interface GetServiceAccessListQueryParams {
   searchTerm?: string
   serviceIdentifiers?: string[]
   sort?: string[]
-  type?: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp'
+  type?: 'Kubernetes' | 'NativeHelm' | 'Ssh' | 'WinRm' | 'ServerlessAwsLambda' | 'AzureWebApp' | 'ECS'
   gitOpsEnabled?: boolean
 }
 
@@ -41050,6 +41150,101 @@ export const getUsersInUserGroupPromise = (
     GetUsersInUserGroupPathParams
   >('POST', getConfig('ng/api'), `/user-groups/${identifier}/users`, props, signal)
 
+export interface LinkToLdapGroupQueryParams {
+  accountIdentifier: string
+  orgIdentifier?: string
+  projectIdentifier?: string
+}
+
+export interface LinkToLdapGroupPathParams {
+  userGroupId: string
+  ldapId: string
+}
+
+export type LinkToLdapGroupProps = Omit<
+  MutateProps<
+    RestResponseUserGroup,
+    Failure | AccessControlCheckError | Error,
+    LinkToLdapGroupQueryParams,
+    LdapLinkGroupRequest,
+    LinkToLdapGroupPathParams
+  >,
+  'path' | 'verb'
+> &
+  LinkToLdapGroupPathParams
+
+/**
+ * Link to an LDAP group
+ */
+export const LinkToLdapGroup = ({ userGroupId, ldapId, ...props }: LinkToLdapGroupProps) => (
+  <Mutate<
+    RestResponseUserGroup,
+    Failure | AccessControlCheckError | Error,
+    LinkToLdapGroupQueryParams,
+    LdapLinkGroupRequest,
+    LinkToLdapGroupPathParams
+  >
+    verb="PUT"
+    path={`/user-groups/${userGroupId}/link/ldap/${ldapId}`}
+    base={getConfig('ng/api')}
+    {...props}
+  />
+)
+
+export type UseLinkToLdapGroupProps = Omit<
+  UseMutateProps<
+    RestResponseUserGroup,
+    Failure | AccessControlCheckError | Error,
+    LinkToLdapGroupQueryParams,
+    LdapLinkGroupRequest,
+    LinkToLdapGroupPathParams
+  >,
+  'path' | 'verb'
+> &
+  LinkToLdapGroupPathParams
+
+/**
+ * Link to an LDAP group
+ */
+export const useLinkToLdapGroup = ({ userGroupId, ldapId, ...props }: UseLinkToLdapGroupProps) =>
+  useMutate<
+    RestResponseUserGroup,
+    Failure | AccessControlCheckError | Error,
+    LinkToLdapGroupQueryParams,
+    LdapLinkGroupRequest,
+    LinkToLdapGroupPathParams
+  >(
+    'PUT',
+    (paramsInPath: LinkToLdapGroupPathParams) =>
+      `/user-groups/${paramsInPath.userGroupId}/link/ldap/${paramsInPath.ldapId}`,
+    { base: getConfig('ng/api'), pathParams: { userGroupId, ldapId }, ...props }
+  )
+
+/**
+ * Link to an LDAP group
+ */
+export const linkToLdapGroupPromise = (
+  {
+    userGroupId,
+    ldapId,
+    ...props
+  }: MutateUsingFetchProps<
+    RestResponseUserGroup,
+    Failure | AccessControlCheckError | Error,
+    LinkToLdapGroupQueryParams,
+    LdapLinkGroupRequest,
+    LinkToLdapGroupPathParams
+  > & { userGroupId: string; ldapId: string },
+  signal?: RequestInit['signal']
+) =>
+  mutateUsingFetch<
+    RestResponseUserGroup,
+    Failure | AccessControlCheckError | Error,
+    LinkToLdapGroupQueryParams,
+    LdapLinkGroupRequest,
+    LinkToLdapGroupPathParams
+  >('PUT', getConfig('ng/api'), `/user-groups/${userGroupId}/link/ldap/${ldapId}`, props, signal)
+
 export interface LinkToSamlGroupQueryParams {
   accountIdentifier: string
   orgIdentifier?: string
@@ -43043,7 +43238,7 @@ export type PostSecretProps = Omit<
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     void
   >,
   'path' | 'verb'
@@ -43053,7 +43248,7 @@ export type PostSecretProps = Omit<
  * Create a secret
  */
 export const PostSecret = (props: PostSecretProps) => (
-  <Mutate<ResponseSecretResponseWrapper, Failure | Error, PostSecretQueryParams, SecretRequestWrapperRequestBody, void>
+  <Mutate<ResponseSecretResponseWrapper, Failure | Error, PostSecretQueryParams, SecretRequestWrapper2RequestBody, void>
     verb="POST"
     path={`/v2/secrets`}
     base={getConfig('ng/api')}
@@ -43066,7 +43261,7 @@ export type UsePostSecretProps = Omit<
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     void
   >,
   'path' | 'verb'
@@ -43080,7 +43275,7 @@ export const usePostSecret = (props: UsePostSecretProps) =>
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     void
   >('POST', `/v2/secrets`, { base: getConfig('ng/api'), ...props })
 
@@ -43092,7 +43287,7 @@ export const postSecretPromise = (
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     void
   >,
   signal?: RequestInit['signal']
@@ -43101,7 +43296,7 @@ export const postSecretPromise = (
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     void
   >('POST', getConfig('ng/api'), `/v2/secrets`, props, signal)
 
@@ -43494,7 +43689,7 @@ export type PostSecretViaYamlProps = Omit<
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     void
   >,
   'path' | 'verb'
@@ -43508,7 +43703,7 @@ export const PostSecretViaYaml = (props: PostSecretViaYamlProps) => (
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     void
   >
     verb="POST"
@@ -43523,7 +43718,7 @@ export type UsePostSecretViaYamlProps = Omit<
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     void
   >,
   'path' | 'verb'
@@ -43537,7 +43732,7 @@ export const usePostSecretViaYaml = (props: UsePostSecretViaYamlProps) =>
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     void
   >('POST', `/v2/secrets/yaml`, { base: getConfig('ng/api'), ...props })
 
@@ -43549,7 +43744,7 @@ export const postSecretViaYamlPromise = (
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     void
   >,
   signal?: RequestInit['signal']
@@ -43558,7 +43753,7 @@ export const postSecretViaYamlPromise = (
     ResponseSecretResponseWrapper,
     Failure | Error,
     PostSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     void
   >('POST', getConfig('ng/api'), `/v2/secrets/yaml`, props, signal)
 
@@ -43693,7 +43888,7 @@ export type PutSecretProps = Omit<
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     PutSecretPathParams
   >,
   'path' | 'verb'
@@ -43708,7 +43903,7 @@ export const PutSecret = ({ identifier, ...props }: PutSecretProps) => (
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     PutSecretPathParams
   >
     verb="PUT"
@@ -43723,7 +43918,7 @@ export type UsePutSecretProps = Omit<
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     PutSecretPathParams
   >,
   'path' | 'verb'
@@ -43738,7 +43933,7 @@ export const usePutSecret = ({ identifier, ...props }: UsePutSecretProps) =>
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     PutSecretPathParams
   >('PUT', (paramsInPath: PutSecretPathParams) => `/v2/secrets/${paramsInPath.identifier}`, {
     base: getConfig('ng/api'),
@@ -43757,7 +43952,7 @@ export const putSecretPromise = (
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     PutSecretPathParams
   > & { identifier: string },
   signal?: RequestInit['signal']
@@ -43766,7 +43961,7 @@ export const putSecretPromise = (
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretQueryParams,
-    SecretRequestWrapperRequestBody,
+    SecretRequestWrapper2RequestBody,
     PutSecretPathParams
   >('PUT', getConfig('ng/api'), `/v2/secrets/${identifier}`, props, signal)
 
@@ -43785,7 +43980,7 @@ export type PutSecretViaYamlProps = Omit<
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     PutSecretViaYamlPathParams
   >,
   'path' | 'verb'
@@ -43800,7 +43995,7 @@ export const PutSecretViaYaml = ({ identifier, ...props }: PutSecretViaYamlProps
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     PutSecretViaYamlPathParams
   >
     verb="PUT"
@@ -43815,7 +44010,7 @@ export type UsePutSecretViaYamlProps = Omit<
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     PutSecretViaYamlPathParams
   >,
   'path' | 'verb'
@@ -43830,7 +44025,7 @@ export const usePutSecretViaYaml = ({ identifier, ...props }: UsePutSecretViaYam
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     PutSecretViaYamlPathParams
   >('PUT', (paramsInPath: PutSecretViaYamlPathParams) => `/v2/secrets/${paramsInPath.identifier}/yaml`, {
     base: getConfig('ng/api'),
@@ -43849,7 +44044,7 @@ export const putSecretViaYamlPromise = (
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     PutSecretViaYamlPathParams
   > & { identifier: string },
   signal?: RequestInit['signal']
@@ -43858,7 +44053,7 @@ export const putSecretViaYamlPromise = (
     ResponseSecretResponseWrapper,
     Failure | Error,
     PutSecretViaYamlQueryParams,
-    SecretRequestWrapper2RequestBody,
+    SecretRequestWrapperRequestBody,
     PutSecretViaYamlPathParams
   >('PUT', getConfig('ng/api'), `/v2/secrets/${identifier}/yaml`, props, signal)
 

@@ -8,7 +8,7 @@
 import produce from 'immer'
 import { isEmpty, set, get } from 'lodash-es'
 import { StepType } from '@pipeline/components/PipelineSteps/PipelineStepInterface'
-import { StageType } from '@pipeline/utils/stageHelpers'
+import { ServiceDeploymentType, StageType } from '@pipeline/utils/stageHelpers'
 import type {
   StepPalleteModuleInfo,
   StageElementConfig,
@@ -91,6 +91,9 @@ export function getStepPaletteModuleInfosFromStage(
       break
     case 'AzureWebApp':
       category = 'AzureWebApp'
+      break
+    case ServiceDeploymentType.ECS:
+      category = 'ECS'
       break
   }
   switch (stageType) {

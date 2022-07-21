@@ -28,7 +28,8 @@ import {
   K8sGcpInfrastructure,
   PdcInfrastructure,
   PipelineInfrastructure,
-  StageElementConfig
+  StageElementConfig,
+  EcsInfrastructure
 } from 'services/cd-ng'
 import StringWithTooltip from '@common/components/StringWithTooltip/StringWithTooltip'
 import factory from '@pipeline/components/PipelineSteps/PipelineStepFactory'
@@ -67,6 +68,7 @@ import type { ServerlessAzureSpec } from '@cd/components/PipelineSteps/Serverles
 import { useFeatureFlag, useFeatureFlags } from '@common/hooks/useFeatureFlag'
 import { FeatureFlag } from '@common/featureFlags'
 import { isNewServiceEnvEntity } from '@pipeline/components/PipelineStudio/CommonUtils/DeployStageSetupShellUtils'
+import type { ECSInfraSpec } from '@cd/components/PipelineSteps/ECSInfraSpec/ECSInfraSpec'
 import { cleanUpEmptyProvisioner, getInfraGroups, getInfrastructureDefaultValue } from '../deployInfraHelper'
 import stageCss from '../../DeployStageSetupShell/DeployStage.module.scss'
 
@@ -85,7 +87,8 @@ export const deploymentTypeInfraTypeMap = {
   ServerlessGoogleFunctions: InfraDeploymentType.ServerlessGoogleFunctions,
   AmazonSAM: InfraDeploymentType.AmazonSAM,
   AzureFunctions: InfraDeploymentType.AzureFunctions,
-  AzureWebApp: InfraDeploymentType.AzureWebApp
+  AzureWebApp: InfraDeploymentType.AzureWebApp,
+  ECS: InfraDeploymentType.ECS
 }
 
 type InfraTypes =
@@ -95,6 +98,7 @@ type InfraTypes =
   | K8sAzureInfrastructure
   | PdcInfrastructure
   | AzureWebAppInfrastructure
+  | EcsInfrastructure
 
 export default function DeployInfraDefinition(props: React.PropsWithChildren<unknown>): JSX.Element {
   const [initialInfrastructureDefinitionValues, setInitialInfrastructureDefinitionValues] =
@@ -410,7 +414,7 @@ export default function DeployInfraDefinition(props: React.PropsWithChildren<unk
           />
         )
       }
-      case 'ServerlessAwsLambda': {
+      case InfraDeploymentType.ServerlessAwsLambda: {
         return (
           <StepWidget<ServerlessAwsLambdaSpec>
             factory={factory}
@@ -428,14 +432,14 @@ export default function DeployInfraDefinition(props: React.PropsWithChildren<unk
                   region: value.region,
                   allowSimultaneousDeployments: value.allowSimultaneousDeployments
                 },
-                'ServerlessAwsLambda'
+                InfraDeploymentType.ServerlessAwsLambda
               )
             }
             customStepProps={getCustomStepProps('ServerlessAwsLambda', getString)}
           />
         )
       }
-      case 'ServerlessGoogleFunctions': {
+      case InfraDeploymentType.ServerlessGoogleFunctions: {
         return (
           <StepWidget<ServerlessGCPSpec>
             factory={factory}
@@ -452,14 +456,14 @@ export default function DeployInfraDefinition(props: React.PropsWithChildren<unk
                   stage: value.stage,
                   allowSimultaneousDeployments: value.allowSimultaneousDeployments
                 },
-                'ServerlessGoogleFunctions'
+                InfraDeploymentType.ServerlessGoogleFunctions
               )
             }
             customStepProps={getCustomStepProps('ServerlessGoogleFunctions', getString)}
           />
         )
       }
-      case 'ServerlessAzureFunctions': {
+      case InfraDeploymentType.ServerlessAzureFunctions: {
         return (
           <StepWidget<ServerlessAzureSpec>
             factory={factory}
@@ -476,7 +480,7 @@ export default function DeployInfraDefinition(props: React.PropsWithChildren<unk
                   stage: value.stage,
                   allowSimultaneousDeployments: value.allowSimultaneousDeployments
                 },
-                'ServerlessAzureFunctions'
+                InfraDeploymentType.ServerlessAzureFunctions
               )
             }
             customStepProps={getCustomStepProps('ServerlessAzureFunctions', getString)}
@@ -534,6 +538,30 @@ export default function DeployInfraDefinition(props: React.PropsWithChildren<unk
                 InfraDeploymentType.SshWinRmAzure
               )
             }}
+          />
+        )
+      }
+      case InfraDeploymentType.ECS: {
+        return (
+          <StepWidget<ECSInfraSpec>
+            factory={factory}
+            key={stage.stage.identifier}
+            readonly={isReadonly}
+            initialValues={initialInfrastructureDefinitionValues as ECSInfraSpec}
+            type={StepType.ECSInfra}
+            stepViewType={StepViewType.Edit}
+            allowableTypes={allowableTypes}
+            onUpdate={value =>
+              onUpdateInfrastructureDefinition(
+                {
+                  connectorRef: value.connectorRef,
+                  region: value.region,
+                  cluster: value.cluster,
+                  allowSimultaneousDeployments: value.allowSimultaneousDeployments
+                },
+                InfraDeploymentType.ECS
+              )
+            }
           />
         )
       }
@@ -605,6 +633,7 @@ export default function DeployInfraDefinition(props: React.PropsWithChildren<unk
               <StringWithTooltip
                 tooltipId="pipelineStep.infrastructureDefinitionMethod"
                 stringId="pipelineSteps.deploy.infrastructure.selectMethod"
+                stringIdVars={{ deploymentSpecificText: selectedDeploymentType }}
               />
             </Text>
           )}

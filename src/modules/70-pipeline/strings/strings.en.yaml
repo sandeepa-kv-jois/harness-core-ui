@@ -363,6 +363,10 @@ manifestTypeLabels:
   ServerlessGCP: Serverless GCP Manifest
   AwsSAM: AWS SAM Manifest
   AzureFunctions: Azure Functions Manifest
+  EcsTaskDefinition: 'ECS Task Definition'
+  EcsServiceDefinition: 'ECS Service Specification'
+  EcsScalingPolicyDefinition: 'ECS Scaling Policy'
+  EcsScalableTargetDefinition: 'ECS Scalable Target'
 manifestToConnectorLabelMap:
   AWSLabel: '{{ $.common.aws }}'
 failureStrategies:

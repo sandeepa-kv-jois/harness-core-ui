@@ -178,11 +178,11 @@ export default function SelectDeploymentType({
       baseTypes.push({
         label: getString('pipeline.serviceDeploymentTypes.amazonEcs'),
         icon: 'service-ecs',
-        value: ServiceDeploymentType.amazonEcs
+        value: ServiceDeploymentType.ECS
       })
     }
     return [...baseTypes, ...getServerlessDeploymentTypes(getString, SERVERLESS_SUPPORT)] as DeploymentTypeItem[]
-  }, [getString, SERVERLESS_SUPPORT, SSH_NG, AZURE_WEBAPP_NG])
+  }, [getString, SERVERLESS_SUPPORT, SSH_NG, AZURE_WEBAPP_NG, ECS_NG])
 
   // Suppported in CG (First Gen - Old Version of Harness App)
   const cgSupportedDeploymentTypes: DeploymentTypeItem[] = React.useMemo(() => {
@@ -192,7 +192,7 @@ export default function SelectDeploymentType({
             {
               label: getString('pipeline.serviceDeploymentTypes.amazonEcs'),
               icon: 'service-ecs',
-              value: ServiceDeploymentType.amazonEcs
+              value: ServiceDeploymentType.ECS
             }
           ]
         : []),

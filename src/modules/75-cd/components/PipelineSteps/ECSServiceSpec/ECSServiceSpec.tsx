@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Harness Inc. All rights reserved.
+ * Copyright 2022 Harness Inc. All rights reserved.
  * Use of this source code is governed by the PolyForm Shield 1.0.0 license
  * that can be found in the licenses directory at the root of this repository, also available at
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
@@ -10,27 +10,32 @@ import { defaultTo, set, get, isEmpty } from 'lodash-es'
 import { parse } from 'yaml'
 import type { FormikErrors } from 'formik'
 import { CompletionItemKind } from 'vscode-languageserver-types'
-
 import { IconName, getMultiTypeFromValue, MultiTypeInputType } from '@wings-software/uicore'
 
-import { StepViewType, ValidateInputSetProps, Step, StepProps } from '@pipeline/components/AbstractSteps/Step'
+import { loggerFor } from 'framework/logging/logging'
+import { ModuleName } from 'framework/types/ModuleName'
+import type { CompletionItemInterface } from '@common/interfaces/YAMLBuilderProps'
 import {
   ServiceSpec,
   getConnectorListV2Promise,
   getBuildDetailsForArtifactoryArtifactWithYamlPromise,
   ResponsePageConnectorResponse,
-  ConnectorResponse
+  ConnectorResponse,
+  getBuildDetailsForDockerPromise,
+  getBuildDetailsForEcrPromise,
+  getBuildDetailsForNexusArtifactPromise
 } from 'services/cd-ng'
-import { ArtifactToConnectorMap, allowedArtifactTypes } from '@pipeline/components/ArtifactsSelection/ArtifactHelper'
-
 import { yamlStringify } from '@common/utils/YamlHelperMethods'
-import { loggerFor } from 'framework/logging/logging'
-import { ModuleName } from 'framework/types/ModuleName'
-import type { CompletionItemInterface } from '@common/interfaces/YAMLBuilderProps'
+import {
+  ArtifactToConnectorMap,
+  allowedArtifactTypes,
+  ENABLED_ARTIFACT_TYPES
+} from '@pipeline/components/ArtifactsSelection/ArtifactHelper'
+import { StepViewType, ValidateInputSetProps, Step, StepProps } from '@pipeline/components/AbstractSteps/Step'
 import { StepType } from '@pipeline/components/PipelineSteps/PipelineStepInterface'
-import { getConnectorName, getConnectorValue } from '@triggers/pages/triggers/utils/TriggersWizardPageUtils'
 import type { ArtifactType } from '@pipeline/components/ArtifactsSelection/ArtifactInterface'
 import type { K8SDirectServiceStep } from '@pipeline/factories/ArtifactTriggerInputFactory/types'
+import { getConnectorName, getConnectorValue } from '@triggers/pages/triggers/utils/TriggersWizardPageUtils'
 import {
   K8sServiceSpecVariablesForm,
   K8sServiceSpecVariablesFormProps
@@ -46,14 +51,14 @@ const ManifestConnectorRefType = 'Git'
 const ArtifactsPrimaryRegex = /^.+artifacts\.primary\.spec\.connectorRef$/
 const ArtifactsPrimaryTagRegex = /^.+artifacts\.primary\.spec\.artifactPath$/
 
-const serverlessAllowedArtifactTypes: Array<ArtifactType> = allowedArtifactTypes.ServerlessAwsLambda
+const ecsAllowedArtifactTypes: Array<ArtifactType> = allowedArtifactTypes.ECS
 
-export class ServerlessAwsLambdaServiceSpec extends Step<ServiceSpec> {
-  protected type = StepType.ServerlessAwsLambda
+export class ECSServiceSpec extends Step<ServiceSpec> {
+  protected type = StepType.ECSService
   protected defaultValues: ServiceSpec = {}
 
-  protected stepIcon: IconName = 'service-serverless'
-  protected stepName = 'Deplyment Service'
+  protected stepIcon: IconName = 'service-ecs'
+  protected stepName = 'Deployment Service'
   protected stepPaletteVisible = false
   protected _hasStepVariables = true
   protected invocationMap: Map<
@@ -131,7 +136,7 @@ export class ServerlessAwsLambdaServiceSpec extends Step<ServiceSpec> {
     }
     if (pipelineObj) {
       const obj = get(pipelineObj, path.replace('.spec.connectorRef', ''))
-      if (serverlessAllowedArtifactTypes.includes(obj?.type)) {
+      if (ecsAllowedArtifactTypes.includes(obj?.type)) {
         return getConnectorListV2Promise({
           queryParams: {
             accountIdentifier: accountId,
@@ -140,7 +145,13 @@ export class ServerlessAwsLambdaServiceSpec extends Step<ServiceSpec> {
             includeAllConnectorsAvailableAtScope: true
           },
           body: {
-            types: [ArtifactToConnectorMap.ArtifactoryRegistry, ArtifactToConnectorMap.Ecr],
+            types: [
+              ArtifactToConnectorMap.Jenkins,
+              ArtifactToConnectorMap.ArtifactoryRegistry,
+              ArtifactToConnectorMap.DockerRegistry,
+              ArtifactToConnectorMap.Ecr,
+              ArtifactToConnectorMap.Nexus3Registry
+            ],
             filterType: 'Connector'
           }
         }).then(this.returnConnectorListFromResponse)
@@ -170,29 +181,93 @@ export class ServerlessAwsLambdaServiceSpec extends Step<ServiceSpec> {
 
     if (pipelineObj) {
       const obj = get(pipelineObj, path.replace('.spec.artifactPath', ''))
-      if (serverlessAllowedArtifactTypes.includes(obj?.type)) {
-        return getBuildDetailsForArtifactoryArtifactWithYamlPromise({
-          queryParams: {
-            artifactPath: obj.spec?.artifactDirectory,
-            repository: obj.spec?.repository,
-            repositoryFormat: 'generic',
-            connectorRef: obj.spec?.connectorRef,
-            accountIdentifier: accountId,
-            orgIdentifier,
-            projectIdentifier,
-            pipelineIdentifier: pipelineObj.identifier,
-            fqnPath: path
-          },
-          body: yamlStringify(pipelineObj)
-        }).then(response => {
-          return (
-            response?.data?.buildDetailsList?.map(buildDetails => ({
-              label: defaultTo(buildDetails.artifactPath, ''),
-              insertText: defaultTo(buildDetails.artifactPath, ''),
-              kind: CompletionItemKind.Field
-            })) || []
-          )
-        })
+      if (ecsAllowedArtifactTypes.includes(obj?.type)) {
+        switch (obj.type) {
+          case ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry: {
+            return getBuildDetailsForArtifactoryArtifactWithYamlPromise({
+              queryParams: {
+                artifactPath: obj.spec?.artifactPath,
+                repository: obj.spec?.repository,
+                repositoryFormat: 'docker',
+                connectorRef: obj.spec?.connectorRef,
+                accountIdentifier: accountId,
+                orgIdentifier,
+                projectIdentifier,
+                pipelineIdentifier: pipelineObj.identifier,
+                fqnPath: path
+              },
+              body: yamlStringify(pipelineObj)
+            }).then(response => {
+              return (
+                response?.data?.buildDetailsList?.map(buildDetails => ({
+                  label: defaultTo(buildDetails.tag, ''),
+                  insertText: defaultTo(buildDetails.tag, ''),
+                  kind: CompletionItemKind.Field
+                })) || []
+              )
+            })
+          }
+          case ENABLED_ARTIFACT_TYPES.DockerRegistry: {
+            return getBuildDetailsForDockerPromise({
+              queryParams: {
+                imagePath: obj.spec?.imagePath,
+                connectorRef: obj.spec?.connectorRef,
+                accountIdentifier: accountId,
+                orgIdentifier,
+                projectIdentifier
+              }
+            }).then(response => {
+              const data =
+                response?.data?.buildDetailsList?.map(buildDetails => ({
+                  label: buildDetails.tag || '',
+                  insertText: buildDetails.tag || '',
+                  kind: CompletionItemKind.Field
+                })) || []
+              return data
+            })
+          }
+          case ENABLED_ARTIFACT_TYPES.Ecr: {
+            return getBuildDetailsForEcrPromise({
+              queryParams: {
+                imagePath: obj.spec?.imagePath,
+                region: obj.spec?.region,
+                connectorRef: obj.spec?.connectorRef,
+                accountIdentifier: accountId,
+                orgIdentifier,
+                projectIdentifier
+              }
+            }).then(response => {
+              const data =
+                response?.data?.buildDetailsList?.map(buildDetails => ({
+                  label: buildDetails.tag || '',
+                  insertText: buildDetails.tag || '',
+                  kind: CompletionItemKind.Field
+                })) || []
+              return data
+            })
+          }
+          case ENABLED_ARTIFACT_TYPES.Nexus3Registry: {
+            return getBuildDetailsForNexusArtifactPromise({
+              queryParams: {
+                artifactPath: obj.spec?.artifactPath,
+                repository: obj.spec?.repository,
+                repositoryFormat: 'docker',
+                connectorRef: obj.spec?.connectorRef,
+                accountIdentifier: accountId,
+                orgIdentifier,
+                projectIdentifier
+              }
+            }).then(response => {
+              const data =
+                response?.data?.buildDetailsList?.map(buildDetails => ({
+                  label: buildDetails.tag || '',
+                  insertText: buildDetails.tag || '',
+                  kind: CompletionItemKind.Field
+                })) || []
+              return data
+            })
+          }
+        }
       }
     }
 
@@ -212,44 +287,85 @@ export class ServerlessAwsLambdaServiceSpec extends Step<ServiceSpec> {
       isRequired &&
       getMultiTypeFromValue(template?.artifacts?.primary?.spec?.connectorRef) === MultiTypeInputType.RUNTIME
     ) {
-      set(errors, 'artifacts.primary.spec.connectorRef', getString?.('fieldRequired', { field: 'Artifact Server' }))
+      set(errors, 'artifacts.primary.spec.connectorRef', getString?.('fieldRequired', { field: 'ConnectorRef' }))
     }
     if (
-      isEmpty(data?.artifacts?.primary?.spec?.repository) &&
+      isEmpty(data?.artifacts?.primary?.spec?.imagePath) &&
       isRequired &&
-      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.repository) === MultiTypeInputType.RUNTIME
+      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.imagePath) === MultiTypeInputType.RUNTIME
     ) {
-      set(errors, 'artifacts.primary.spec.repository', getString?.('fieldRequired', { field: 'Repository' }))
+      set(errors, 'artifacts.primary.spec.imagePath', getString?.('fieldRequired', { field: 'Image Path' }))
+    }
+
+    if (
+      !tagExists(data?.artifacts?.primary?.spec?.tag) &&
+      isRequired &&
+      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.tag) === MultiTypeInputType.RUNTIME
+    ) {
+      set(errors, 'artifacts.primary.spec.tag', getString?.('fieldRequired', { field: 'Tag' }))
     }
     if (
-      isEmpty(data?.artifacts?.primary?.spec?.artifactDirectory) &&
+      isEmpty(data?.artifacts?.primary?.spec?.tagRegex) &&
       isRequired &&
-      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.artifactDirectory) === MultiTypeInputType.RUNTIME
+      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.tagRegex) === MultiTypeInputType.RUNTIME
     ) {
-      set(
-        errors,
-        'artifacts.primary.spec.artifactDirectory',
-        getString?.('fieldRequired', { field: 'Artifact Directory' })
-      )
+      set(errors, 'artifacts.primary.spec.tagRegex', getString?.('fieldRequired', { field: 'Tag Regex' }))
     }
-    if (
-      !tagExists(data?.artifacts?.primary?.spec?.artifactPath) &&
-      isRequired &&
-      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.artifactPath) === MultiTypeInputType.RUNTIME
-    ) {
-      set(errors, 'artifacts.primary.spec.artifactPath', getString?.('fieldRequired', { field: 'Artifact Path' }))
-    }
-    if (
-      isEmpty(data?.artifacts?.primary?.spec?.artifactPathFilter) &&
-      isRequired &&
-      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.artifactPathFilter) === MultiTypeInputType.RUNTIME
-    ) {
-      set(
-        errors,
-        'artifacts.primary.spec.artifactPathFilter',
-        getString?.('fieldRequired', { field: 'Artifact Path Filter' })
-      )
-    }
+    data?.artifacts?.sidecars?.forEach((sidecar, index) => {
+      const currentSidecarTemplate = get(template, `artifacts.sidecars[${index}].sidecar.spec`, '')
+      if (
+        isEmpty(sidecar?.sidecar?.spec?.connectorRef) &&
+        isRequired &&
+        getMultiTypeFromValue(currentSidecarTemplate?.connectorRef) === MultiTypeInputType.RUNTIME
+      ) {
+        set(
+          errors,
+          `artifacts.sidecars[${index}].sidecar.spec.connectorRef`,
+          getString?.('fieldRequired', { field: 'Artifact Server' })
+        )
+      }
+      if (
+        isEmpty(sidecar?.sidecar?.spec?.imagePath) &&
+        isRequired &&
+        getMultiTypeFromValue(currentSidecarTemplate?.imagePath) === MultiTypeInputType.RUNTIME
+      ) {
+        set(
+          errors,
+          `artifacts.sidecars[${index}].sidecar.spec.imagePath`,
+          getString?.('fieldRequired', { field: 'Image Path' })
+        )
+      }
+
+      if (
+        !tagExists(sidecar?.sidecar?.spec?.tag) &&
+        isRequired &&
+        getMultiTypeFromValue(currentSidecarTemplate?.tag) === MultiTypeInputType.RUNTIME
+      ) {
+        set(errors, `artifacts.sidecars[${index}].sidecar.spec.tag`, getString?.('fieldRequired', { field: 'Tag' }))
+      }
+      if (
+        isEmpty(sidecar?.sidecar?.spec?.tagRegex) &&
+        isRequired &&
+        getMultiTypeFromValue(currentSidecarTemplate?.tagRegex) === MultiTypeInputType.RUNTIME
+      ) {
+        set(
+          errors,
+          `artifacts.sidecars[${index}].sidecar.spec.tagRegex`,
+          getString?.('fieldRequired', { field: 'Tag Regex' })
+        )
+      }
+      if (
+        isEmpty(sidecar?.sidecar?.spec?.registryHostname) &&
+        isRequired &&
+        getMultiTypeFromValue(currentSidecarTemplate?.registryHostname) === MultiTypeInputType.RUNTIME
+      ) {
+        set(
+          errors,
+          `artifacts.sidecars[${index}].sidecar.spec.registryHostname`,
+          getString?.('fieldRequired', { field: 'GCR Registry URL' })
+        )
+      }
+    })
 
     data?.manifests?.forEach((manifest, index) => {
       const currentManifestTemplate = get(template, `manifests[${index}].manifest.spec.store.spec`, '')

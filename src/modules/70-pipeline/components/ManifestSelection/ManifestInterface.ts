@@ -25,6 +25,10 @@ export type ManifestTypes =
   | 'OpenshiftParam'
   | 'KustomizePatches'
   | 'ServerlessAwsLambda'
+  | 'EcsTaskDefinition'
+  | 'EcsServiceDefinition'
+  | 'EcsScalableTargetDefinition'
+  | 'EcsScalingPolicyDefinition'
 
 export type PrimaryManifestType = 'K8sManifest' | 'HelmChart' | 'OpenshiftTemplate' | 'Kustomize'
 

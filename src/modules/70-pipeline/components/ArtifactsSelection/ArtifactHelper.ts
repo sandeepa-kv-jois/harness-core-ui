@@ -37,22 +37,16 @@ export const isAllowedCustomArtifactDeploymentTypes = (deploymentType: ServiceDe
 export const isSidecarAllowed = (deploymentType: ServiceDefinition['type'], isReadOnly: boolean): boolean => {
   return (
     !isReadOnly &&
-    (deploymentType === ServiceDeploymentType.Kubernetes ||
-      deploymentType === ServiceDeploymentType.NativeHelm ||
-      deploymentType === ServiceDeploymentType.ServerlessAwsLambda)
+    !(
+      deploymentType === ServiceDeploymentType.WinRm ||
+      deploymentType === ServiceDeploymentType.Ssh ||
+      deploymentType === ServiceDeploymentType.AzureWebApp
+    )
   )
 }
 
-export const isAdditionAllowed = (deploymentType: ServiceDefinition['type'], isReadOnly: boolean): boolean => {
-  return (
-    !isReadOnly &&
-    (deploymentType === ServiceDeploymentType.Kubernetes ||
-      deploymentType === ServiceDeploymentType.NativeHelm ||
-      deploymentType === ServiceDeploymentType.ServerlessAwsLambda ||
-      deploymentType === ServiceDeploymentType.Ssh ||
-      deploymentType === ServiceDeploymentType.WinRm ||
-      deploymentType === ServiceDeploymentType.AzureWebApp)
-  )
+export const isAdditionAllowed = (isReadOnly: boolean): boolean => {
+  return !isReadOnly
 }
 
 export const ArtifactIconByType: Record<ArtifactType, IconName> = {
@@ -137,6 +131,14 @@ export const allowedArtifactTypes: Record<ServiceDefinition['type'], Array<Artif
     ENABLED_ARTIFACT_TYPES.Ecr,
     ENABLED_ARTIFACT_TYPES.Nexus3Registry,
     ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry
+  ],
+  ECS: [
+    ENABLED_ARTIFACT_TYPES.Jenkins,
+    ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry,
+    ENABLED_ARTIFACT_TYPES.DockerRegistry,
+    ENABLED_ARTIFACT_TYPES.Ecr,
+    ENABLED_ARTIFACT_TYPES.Nexus3Registry,
+    ENABLED_ARTIFACT_TYPES.CustomArtifact
   ]
 }
 

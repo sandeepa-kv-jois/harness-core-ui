@@ -14,7 +14,8 @@ import type { StringsMap } from 'stringTypes'
 import {
   isAzureWebAppDeploymentType,
   isServerlessDeploymentType,
-  isSSHWinRMDeploymentType
+  isSSHWinRMDeploymentType,
+  ServiceDeploymentType
 } from '@pipeline/utils/stageHelpers'
 
 const DEFAULT_RELEASE_NAME = 'release-<+INFRA_KEY>'
@@ -161,6 +162,15 @@ export const getInfrastructureDefaultValue = (
         usePublicDns
       }
     }
+    case InfraDeploymentType.ECS: {
+      const { connectorRef, region, cluster } = infrastructure?.spec || {}
+      return {
+        connectorRef,
+        region,
+        cluster,
+        allowSimultaneousDeployments
+      }
+    }
     default: {
       return {}
     }
@@ -239,6 +249,19 @@ export const getInfraGroups = (
               label: getString('common.azure'),
               icon: 'service-azure',
               value: InfraDeploymentType.SshWinRmAzure
+            }
+          ]
+        }
+      ]
+    : deploymentType === ServiceDeploymentType.ECS
+    ? [
+        {
+          groupLabel: getString('pipelineSteps.deploy.infrastructure.directConnection'),
+          items: [
+            {
+              label: getString('common.aws'),
+              icon: 'service-aws',
+              value: InfraDeploymentType.ECS
             }
           ]
         }
