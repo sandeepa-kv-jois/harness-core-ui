@@ -6,7 +6,9 @@ import {
   CriteriaValues,
   CustomMetricDropdownOption,
   DefaultCustomMetricGroupName,
-  MetricTypeValues
+  FailFastActionValues,
+  MetricTypeValues,
+  PercentageCriteriaDropdownValues
 } from '../../../AppDMetricThresholdConstants'
 
 export function getItembyValue(items: SelectItem[], value: string): SelectItem {
@@ -25,23 +27,6 @@ export const getCriterialItems = (getString: UseStringsReturn['getString']): Sel
     }
   ]
 }
-
-// export function getMetricTypeItems(getString: UseStringsReturn['getString']): SelectItem[] {
-//   return [
-//     {
-//       label: getString('performance'),
-//       value: MetricTypeValues.Performance
-//     },
-//     {
-//       label: getString('cv.monitoringSources.appD.customMetric'),
-//       value: MetricTypeValues.CustomMetric
-//     },
-//     {
-//       label: getString('error'),
-//       value: MetricTypeValues.Error
-//     }
-//   ]
-// }
 
 function getCustomMetricGroupNames(groupedCreatedMetrics: GroupedCreatedMetrics): string[] {
   const groupsNames = Object.keys(groupedCreatedMetrics)
@@ -104,19 +89,6 @@ export function getTransactionItems(getString: UseStringsReturn['getString']): S
   ]
 }
 
-// export function getMetricItems(getString: UseStringsReturn['getString']): SelectItem[] {
-//   return [
-//     {
-//       label: getString('cv.monitoringSources.appD.averageWaitTime'),
-//       value: 'averageWaitTime'
-//     },
-//     {
-//       label: getString('cv.monitoringSources.appD.callsPerMinute'),
-//       value: 'callsPerMinute'
-//     }
-//   ]
-// }
-
 function getMetricsNameOptionsFromGroupName(
   selectedGroup: string,
   groupedCreatedMetrics: GroupedCreatedMetrics
@@ -161,16 +133,23 @@ export function getActionItems(getString: UseStringsReturn['getString']): Select
   return [
     {
       label: getString('cv.monitoringSources.appD.failImmediately'),
-      value: 'failImmediately'
+      value: FailFastActionValues.FailImmediately
     },
     {
-      label: getString('cv.monitoringSources.appD.failAfterMulti'),
-      value: 'failAfterMulti'
+      label: getString('cv.monitoringSources.appD.failAfterMultipleOccurrences'),
+      value: FailFastActionValues.FailAfterOccurrences
+    },
+    {
+      label: getString('cv.monitoringSources.appD.failAfterConsecutiveOccurrences'),
+      value: FailFastActionValues.FailAfterConsecutiveOccurrences
     }
   ]
 }
 
-export function getDefaultMetricTypeValue(metricData: Record<string, boolean>, metricPacks?: MetricPackDTO[]) {
+export function getDefaultMetricTypeValue(
+  metricData: Record<string, boolean>,
+  metricPacks?: MetricPackDTO[]
+): string | null {
   if (!metricData || !metricPacks || !metricPacks.length) {
     return null
   }
@@ -179,4 +158,17 @@ export function getDefaultMetricTypeValue(metricData: Record<string, boolean>, m
   } else if (metricData[MetricTypeValues.Errors]) {
     return MetricTypeValues.Errors
   }
+
+  return null
 }
+
+export const getCriteriaPercentageDropdownOptions = (getString: UseStringsReturn['getString']): SelectItem[] => [
+  {
+    label: getString('cv.monitoringSources.appD.greaterThan'),
+    value: PercentageCriteriaDropdownValues.GreaterThan
+  },
+  {
+    label: getString('cv.monitoringSources.appD.lesserThan'),
+    value: PercentageCriteriaDropdownValues.LessThan
+  }
+]

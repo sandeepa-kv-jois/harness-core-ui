@@ -589,13 +589,17 @@ export const createAppDFormData = (
         }
       }
     ],
-    failFastThreshold: [
+    failFastThresholds: [
       {
-        metricType: 'performance',
-        transaction: 'register',
-        metric: 'averageWaitTime',
-        action: 'failImmediately',
-        count: 21,
+        metricType: 'Performance',
+        groupName: 'register',
+        metricName: 'averageWaitTime',
+        spec: {
+          action: 'failImmediately',
+          spec: {
+            count: 5
+          }
+        },
         criteria: {
           type: 'Absolute',
           spec: {

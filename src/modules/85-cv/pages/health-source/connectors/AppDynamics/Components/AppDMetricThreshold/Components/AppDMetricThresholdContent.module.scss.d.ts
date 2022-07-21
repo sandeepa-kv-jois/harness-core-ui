@@ -9,6 +9,8 @@
 declare const styles: {
   readonly appDMetricThresholdContentCard: string
   readonly appDMetricThresholdContentCriteria: string
+  readonly appDMetricThresholdContentFailFastTableHeader: string
+  readonly appDMetricThresholdContentFailFastTableRow: string
   readonly appDMetricThresholdContentIgnoreTableHeader: string
   readonly appDMetricThresholdContentIgnoreTableRow: string
   readonly appDMetricThresholdContentInput: string

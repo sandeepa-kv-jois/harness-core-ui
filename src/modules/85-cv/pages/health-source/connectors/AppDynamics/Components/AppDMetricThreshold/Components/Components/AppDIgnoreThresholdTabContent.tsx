@@ -1,24 +1,24 @@
 import React, { useContext } from 'react'
-import cx from 'classnames'
 import { Container, Text, FormInput, Layout, Button, ButtonVariation } from '@harness/uicore'
 import { Color } from '@harness/design-system'
 import { useFormikContext, FieldArray } from 'formik'
 import { useStrings } from 'framework/strings'
+import { AppDynamicsMonitoringSourceFieldNames as FieldName } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.constants'
+import type { AppDynamicsFomikFormInterface } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.types'
 import { AppDMetricThresholdContext } from '../../AppDMetricThreshold'
 import {
-  getCriterialItems,
+  getDefaultMetricTypeValue,
   getGroupDropdownOptions,
   getMetricItems,
   getMetricTypeItems
 } from './Components/AppDThresholdSelectUtils'
 import {
-  CriteriaValues,
   MetricTypesForTransactionTextField,
   MetricTypeValues,
   NewDefaultVauesForIgnoreThreshold
 } from '../../AppDMetricThresholdConstants'
-import type { AppDynamicsFomikFormInterface } from '../../../../AppDHealthSource.types'
-import { AppDynamicsMonitoringSourceFieldNames } from '../../../../AppDHealthSource.constants'
+import ThresholdSelect from './Components/ThresholdSelect'
+import ThresholdCriteria from './Components/ThresholdCriteria'
 import css from '../AppDMetricThresholdContent.module.scss'
 
 export default function AppDIgnoreThresholdTabContent(): JSX.Element {
@@ -33,9 +33,9 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
 
     const updatedIgnoreThreshold = { ...clonedIgnoreThreshold[index] }
 
-    updatedIgnoreThreshold[AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_METRIC_NAME] = null
-    updatedIgnoreThreshold[AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_GROUP_NAME] = null
-    updatedIgnoreThreshold[AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_METRIC_TYPE] = selectedValue
+    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_METRIC_NAME] = null
+    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_GROUP_NAME] = null
+    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_METRIC_TYPE] = selectedValue
 
     clonedIgnoreThreshold[index] = updatedIgnoreThreshold
 
@@ -47,20 +47,22 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
 
     const updatedIgnoreThreshold = { ...clonedIgnoreThreshold[index] }
 
-    updatedIgnoreThreshold[AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_METRIC_NAME] = null
-    updatedIgnoreThreshold[AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_GROUP_NAME] = selectedValue
+    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_METRIC_NAME] = null
+    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_GROUP_NAME] = selectedValue
 
     clonedIgnoreThreshold[index] = updatedIgnoreThreshold
 
     replaceFn(updatedIgnoreThreshold)
   }
 
-  const isGroupTransationTextField = (index: number) =>
-    MetricTypesForTransactionTextField.some(field => field === formValues.ignoreThresholds[index]?.metricType)
+  const isGroupTransationTextField = (selectedMetricType: string | null): boolean =>
+    MetricTypesForTransactionTextField.some(field => field === selectedMetricType)
 
   // TODO: Update the type from Swagger
-  const handleAddThreshold = (pushFn: (newValue: any) => void) => {
-    pushFn(NewDefaultVauesForIgnoreThreshold)
+  const handleAddThreshold = (addFn: (newValue: any) => void): void => {
+    const defaultValueForMetricType = getDefaultMetricTypeValue(formValues.metricData, metricPacks)
+    const newIgnoreThresholdRow = { ...NewDefaultVauesForIgnoreThreshold, metricType: defaultValueForMetricType }
+    addFn(newIgnoreThresholdRow)
   }
 
   return (
@@ -93,72 +95,52 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
                   return (
                     <Container key={index} className={css.appDMetricThresholdContentIgnoreTableRow}>
                       {/* ==== ⭐️ Metric Type ==== */}
-                      <FormInput.Select
+                      <ThresholdSelect
                         items={getMetricTypeItems(metricPacks, formValues.metricData, groupedCreatedMetrics)}
                         key={`${data?.metricType}`}
-                        name={`ignoreThresholds.${index}.${AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_METRIC_TYPE}`}
+                        name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_METRIC_TYPE}`}
                         onChange={({ value }) => {
                           handleMetricUpdate(index, value as string, props.replace.bind(null, index))
                         }}
-                      ></FormInput.Select>
+                      />
 
                       {/* ==== ⭐️ Group ==== */}
-                      {isGroupTransationTextField(index) ? (
+                      {isGroupTransationTextField(data.metricType) ? (
                         <FormInput.Text
                           placeholder={getString('cv.monitoringSources.appD.groupTransaction')}
                           style={{ marginTop: 'medium' }}
-                          name={`ignoreThresholds.${index}.${AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_GROUP_NAME}`}
+                          name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_GROUP_NAME}`}
                           disabled={!data.metricType}
                         />
                       ) : (
-                        <FormInput.Select
-                          usePortal
+                        <ThresholdSelect
                           items={getGroupDropdownOptions(groupedCreatedMetrics)}
-                          name={`ignoreThresholds.${index}.${AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_GROUP_NAME}`}
+                          name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_GROUP_NAME}`}
                           onChange={({ value }) => {
                             if (data.metricType === MetricTypeValues.Custom) {
                               handleTransactionUpdate(index, value as string, props.replace.bind(null, index))
                             }
                           }}
                           disabled={!data.metricType}
-                        ></FormInput.Select>
+                        />
                       )}
 
                       {/* ==== ⭐️ Metric ==== */}
-                      <FormInput.Select
-                        usePortal
+                      <ThresholdSelect
                         disabled={!data?.metricType}
                         items={getMetricItems(metricPacks, data.metricType, data.groupName, groupedCreatedMetrics)}
                         key={`${data?.metricType}-${data.groupName}`}
-                        name={`ignoreThresholds.${index}.${AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_METRIC_NAME}`}
-                      ></FormInput.Select>
+                        name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_METRIC_NAME}`}
+                      />
 
                       {/* ==== ⭐️ Criteria ==== */}
-                      <Layout.Horizontal style={{ alignItems: 'center' }}>
-                        <FormInput.Select
-                          items={getCriterialItems(getString)}
-                          className={cx(css.appDMetricThresholdContentSelect, css.appDMetricThresholdContentCriteria)}
-                          key={data?.criteria?.type}
-                          name={`ignoreThresholds.${index}.${AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_CRITERIA}.type`}
-                          // value={getItembyValue(getCriterialItems(getString), data?.criteria?.type)}
-                        ></FormInput.Select>
-                        {data?.criteria?.type !== CriteriaValues.Percentage && (
-                          <FormInput.Text
-                            inline
-                            className={css.appDMetricThresholdContentInput}
-                            label={getString('cv.monitoringSources.appD.greaterThan')}
-                            inputGroup={{ type: 'number' }}
-                            name={`ignoreThresholds.${index}.criteria.spec.${AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_GREATER_THAN}`}
-                          />
-                        )}
-                        <FormInput.Text
-                          inline
-                          className={css.appDMetricThresholdContentInput}
-                          label={getString('cv.monitoringSources.appD.lesserThan')}
-                          inputGroup={{ type: 'number' }}
-                          name={`ignoreThresholds.${index}.criteria.spec.${AppDynamicsMonitoringSourceFieldNames.METRIC_THRESHOLD_LESS_THAN}`}
-                        />
-                      </Layout.Horizontal>
+                      <ThresholdCriteria
+                        index={index}
+                        criteriaType={data?.criteria?.type}
+                        thresholdTypeName="ignoreThresholds"
+                        criteriaPercentageType={data?.criteria?.criteriaPercentageType}
+                        replaceFn={props.replace.bind(null, index)}
+                      />
                       <Button icon="trash" minimal iconProps={{ size: 14 }} onClick={() => props.remove(index)} />
                     </Container>
                   )

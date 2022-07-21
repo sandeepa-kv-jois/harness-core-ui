@@ -6287,7 +6287,8 @@ export interface StringsMap {
   'cv.monitoringSources.appD.defaultAppDMetricName': string
   'cv.monitoringSources.appD.envDescription': string
   'cv.monitoringSources.appD.errorsFound': string
-  'cv.monitoringSources.appD.failAfterMulti': string
+  'cv.monitoringSources.appD.failAfterConsecutiveOccurrences': string
+  'cv.monitoringSources.appD.failAfterMultipleOccurrences': string
   'cv.monitoringSources.appD.failFastThresholdHint': string
   'cv.monitoringSources.appD.failFastThresholds': string
   'cv.monitoringSources.appD.failImmediately': string
@@ -6342,6 +6343,7 @@ export interface StringsMap {
   'cv.monitoringSources.assign': string
   'cv.monitoringSources.baselineDeviation': string
   'cv.monitoringSources.buildYourQuery': string
+  'cv.monitoringSources.count': string
   'cv.monitoringSources.datadog.manualInputQueryModal.modalTitle': string
   'cv.monitoringSources.datadog.newDatadogGroupName': string
   'cv.monitoringSources.datadog.noMetricsWidgets': string

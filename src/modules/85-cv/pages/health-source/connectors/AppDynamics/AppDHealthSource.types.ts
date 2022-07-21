@@ -79,7 +79,7 @@ export interface AppDynamicsFomikFormInterface {
   pathType?: string
   completeMetricPath?: string
   ignoreThresholds: Array<any>
-  failFastThreshold: Array<any>
+  failFastThresholds: Array<any>
 }
 
 export interface InitAppDCustomFormInterface {

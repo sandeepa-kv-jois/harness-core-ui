@@ -16,7 +16,7 @@ export default function appDFailFastThresholdCriteria(
       <FormInput.Select
         items={getCriterialItems(getString)}
         className={cx(css.appDMetricThresholdContentSelect, css.appDMetricThresholdContentCriteria)}
-        name={`failFastThreshold.${rowIndex}.criteria.spec.type`}
+        name={`failFastThresholds.${rowIndex}.criteria.spec.type`}
         value={getItembyValue(getCriterialItems(getString), rowData?.criteria?.spec?.type)}
       ></FormInput.Select>
       {rowData?.criteria?.spec?.type !== 'percentage' && (
@@ -25,7 +25,7 @@ export default function appDFailFastThresholdCriteria(
           className={css.appDMetricThresholdContentInput}
           label={getString('cv.monitoringSources.appD.greaterThan')}
           inputGroup={{ type: 'number' }}
-          name={`failFastThreshold.${rowIndex}.criteria.spec.greaterThan`}
+          name={`failFastThresholds.${rowIndex}.criteria.spec.greaterThan`}
         />
       )}
       <FormInput.Text
@@ -33,7 +33,7 @@ export default function appDFailFastThresholdCriteria(
         className={css.appDMetricThresholdContentInput}
         label={getString('cv.monitoringSources.appD.lesserThan')}
         inputGroup={{ type: 'number' }}
-        name={`failFastThreshold.${rowIndex}.criteria.spec.lessThan`}
+        name={`failFastThresholds.${rowIndex}.criteria.spec.lessThan`}
       />
     </Layout.Horizontal>
   )

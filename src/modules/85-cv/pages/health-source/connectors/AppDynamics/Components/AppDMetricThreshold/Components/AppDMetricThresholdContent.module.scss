@@ -27,6 +27,10 @@
     align-items: center;
   }
 
+  &FailFastTableHeader {
+    grid-template-columns: 13% 13% 13% 15% 5% 1fr !important;
+  }
+
   &IgnoreTableHeader {
     grid-template-columns: 20% 20% 20% 1fr;
     margin: var(--spacing-5) 0 !important;
@@ -37,6 +41,10 @@
       font-size: var(--font-size-small) !important;
       font-weight: bold !important;
     }
+  }
+
+  &FailFastTableRow {
+    grid-template-columns: 13% 13% 13% 15% 5% 1fr 50px !important;
   }
 
   &IgnoreTableRow {

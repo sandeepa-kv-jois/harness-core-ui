@@ -222,9 +222,6 @@ export default function AppDMonitoredSource({
     mappedServicesAndEnvs: showCustomMetric ? appDynamicsData?.mappedServicesAndEnvs : new Map()
   })
 
-  console.log('groupedCreatedMetrics', groupedCreatedMetrics)
-  console.log('groupedCreatedMetricsList', groupedCreatedMetricsList)
-
   const [nonCustomFeilds, setNonCustomFeilds] = useState(initializeNonCustomFields(appDynamicsData))
 
   const initPayload = useMemo(

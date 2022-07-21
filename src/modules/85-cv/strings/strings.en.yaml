@@ -190,6 +190,7 @@ monitoringSources:
   oneMetricMappingValidationSubtext: You need to select one Metric Pack for verification
   metricNameLabel: Metric Name
   metricLabel: Metric
+  count: Count
   queryNameLabel: Name your Query
   queryName: Query Name
   riskProfile: Risk Profile
@@ -227,7 +228,8 @@ monitoringSources:
     averageWaitTime: Average Wait Time
     callsPerMinute: Calls per Minute
     failImmediately: Fail Immediately
-    failAfterMulti: Fail after multi
+    failAfterMultipleOccurrences: Fail after multiple occurrences
+    failAfterConsecutiveOccurrences: Fail after consecutive occurrences
     absoluteValue: Absolute Value
     percentageDeviation: Percentage Deviation
     appdPathTitle: AppDynamics Path

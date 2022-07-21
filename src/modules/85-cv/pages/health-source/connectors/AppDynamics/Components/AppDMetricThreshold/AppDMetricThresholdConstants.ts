@@ -11,6 +11,17 @@ export const CriteriaValues = {
   Percentage: 'Percentage'
 }
 
+export const FailFastActionValues = {
+  FailImmediately: 'FailImmediately',
+  FailAfterOccurrences: 'FailAfterOccurrences',
+  FailAfterConsecutiveOccurrences: 'FailAfterConsecutiveOccurrences'
+}
+
+export const PercentageCriteriaDropdownValues = {
+  GreaterThan: 'greaterThan',
+  LessThan: 'lessThan'
+}
+
 const IgnoreThresholdType = 'Ignore'
 
 export const CustomMetricDropdownOption: SelectItem = {
@@ -26,7 +37,24 @@ export const NewDefaultVauesForIgnoreThreshold = {
     action: IgnoreThresholdType
   },
   criteria: {
-    type: '',
+    type: CriteriaValues.Absolute,
+    spec: {
+      greaterThan: 0,
+      lessThan: 0
+    }
+  }
+}
+
+export const NewDefaultVauesForFailFastThreshold = {
+  metricType: null,
+  groupName: null,
+  metricName: null,
+  spec: {
+    action: FailFastActionValues.FailImmediately,
+    spec: {}
+  },
+  criteria: {
+    type: CriteriaValues.Absolute,
     spec: {
       greaterThan: 0,
       lessThan: 0

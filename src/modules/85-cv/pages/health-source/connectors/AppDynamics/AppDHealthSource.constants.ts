@@ -30,8 +30,11 @@ export const AppDynamicsMonitoringSourceFieldNames = {
   METRIC_THRESHOLD_METRIC_NAME: 'metricName',
   METRIC_THRESHOLD_GROUP_NAME: 'groupName',
   METRIC_THRESHOLD_CRITERIA: 'criteria',
+  METRIC_THRESHOLD_CRITERIA_PERCENTAGE_TYPE: 'criteriaPercentageType',
   METRIC_THRESHOLD_LESS_THAN: 'lessThan',
-  METRIC_THRESHOLD_GREATER_THAN: 'greaterThan'
+  METRIC_THRESHOLD_GREATER_THAN: 'greaterThan',
+  METRIC_THRESHOLD_ACTION: 'action',
+  METRIC_THRESHOLD_COUNT: 'count'
 }
 
 export const initCustomForm = {
