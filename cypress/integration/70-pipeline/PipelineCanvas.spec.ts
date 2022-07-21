@@ -32,8 +32,8 @@ import {
   jiraApprovalStageYamlSnippet,
   snowApprovalStageYamlSnippet,
   serverlessLambdaYamlSnippet,
-  yamlSnippet,
-  executionStratergies,
+  strategiesYamlSnippets,
+  executionStrategies,
   pageHeaderClassName
 } from '../../support/70-pipeline/constants'
 import { connectorsListAPI } from '../../support/35-connectors/constants'
@@ -499,8 +499,10 @@ describe('ServerlessAwsLambda as deployment type', () => {
       fixture: 'pipeline/api/pipelines/failureStrategiesYaml'
     }).as('cdFailureStrategiesYaml')
     cy.intercept('POST', connectorsListAPI, { fixture: 'ng/api/connectors' }).as('connectorsList')
-    cy.intercept('GET', yamlSnippet, { fixture: 'ng/api/pipelines/kubernetesYamlSnippet' }).as('kubernetesYamlSnippet')
-    cy.intercept('GET', executionStratergies, { fixture: 'pipeline/api/pipelines/strategies.json' }).as(
+    cy.intercept('GET', strategiesYamlSnippets, { fixture: 'ng/api/pipelines/kubernetesYamlSnippet' }).as(
+      'kubernetesYamlSnippet'
+    )
+    cy.intercept('GET', executionStrategies, { fixture: 'pipeline/api/pipelines/strategies.json' }).as(
       'executionStratergies'
     )
 
@@ -520,11 +522,12 @@ describe('ServerlessAwsLambda as deployment type', () => {
 
     // Select Kubernetes as deployment type
     cy.contains('p', 'Kubernetes').click()
+    cy.findByDisplayValue('Kubernetes').should('be.checked')
+    cy.wait('@kubernetesYamlSnippet')
 
     // Got to Execution tab, 4 diff Execution Strategies should appear
     // Use Rolling strategy and check if respective step is added
     cy.contains('span', 'Execution').click()
-    cy.wait('@kubernetesYamlSnippet')
     cy.wait(1000)
     cy.contains('section', 'Rolling').should('be.visible')
     cy.contains('section', 'Blue Green').should('be.visible')

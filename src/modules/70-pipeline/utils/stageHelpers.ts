@@ -237,7 +237,7 @@ export const isServerlessDeploymentType = (deploymentType: string): boolean => {
 }
 
 export const isSSHWinRMDeploymentType = (deploymentType: string): boolean => {
-  return deploymentType === ServiceDeploymentType.winrm || deploymentType === ServiceDeploymentType.ssh
+  return deploymentType === ServiceDeploymentType.WinRm || deploymentType === ServiceDeploymentType.Ssh
 }
 
 export const isAzureWebAppDeploymentType = (deploymentType: string): boolean => {
@@ -250,7 +250,7 @@ export const detailsHeaderName: Record<string, string> = {
   [ServiceDeploymentType.AzureWebApp]: 'Web App Infrastructure Details',
   [ServiceDeploymentType.ServerlessGoogleFunctions]: 'GCP Details',
   [ServiceDeploymentType.Pdc]: 'Infrastructure definition',
-  [ServiceDeploymentType.winrm]: 'WinRM'
+  [ServiceDeploymentType.WinRm]: 'WinRM'
 }
 
 export const getSelectedDeploymentType = (
@@ -460,7 +460,7 @@ export const getStepTypeByDeploymentType = (deploymentType: string): StepType =>
   if (isServerlessDeploymentType(deploymentType)) {
     return StepType.ServerlessAwsLambda
   }
-  if (deploymentType === ServiceDeploymentType.Ssh || deploymentType === ServiceDeploymentType.ssh) {
+  if (deploymentType === ServiceDeploymentType.Ssh) {
     return StepType.SshServiceSpec
   }
   if (deploymentType === ServiceDeploymentType.WinRm) {
