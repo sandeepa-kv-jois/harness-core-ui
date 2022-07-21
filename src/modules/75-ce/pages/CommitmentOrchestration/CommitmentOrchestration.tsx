@@ -9,6 +9,7 @@ import React from 'react'
 import { Button, ButtonVariation, Container, FontVariation, Layout, PageHeader, Text } from '@harness/uicore'
 import { NGBreadcrumbs } from '@common/components/NGBreadcrumbs/NGBreadcrumbs'
 import { useStrings } from 'framework/strings'
+import CommitmentOrchestrationBody from '@ce/components/CommitmentOrchestratorBody/CommitmentOrchestratorBody'
 
 const CommitmentOrchestration: React.FC = () => {
   const { getString } = useStrings()
@@ -27,7 +28,8 @@ const CommitmentOrchestration: React.FC = () => {
             </Button>
           </Layout.Horizontal>
         }
-      ></PageHeader>
+      />
+      <CommitmentOrchestrationBody />
     </Container>
   )
 }
