@@ -56,7 +56,7 @@ const SettingTypeRow: React.FC<SettingTypeRowProps> = ({
             identifier: settingType,
             onSettingSelectionChange: onSelectionChange,
             onRestore,
-            settingValue,
+            settingValue: settingValue || '',
             allowedValues,
             allSettings,
             setFieldValue
