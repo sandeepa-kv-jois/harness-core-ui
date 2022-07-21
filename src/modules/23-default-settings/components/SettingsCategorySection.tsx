@@ -218,6 +218,7 @@ const SettingsCategorySection: React.FC<SettingsCategorySectionProps> = ({
               />
             ) : (
               <Container flex={{ justifyContent: 'center' }}>
+                {console.log('empty')}
                 <Text font={{ variation: FontVariation.BODY2 }}>{getString('defaultSettings.noSettingToDisplay')}</Text>
               </Container>
             )
