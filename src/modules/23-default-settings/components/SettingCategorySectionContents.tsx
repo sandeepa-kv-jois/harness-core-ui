@@ -5,9 +5,9 @@ import type { SettingType } from '@default-settings/interfaces/SettingType'
 import DefaultSettingsFactory, { GroupedSettings } from '@default-settings/factories/DefaultSettingsFactory'
 import type { SettingDTO } from 'services/cd-ng'
 import { useStrings } from 'framework/strings'
+import type { StringsMap } from 'stringTypes'
 import SettingTypeRow from './SettingTypeRow'
 import css from './SettingsCategorySection.module.scss'
-import type { StringsMap } from 'stringTypes'
 interface SettingCategorySectionContentsProps {
   settingsTypesSet: Set<SettingType> | undefined
   onSelectionChange: (settingType: SettingType, val: string) => void
