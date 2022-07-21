@@ -560,23 +560,29 @@ export const createAppDFormData = (
     ignoreThresholds: [
       {
         metricType: 'Performance',
-        transaction: 'register',
-        metric: 'calls_per_minute',
+        groupName: 'register',
+        metricName: 'calls_per_minute',
+        spec: {
+          action: 'Ignore'
+        },
         criteria: {
+          type: 'Percentage',
           spec: {
-            type: 'percentage',
             greaterThan: 10,
             lessThan: 20
           }
         }
       },
       {
-        metricType: 'customMetric',
-        transaction: 'verificationService',
-        metric: 'callsPerMinute',
+        metricType: '',
+        groupName: '',
+        metricName: '',
+        spec: {
+          action: 'Ignore'
+        },
         criteria: {
+          type: 'Absolute',
           spec: {
-            type: 'absolute',
             greaterThan: 200,
             lessThan: 300
           }
@@ -591,8 +597,8 @@ export const createAppDFormData = (
         action: 'failImmediately',
         count: 21,
         criteria: {
+          type: 'Absolute',
           spec: {
-            type: 'percentage',
             greaterThan: 10,
             lessThan: 20
           }

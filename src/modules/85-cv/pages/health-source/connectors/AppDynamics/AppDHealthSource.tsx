@@ -222,6 +222,9 @@ export default function AppDMonitoredSource({
     mappedServicesAndEnvs: showCustomMetric ? appDynamicsData?.mappedServicesAndEnvs : new Map()
   })
 
+  console.log('groupedCreatedMetrics', groupedCreatedMetrics)
+  console.log('groupedCreatedMetricsList', groupedCreatedMetricsList)
+
   const [nonCustomFeilds, setNonCustomFeilds] = useState(initializeNonCustomFields(appDynamicsData))
 
   const initPayload = useMemo(
@@ -415,7 +418,11 @@ export default function AppDMonitoredSource({
                 </Button>
               </CardWithOuterTitle>
             )}
-            <AppDMetricThreshold formikValues={formik.values} formik={formik} metricPacks={selectedMetricPacks} />
+            <AppDMetricThreshold
+              formikValues={formik.values}
+              groupedCreatedMetrics={groupedCreatedMetrics}
+              metricPacks={selectedMetricPacks}
+            />
             <DrawerFooter
               isSubmit
               onPrevious={onPrevious}

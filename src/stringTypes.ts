@@ -6268,6 +6268,7 @@ export interface StringsMap {
   'cv.monitoringSources.addMetric': string
   'cv.monitoringSources.addQuery': string
   'cv.monitoringSources.appD.absoluteValue': string
+  'cv.monitoringSources.appD.addThreshold': string
   'cv.monitoringSources.appD.advancedOptional': string
   'cv.monitoringSources.appD.appDApplications': string
   'cv.monitoringSources.appD.appDTier': string

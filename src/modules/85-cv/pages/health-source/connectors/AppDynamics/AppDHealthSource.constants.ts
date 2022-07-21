@@ -25,7 +25,13 @@ export const AppDynamicsMonitoringSourceFieldNames = {
   BASE_PATH: 'basePath',
   METRIC_PATH: 'metricPath',
   SERVICE_INSTANCE_METRIC_PATH: 'serviceInstanceMetricPath',
-  PATH_TYPE: 'pathType'
+  PATH_TYPE: 'pathType',
+  METRIC_THRESHOLD_METRIC_TYPE: 'metricType',
+  METRIC_THRESHOLD_METRIC_NAME: 'metricName',
+  METRIC_THRESHOLD_GROUP_NAME: 'groupName',
+  METRIC_THRESHOLD_CRITERIA: 'criteria',
+  METRIC_THRESHOLD_LESS_THAN: 'lessThan',
+  METRIC_THRESHOLD_GREATER_THAN: 'greaterThan'
 }
 
 export const initCustomForm = {

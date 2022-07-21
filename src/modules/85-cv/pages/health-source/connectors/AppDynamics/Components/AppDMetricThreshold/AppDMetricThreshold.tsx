@@ -13,7 +13,7 @@ AppDMetricThresholdContext.displayName = 'AppDMetricThresholdContext'
 export default function AppDMetricThreshold({
   formikValues,
   metricPacks,
-  formik
+  groupedCreatedMetrics
 }: AppDMetricThresholdPropsType): JSX.Element {
   const { getString } = useStrings()
   return (
@@ -23,7 +23,7 @@ export default function AppDMetricThreshold({
           id="advancedAppD"
           summary={getString('cv.monitoringSources.appD.advancedOptional')}
           details={
-            <AppDMetricThresholdContext.Provider value={{ formikValues, metricPacks, formik }}>
+            <AppDMetricThresholdContext.Provider value={{ formikValues, metricPacks, groupedCreatedMetrics }}>
               <AppDMetricThresholdContent />
             </AppDMetricThresholdContext.Provider>
           }

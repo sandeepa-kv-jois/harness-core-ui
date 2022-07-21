@@ -17,14 +17,21 @@
   }
 
   &Tabs {
-    color: black;
+    color: var(--black);
+  }
+
+  &IgnoreTableHeader,
+  &IgnoreTableRow {
+    display: grid;
+    grid-gap: 4px;
+    align-items: center;
   }
 
   &IgnoreTableHeader {
-    display: grid;
     grid-template-columns: 20% 20% 20% 1fr;
-
-    > p {
+    margin: var(--spacing-5) 0 !important;
+    > p,
+    .criteriaHeader {
       color: var(--black) !important;
       text-transform: uppercase;
       font-size: var(--font-size-small) !important;
@@ -32,8 +39,29 @@
     }
   }
 
+  &IgnoreTableRow {
+    grid-template-columns: 20% 20% 20% 1fr 50px;
+    padding: var(--spacing-3) 0 !important;
+    border-bottom: 1px solid var(--grey-200) !important;
+
+    :global(.bp3-form-group) {
+      margin-bottom: var(--spacing-0) !important;
+    }
+
+    :global(input) {
+      border: 1px solid var(--grey-100) !important;
+    }
+
+    &:hover {
+      background-color: var(--grey-50);
+      :global(input) {
+        border: 1px solid var(--grey-300) !important;
+      }
+    }
+  }
+
   &Select {
-    margin-bottom: 0 !important;
+    margin-bottom: var(--spacing-0) !important;
 
     input {
       width: 150px !important;
@@ -42,9 +70,9 @@
   }
 
   &Input {
-    margin-bottom: 0 !important;
+    margin-bottom: var(--spacing-0) !important;
     input {
-      width: 80px !important;
+      width: 70px !important;
     }
 
     label span {

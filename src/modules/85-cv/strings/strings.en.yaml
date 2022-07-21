@@ -221,6 +221,7 @@ monitoringSources:
     greaterThan: Greater than
     lesserThan: Lesser than
     customMetric: Custom Metric
+    addThreshold: Add Threshold
     register: Register
     verificationService: Verification service
     averageWaitTime: Average Wait Time
