@@ -18,10 +18,10 @@ import type { FeatureFlag } from '@common/featureFlags'
 import type { SettingDTO } from 'services/cd-ng'
 
 export interface SettingRendererProps {
-  identifier: any
+  identifier: string
   onSettingSelectionChange: (val: string) => void
   onRestore: () => void
-  settingValue: any
+  settingValue: string
   allowedValues?: SettingDTO['allowedValues'] | undefined
 
   allSettings: Map<SettingType, SettingDTO>

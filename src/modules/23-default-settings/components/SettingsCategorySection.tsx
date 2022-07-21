@@ -14,7 +14,7 @@ import { useFormikContext } from 'formik'
 import { useStrings } from 'framework/strings'
 import DefaultSettingsFactory from '@default-settings/factories/DefaultSettingsFactory'
 import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
-import { getSettingsListPromise, SettingDTO, SettingRequestDTO, SettingResponseDTO } from 'services/cd-ng'
+import { getSettingsListPromise, SettingDTO, SettingRequestDTO } from 'services/cd-ng'
 import type { ModulePathParams, ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import type { SettingCategory, SettingType, SettingYupValidation } from '../interfaces/SettingType'
 import SettingCategorySectionContents from './SettingCategorySectionContents'
@@ -51,22 +51,18 @@ const SettingsCategorySection: React.FC<SettingsCategorySectionProps> = ({
   let enableFeatureFlag = true
   const currentFeatureFlagsInSystem = useFeatureFlags()
 
-  const [settingTypes, updateSettingTypes] = useState<Set<SettingType>>(new Set())
+  const [refinedSettingTypes, updateSettingTypes] = useState<Set<SettingType>>(new Set())
 
   const { showError } = useToaster()
-  const [refiedSettingTypesWithDTO, updateRefiedSettingTypesWithDTO] =
-    useState<{ [Key in SettingType]?: SettingResponseDTO }>()
   const [loadingSettingTypes, updateLoadingSettingTypes] = useState(false)
-  const [allSettingDTO, updateAllSettingDTO] = useState<Map<SettingType, SettingDTO>>(new Map())
   const categorySectionOpen = async () => {
-    if (!settingTypes.size) {
+    if (!refinedSettingTypes.size) {
       updateLoadingSettingTypes(true)
       try {
         const data = await getSettingsListPromise({
           queryParams: { accountIdentifier: accountId, category: settingCategory, orgIdentifier, projectIdentifier }
         })
-        const settingTypesTemp: Set<SettingType> = new Set()
-        const refiedSettingTypesWithDTOLocal: { [Key in SettingType]?: SettingResponseDTO } = {}
+        const refinedSettingTypesTemp: Set<SettingType> = new Set()
         const categorySettings = new Map()
         const validationsSchema: SettingYupValidation = {}
         data?.data?.forEach(val => {
@@ -74,21 +70,18 @@ const SettingsCategorySection: React.FC<SettingsCategorySectionProps> = ({
             registerdSet = new Set([...registerdSet, ...group.settingTypes])
             return registerdSet
           }, new Set())
-          refiedSettingTypesWithDTOLocal[val.setting.identifier as SettingType] = val
           categorySettings.set(val.setting.identifier as SettingType, val.setting)
           setFieldValue(val.setting.identifier, val.setting.value)
           validationsSchema[val.setting.identifier as SettingType] = DefaultSettingsFactory.getYupValidationForSetting(
             val.setting.identifier as SettingType
           )
           if (registeredSettingsOnUI?.has(val.setting.identifier)) {
-            settingTypesTemp.add(val.setting.identifier as SettingType)
+            refinedSettingTypesTemp.add(val.setting.identifier as SettingType)
           }
         })
         updateAllSettings(categorySettings)
-        updateAllSettingDTO(categorySettings)
         updateValidationSchema(validationsSchema)
-        updateRefiedSettingTypesWithDTO(refiedSettingTypesWithDTOLocal)
-        updateSettingTypes(settingTypesTemp)
+        updateSettingTypes(refinedSettingTypesTemp)
       } catch (error) {
         showError(getErrorInfoFromErrorObject(error))
       } finally {
@@ -103,84 +96,49 @@ const SettingsCategorySection: React.FC<SettingsCategorySectionProps> = ({
   }
 
   const onSelectionChange = (settingType: SettingType, val: string) => {
-    const prevSettings = refiedSettingTypesWithDTO
-
-    if (prevSettings && prevSettings[settingType]) {
-      let selectedSettingTypeDTO = prevSettings[settingType]
+    if (allSettings.get(settingType)) {
+      let selectedSettingTypeDTO = allSettings.get(settingType)
       if (selectedSettingTypeDTO) {
         selectedSettingTypeDTO = {
           ...selectedSettingTypeDTO,
-          setting: { ...selectedSettingTypeDTO.setting, value: val }
+          value: val
         }
-
-        const updatesSettingDTO = {
-          ...prevSettings,
-          [settingType]: selectedSettingTypeDTO
-        }
-        updateRefiedSettingTypesWithDTO(updatesSettingDTO)
-        onSettingChange(settingType, selectedSettingTypeDTO.setting, 'UPDATE')
-
-        const oldSettingDTO = allSettingDTO.get(settingType)
-        if (oldSettingDTO) {
-          oldSettingDTO.value = val
-          updateChagnedSettingLocal(settingType, oldSettingDTO)
-        }
+        setFieldValue(settingType, val)
+        onSettingChange(settingType, selectedSettingTypeDTO, 'UPDATE')
+        updateChagnedSettingLocal(settingType, selectedSettingTypeDTO)
       }
     }
   }
+
   const onAllowOverride = (checked: boolean, settingType: SettingType) => {
-    const prevSettings = refiedSettingTypesWithDTO
-
-    if (prevSettings && prevSettings[settingType]) {
-      let selectedSettingTypeDTO = prevSettings[settingType]
+    if (allSettings.get(settingType)) {
+      let selectedSettingTypeDTO = allSettings.get(settingType)
       if (selectedSettingTypeDTO) {
         selectedSettingTypeDTO = {
           ...selectedSettingTypeDTO,
-          setting: { ...selectedSettingTypeDTO.setting, allowOverrides: checked }
+          allowOverrides: checked
         }
-
-        const updatesSettingDTO = {
-          ...prevSettings,
-          [settingType]: selectedSettingTypeDTO
-        }
-        updateRefiedSettingTypesWithDTO(updatesSettingDTO)
-        onSettingChange(settingType, selectedSettingTypeDTO.setting, 'UPDATE')
-
-        const oldSettingDTO = allSettingDTO.get(settingType)
-        if (oldSettingDTO) {
-          oldSettingDTO.allowOverrides = checked
-          updateChagnedSettingLocal(settingType, oldSettingDTO)
-        }
+        onSettingChange(settingType, selectedSettingTypeDTO, 'UPDATE')
+        updateChagnedSettingLocal(settingType, selectedSettingTypeDTO)
       }
     }
   }
+
   const onRestore = (settingType: SettingType) => {
-    const prevSettings = refiedSettingTypesWithDTO
-
-    if (prevSettings && prevSettings[settingType]) {
-      let selectedSettingTypeDTO = prevSettings[settingType]
+    if (allSettings.get(settingType)) {
+      let selectedSettingTypeDTO = allSettings.get(settingType)
       if (selectedSettingTypeDTO) {
-        const defaultValue = selectedSettingTypeDTO?.setting.defaultValue
         selectedSettingTypeDTO = {
           ...selectedSettingTypeDTO,
-          setting: { ...selectedSettingTypeDTO.setting, value: defaultValue }
+          value: selectedSettingTypeDTO.defaultValue
         }
-
-        const updatesSettingDTO = {
-          ...prevSettings,
-          [settingType]: selectedSettingTypeDTO
-        }
-        setFieldValue(settingType, defaultValue)
-        updateRefiedSettingTypesWithDTO(updatesSettingDTO)
-        onSettingChange(settingType, selectedSettingTypeDTO.setting, 'RESTORE')
-        const oldSettingDTO = allSettingDTO.get(settingType)
-        if (oldSettingDTO) {
-          oldSettingDTO.value = defaultValue
-          updateChagnedSettingLocal(settingType, oldSettingDTO)
-        }
+        setFieldValue(settingType, selectedSettingTypeDTO.defaultValue)
+        onSettingChange(settingType, selectedSettingTypeDTO, 'RESTORE')
+        updateChagnedSettingLocal(settingType, selectedSettingTypeDTO)
       }
     }
   }
+
   if (!settingCategoryHandler) {
     return null
   }
@@ -210,14 +168,13 @@ const SettingsCategorySection: React.FC<SettingsCategorySectionProps> = ({
               <Container flex={{ justifyContent: 'center' }}>
                 <Icon name="spinner" size={30} />
               </Container>
-            ) : settingTypes.size ? (
+            ) : refinedSettingTypes.size ? (
               <SettingCategorySectionContents
                 allSettings={allSettings}
                 onSelectionChange={onSelectionChange}
                 onRestore={onRestore}
                 onAllowOverride={onAllowOverride}
-                settingsTypesSet={settingTypes}
-                settingTypesResponseDTO={refiedSettingTypesWithDTO}
+                settingsTypesSet={refinedSettingTypes}
                 settingErrorMessages={settingErrorMessages}
                 registeredGroupedSettings={registeredGroupedSettings}
               />

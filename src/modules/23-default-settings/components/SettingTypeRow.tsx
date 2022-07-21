@@ -11,7 +11,7 @@ import css from './SettingsCategorySection.module.scss'
 interface SettingTypeRowProps {
   settingTypeHandler: SettingHandler
   onSelectionChange: (val: string) => void
-  settingValue?: any
+  settingValue?: string
   onRestore: () => void
   settingType: SettingType
   onAllowOverride: (checked: boolean) => void

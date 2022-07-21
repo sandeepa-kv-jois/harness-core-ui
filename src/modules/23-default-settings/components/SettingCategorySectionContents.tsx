@@ -3,7 +3,7 @@ import { FontVariation, Text } from '@harness/uicore'
 import type { SettingType } from '@default-settings/interfaces/SettingType'
 
 import DefaultSettingsFactory, { GroupedSettings } from '@default-settings/factories/DefaultSettingsFactory'
-import type { SettingDTO, SettingResponseDTO } from 'services/cd-ng'
+import type { SettingDTO } from 'services/cd-ng'
 import { useStrings } from 'framework/strings'
 import SettingTypeRow from './SettingTypeRow'
 import css from './SettingsCategorySection.module.scss'
@@ -11,7 +11,6 @@ interface SettingCategorySectionContentsProps {
   settingsTypesSet: Set<SettingType> | undefined
   onSelectionChange: (settingType: SettingType, val: string) => void
   onRestore: (settingType: SettingType) => void
-  settingTypesResponseDTO: { [Key in SettingType]?: SettingResponseDTO } | undefined
   onAllowOverride: (val: boolean, settingType: SettingType) => void
   settingErrorMessages: Map<SettingType, string>
   registeredGroupedSettings: GroupedSettings[]
@@ -22,7 +21,6 @@ const SettingCategorySectionContents: React.FC<SettingCategorySectionContentsPro
   settingsTypesSet,
   onRestore,
   onSelectionChange,
-  settingTypesResponseDTO,
   onAllowOverride,
   allSettings,
   settingErrorMessages,
@@ -63,24 +61,16 @@ const SettingCategorySectionContents: React.FC<SettingCategorySectionContentsPro
             <SettingTypeRow
               key={settingTypeKey}
               allSettings={allSettings}
-              allowedValues={
-                settingTypesResponseDTO ? settingTypesResponseDTO[settingTypeKey]?.setting.allowedValues : undefined
-              }
+              allowedValues={allSettings.get(settingTypeKey)?.allowedValues}
               settingType={settingTypeKey}
               onRestore={() => onRestoreLocal(settingTypeKey)}
               settingTypeHandler={settingTypeHandler}
-              settingValue={settingTypesResponseDTO ? settingTypesResponseDTO[settingTypeKey]?.setting.value : ''}
+              settingValue={allSettings.get(settingTypeKey)?.value}
               onSelectionChange={(val: string) => onSelectionChangeLocal(settingTypeKey, val)}
               onAllowOverride={(checked: boolean) => {
                 onAllowOverride(checked, settingTypeKey)
               }}
-              allowOverride={
-                !!(
-                  settingTypesResponseDTO &&
-                  settingTypesResponseDTO[settingTypeKey] &&
-                  settingTypesResponseDTO[settingTypeKey]?.setting.allowOverrides
-                )
-              }
+              allowOverride={!!allSettings.get(settingTypeKey)?.allowOverrides}
               errorMessage={settingErrorMessages.get(settingTypeKey) || ''}
             />
           )
