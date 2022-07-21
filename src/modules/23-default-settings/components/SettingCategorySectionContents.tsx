@@ -7,6 +7,7 @@ import type { SettingDTO } from 'services/cd-ng'
 import { useStrings } from 'framework/strings'
 import SettingTypeRow from './SettingTypeRow'
 import css from './SettingsCategorySection.module.scss'
+import type { StringsMap } from 'stringTypes'
 interface SettingCategorySectionContentsProps {
   settingsTypesSet: Set<SettingType> | undefined
   onSelectionChange: (settingType: SettingType, val: string) => void
@@ -40,16 +41,17 @@ const SettingCategorySectionContents: React.FC<SettingCategorySectionContentsPro
       onRestore(settingType)
     }
   }
+  const GroupHeader: React.FC<{ groupName: keyof StringsMap }> = ({ groupName }) => (
+    <>
+      <Text font={{ variation: FontVariation.H6 }}>{getString(groupName)}</Text>
+      <span></span> <span></span>
+    </>
+  )
   return (
     <div className={css.settingTable}>
       {registeredGroupedSettings.reduce((settingsArray: (JSX.Element | null)[], registeredGroupedSetting) => {
         if (registeredGroupedSetting.groupName) {
-          settingsArray.push(
-            <>
-              <Text font={{ variation: FontVariation.H6 }}>{getString(registeredGroupedSetting.groupName)}</Text>
-              <span></span> <span></span>
-            </>
-          )
+          settingsArray.push(<GroupHeader groupName={registeredGroupedSetting.groupName} />)
         }
 
         const filteredGroupSettings = Array.from(registeredGroupedSetting.settingTypes.values()).map(settingTypeKey => {
