@@ -14,6 +14,7 @@ import { defaultTo, get, isEmpty, noop, unset } from 'lodash-es'
 import { useParams } from 'react-router-dom'
 import type { FormikErrors } from 'formik'
 import produce from 'immer'
+import classNames from 'classnames'
 import { String, useStrings } from 'framework/strings'
 import type { ModulePathParams, TemplateStudioPathProps } from '@common/interfaces/RouteInterfaces'
 import {
@@ -67,13 +68,19 @@ export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): Re
   const { templateIdentifier } = useParams<TemplateStudioPathProps & ModulePathParams>()
   const [modalProps, setModalProps] = React.useState<ModalProps>()
   const [menuOpen, setMenuOpen] = React.useState(false)
-  const { isGitSyncEnabled } = React.useContext(AppStoreContext)
+  const { isGitSyncEnabled, isGitSimplificationEnabled } = React.useContext(AppStoreContext)
   const { getComments } = useCommentModal()
   const { showError, clear } = useToaster()
 
   const [showConfigModal, hideConfigModal] = useModalHook(
     () => (
-      <Dialog enforceFocus={false} isOpen={true} className={css.configDialog}>
+      <Dialog
+        enforceFocus={false}
+        isOpen={true}
+        className={classNames(css.configDialog, {
+          [css.gitConfigDialog]: isGitSimplificationEnabled
+        })}
+      >
         {modalProps && <TemplateConfigModal {...modalProps} onClose={hideConfigModal} />}
       </Dialog>
     ),
@@ -161,9 +168,19 @@ export function SaveTemplatePopover({ getErrors }: SaveTemplatePopoverProps): Re
   const onSaveAsNewLabel = React.useCallback(() => {
     checkErrors(() => {
       setModalProps({
-        initialValues: produce(template, draft => {
-          draft.versionLabel = DefaultNewVersionLabel
-        }),
+        initialValues: {
+          ...produce(template, draft => {
+            draft.versionLabel = DefaultNewVersionLabel
+          }),
+          ...(isGitSimplificationEnabled
+            ? {
+                connectorRef: storeMetadata?.connectorRef,
+                repo: storeMetadata?.repoName,
+                branch: storeMetadata?.branch,
+                storeType: storeMetadata?.storeType
+              }
+            : {})
+        },
         promise: saveAndPublish,
         gitDetails,
         title: getString('templatesLibrary.saveAsNewLabelModal.heading'),

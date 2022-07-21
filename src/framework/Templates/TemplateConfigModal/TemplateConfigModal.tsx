@@ -151,7 +151,7 @@ const BasicTemplateDetails = (props: BasicDetailsInterface): JSX.Element => {
 
   const [isEdit, setIsEdit] = React.useState(() =>
     isGitSimplificationEnabled
-      ? templateIdentifier !== DefaultNewTemplateId
+      ? !!templateIdentifier && templateIdentifier !== DefaultNewTemplateId
       : initialValues.identifier !== DefaultNewTemplateId
   )
 
