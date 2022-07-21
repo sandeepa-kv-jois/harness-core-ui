@@ -9,17 +9,17 @@ import DefaultSettingsFactory from '@default-settings/factories/DefaultSettingsF
 import type { ModulePathParams } from '@common/interfaces/RouteInterfaces'
 import type { SidebarContext } from '@common/navigation/SidebarProvider'
 import type { LicenseRedirectProps } from 'framework/LicenseStore/LicenseStoreContext'
-DefaultSettingsFactory.registerSettingCategory('CD', {
+DefaultSettingsFactory.registerCategory('CD', {
   icon: 'cd-main',
   label: 'common.purpose.cd.continuous',
   settings: []
 })
-DefaultSettingsFactory.registerSettingCategory('CI', {
+DefaultSettingsFactory.registerCategory('CI', {
   icon: 'ci-main',
   label: 'common.purpose.ci.continuous',
   settings: []
 })
-DefaultSettingsFactory.registerSettingCategory('CORE', {
+DefaultSettingsFactory.registerCategory('CORE', {
   icon: 'access-control',
   label: 'account',
   settings: []

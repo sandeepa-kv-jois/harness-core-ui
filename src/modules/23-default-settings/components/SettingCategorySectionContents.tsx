@@ -53,7 +53,7 @@ const SettingCategorySectionContents: React.FC<SettingCategorySectionContentsPro
         }
 
         const filteredGroupSettings = Array.from(registeredGroupedSetting.settingTypes.values()).map(settingTypeKey => {
-          const settingTypeHandler = DefaultSettingsFactory.getSettingTypeHandler(settingTypeKey)
+          const settingTypeHandler = DefaultSettingsFactory.getTypeHandler(settingTypeKey)
           if (!settingTypeHandler || !settingsTypesSet.has(settingTypeKey)) {
             return null
           }

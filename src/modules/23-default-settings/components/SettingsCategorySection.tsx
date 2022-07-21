@@ -43,7 +43,7 @@ const SettingsCategorySection: React.FC<SettingsCategorySectionProps> = ({
 }) => {
   const { setFieldValue } = useFormikContext()
 
-  const settingCategoryHandler = DefaultSettingsFactory.getSettingCategoryHandler(settingCategory)
+  const settingCategoryHandler = DefaultSettingsFactory.getCategoryHandler(settingCategory)
   const { projectIdentifier, orgIdentifier, accountId } = useParams<ProjectPathProps & ModulePathParams>()
 
   const { getString } = useStrings()

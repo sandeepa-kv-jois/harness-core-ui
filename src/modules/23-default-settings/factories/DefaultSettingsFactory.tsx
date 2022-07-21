@@ -53,25 +53,25 @@ class DefaultSettingsFactory {
     this.settingCategoryMap = new Map()
   }
 
-  registerSettingCategory(settingCategory: SettingCategory, handler: SettingCategoryHandler): void {
+  registerCategory(settingCategory: SettingCategory, handler: SettingCategoryHandler): void {
     this.settingCategoryMap.set(settingCategory, handler)
   }
 
-  registerSettingTypeHandler(settingType: SettingType, handler: SettingHandler): void {
+  registerTypeHandler(settingType: SettingType, handler: SettingHandler): void {
     this.map.set(settingType, handler)
   }
-  getSettingCategoryList(): Map<SettingCategory, SettingCategoryHandler> {
+  getCategoryList(): Map<SettingCategory, SettingCategoryHandler> {
     return this.settingCategoryMap
   }
-  getSettingCategoryNamesList(): SettingCategory[] {
+  getCategoryNamesList(): SettingCategory[] {
     return Array.from(this.settingCategoryMap.keys())
   }
 
-  getSettingCategoryHandler(settingCategory: SettingCategory): SettingCategoryHandler | undefined {
+  getCategoryHandler(settingCategory: SettingCategory): SettingCategoryHandler | undefined {
     return this.settingCategoryMap.get(settingCategory)
   }
 
-  getSettingTypeHandler(settingType: SettingType): SettingHandler | undefined {
+  getTypeHandler(settingType: SettingType): SettingHandler | undefined {
     return this.map.get(settingType)
   }
   getYupValidationForSetting(settingType: SettingType): YupValidation | undefined {
