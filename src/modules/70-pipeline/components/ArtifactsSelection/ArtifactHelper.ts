@@ -121,6 +121,7 @@ export const allowedArtifactTypes: Record<ServiceDefinition['type'], Array<Artif
     ENABLED_ARTIFACT_TYPES.Nexus3Registry,
     ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry
   ],
+  ServerlessAwsLambda: [ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry, ENABLED_ARTIFACT_TYPES.Ecr],
   NativeHelm: [
     ENABLED_ARTIFACT_TYPES.DockerRegistry,
     ENABLED_ARTIFACT_TYPES.Gcr,
@@ -128,9 +129,8 @@ export const allowedArtifactTypes: Record<ServiceDefinition['type'], Array<Artif
     ENABLED_ARTIFACT_TYPES.Nexus3Registry,
     ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry
   ],
-  ServerlessAwsLambda: [ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry, ENABLED_ARTIFACT_TYPES.Ecr],
-  Ssh: [ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry, ENABLED_ARTIFACT_TYPES.Jenkins],
-  WinRm: [ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry, ENABLED_ARTIFACT_TYPES.Jenkins],
+  Ssh: [ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry],
+  WinRm: [ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry],
   AzureWebApp: [
     ENABLED_ARTIFACT_TYPES.DockerRegistry,
     ENABLED_ARTIFACT_TYPES.Gcr,

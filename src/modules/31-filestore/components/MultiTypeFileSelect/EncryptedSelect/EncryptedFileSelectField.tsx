@@ -54,7 +54,7 @@ function EncryptedFileSelectField(props: SelectEncryptedProps): React.ReactEleme
           result = `${Scope.ORG}.${identifier}`
         }
         if (projectIdentifier) {
-          result = `${Scope.PROJECT}.${identifier}`
+          result = `${identifier}`
         }
         onChange(result)
       }

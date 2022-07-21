@@ -59,7 +59,7 @@ describe('Test Azure Web App Rollback step', () => {
         type: StepType.AzureSwapSlot,
         name: 'swap slot',
         timeout: '10m',
-        identifier: 'swap slot',
+        identifier: 'swap_slot',
         spec: {
           targetSlot: 'targetSlot'
         }

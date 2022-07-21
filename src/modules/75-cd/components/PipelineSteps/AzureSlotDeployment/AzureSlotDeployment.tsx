@@ -144,6 +144,7 @@ export class AzureSlotDeployment extends PipelineStep<AzureSlotDeploymentStepInf
         isNewStep={isNewStep}
         ref={formikRef}
         readonly={readonly}
+        stepViewType={stepViewType}
       />
     )
   }

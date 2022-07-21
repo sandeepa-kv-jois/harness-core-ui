@@ -403,6 +403,7 @@ export interface StringsMap {
   'common.instanceValidation.minimumCountPercentage': string
   'common.instanceValidation.required': string
   'common.invalid': string
+  'common.invalidIdentifiers': string
   'common.jexlCondition': string
   'common.jexlExpression': string
   'common.labelTestConnection': string
@@ -2112,6 +2113,10 @@ export interface StringsMap {
   'connectors.gcpKms.keyRing': string
   'connectors.gcpKms.keyRingRequired': string
   'connectors.gcrConnectorDetails': string
+  'connectors.gitProviderURLs.azureRepos': string
+  'connectors.gitProviderURLs.bitbucket': string
+  'connectors.gitProviderURLs.github': string
+  'connectors.gitProviderURLs.gitlab': string
   'connectors.hashiCorpVault.appRole': string
   'connectors.hashiCorpVault.appRoleId': string
   'connectors.hashiCorpVault.awsAuth': string
@@ -2674,18 +2679,12 @@ export interface StringsMap {
   'pipeline.appServiceConfig.applicationSettings.filePath': string
   'pipeline.appServiceConfig.applicationSettings.fileSource': string
   'pipeline.appServiceConfig.applicationSettings.name': string
-  'pipeline.appServiceConfig.applicationSettings.scriptFile': string
-  'pipeline.appServiceConfig.applicationSettings.scriptFileDetails': string
-  'pipeline.appServiceConfig.applicationSettings.scriptFileSource': string
   'pipeline.appServiceConfig.applicationSettings.subtitle': string
   'pipeline.appServiceConfig.connectionStrings.file': string
   'pipeline.appServiceConfig.connectionStrings.fileDetails': string
   'pipeline.appServiceConfig.connectionStrings.filePath': string
   'pipeline.appServiceConfig.connectionStrings.fileSource': string
   'pipeline.appServiceConfig.connectionStrings.name': string
-  'pipeline.appServiceConfig.connectionStrings.scriptFile': string
-  'pipeline.appServiceConfig.connectionStrings.scriptFileDetails': string
-  'pipeline.appServiceConfig.connectionStrings.scriptFileSource': string
   'pipeline.appServiceConfig.connectionStrings.subtitle': string
   'pipeline.appServiceConfig.title': string
   'pipeline.approvalCriteria.allConditions': string
@@ -2746,7 +2745,7 @@ export interface StringsMap {
   'pipeline.artifactTriggerConfigPanel.runtimeInput': string
   'pipeline.artifactTriggerConfigPanel.selectAManifest': string
   'pipeline.artifactTriggerConfigPanel.selectAnArtifact': string
-  'pipeline.artifactTriggerConfigPanel.tagArtifactPath': string
+  'pipeline.artifactTriggerConfigPanel.tagArtifactPathBuild': string
   'pipeline.artifactsSelection.amazonS3Title': string
   'pipeline.artifactsSelection.artifactDetails': string
   'pipeline.artifactsSelection.artifactDirectory': string
@@ -2830,6 +2829,7 @@ export interface StringsMap {
   'pipeline.ciCodebase.validation.optionalLimitMemory': string
   'pipeline.ciCodebase.validation.optionalPrCloneStrategy': string
   'pipeline.ciCodebase.validation.optionalSslVerify': string
+  'pipeline.ciCodebase.validation.pullRequestNumber': string
   'pipeline.clickHere': string
   'pipeline.clickToExpandErrorDetails': string
   'pipeline.clone': string
@@ -2918,6 +2918,7 @@ export interface StringsMap {
   'pipeline.dashboards.totalExecutions': string
   'pipeline.dashboards.workloads': string
   'pipeline.delegate.DelegateSelectorOptional': string
+  'pipeline.dependencyRequired': string
   'pipeline.deploymentFrequency': string
   'pipeline.depth': string
   'pipeline.discard': string
@@ -3102,6 +3103,8 @@ export interface StringsMap {
   'pipeline.featureRestriction.unlimitedBuildsRequiredPlan': string
   'pipeline.fieldLabels.commandType': string
   'pipeline.fieldPlaceholders.commandType': string
+  'pipeline.fileDetails': string
+  'pipeline.fileSource': string
   'pipeline.filters.builtTypePlaceholder': string
   'pipeline.filters.deploymentTypePlaceholder': string
   'pipeline.filters.environmentPlaceholder': string
@@ -3505,7 +3508,6 @@ export interface StringsMap {
   'pipeline.stagetoRetryFrom': string
   'pipeline.startTime': string
   'pipeline.startedOn': string
-  'pipeline.startupScript.file': string
   'pipeline.startupScript.fileDetails': string
   'pipeline.startupScript.fileSource': string
   'pipeline.startupScript.name': string
@@ -4175,6 +4177,7 @@ export interface StringsMap {
   'cd.steps.azureWebAppInfra.targetSlotError': string
   'cd.steps.azureWebAppInfra.targetSlotInfoText': string
   'cd.steps.azureWebAppInfra.targetSlotPlaceHolder': string
+  'cd.steps.azureWebAppInfra.webAppInfraheader': string
   'cd.steps.azureWebAppInfra.webAppNameError': string
   'cd.steps.azureWebAppInfra.webAppPlaceholder': string
   'cd.steps.commands.addCommand': string
