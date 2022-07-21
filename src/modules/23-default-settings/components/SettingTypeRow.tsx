@@ -51,16 +51,15 @@ const SettingTypeRow: React.FC<SettingTypeRowProps> = ({
     <>
       <Text>{getString(label)}</Text>
       <Layout.Vertical>
-        {settingRenderer &&
-          settingRenderer({
-            identifier: settingType,
-            onSettingSelectionChange: onSelectionChange,
-            onRestore,
-            settingValue: settingValue || '',
-            allowedValues,
-            allSettings,
-            setFieldValue
-          })}
+        {settingRenderer({
+          identifier: settingType,
+          onSettingSelectionChange: onSelectionChange,
+          onRestore,
+          settingValue: settingValue || '',
+          allowedValues,
+          allSettings,
+          setFieldValue
+        })}
         {errorMessage && (
           <Text lineClamp={1} intent="danger">
             {errorMessage}

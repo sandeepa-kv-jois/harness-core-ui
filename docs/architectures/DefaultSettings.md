@@ -21,7 +21,7 @@ Example of a settings registration:
 ```typescript
 import { SettingType } from '@default-settings/interfaces/SettingType'
 
-DefaultSettingsFactory.registerSettingTypeHandler(SettingType.test_setting_CORE_2, {
+DefaultSettingsFactory.registerTypeHandler(SettingType.test_setting_CORE_2, {
   label: 'pipeline.ACR.name',
   settingRenderer: props => <DependendentValues {...props} />
 })
@@ -30,7 +30,7 @@ DefaultSettingsFactory.registerSettingTypeHandler(SettingType.test_setting_CORE_
 Example of a setting category registration:
 
 ```typescript
-DefaultSettingsFactory.registerSettingCategory('CI', {
+DefaultSettingsFactory.registerCategory('CI', {
   icon: 'ci-main',
   label: 'common.purpose.ci.continuous',
   settings: [
@@ -119,7 +119,7 @@ all the settings in `settingTypes` Set will be grouped under that `groupName` . 
 In below example Section we can see that there are three grouped settings where first group does not have a group name while other two have the name
 
 ```typescript
-DefaultSettingsFactory.registerSettingCategory('CI', {
+DefaultSettingsFactory.registerCategory('CI', {
   icon: 'ci-main',
   label: 'common.purpose.ci.continuous',
   settings: [

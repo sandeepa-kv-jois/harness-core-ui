@@ -28,7 +28,7 @@ export interface SettingRendererProps {
 }
 export interface SettingHandler {
   label: keyof StringsMap
-  settingRenderer?: (props: SettingRendererProps) => React.ReactElement
+  settingRenderer: (props: SettingRendererProps) => React.ReactElement
   yupValidation: YupValidation
   featureFlag?: FeatureFlag
 }
