@@ -35,6 +35,7 @@ import { useStrings } from 'framework/strings'
 import YamlBuilder from '@common/components/YAMLBuilder/YamlBuilder'
 import type { SnippetFetchResponse, YamlBuilderHandlerBinding } from '@common/interfaces/YAMLBuilderProps'
 import useCreateSSHCredModal from '@secrets/modals/CreateSSHCredModal/useCreateSSHCredModal'
+import useCreateWinRmCredModal from '@secrets/modals/CreateWinRmCredModal/useCreateWinRmCredModal'
 import useCreateUpdateSecretModal from '@secrets/modals/CreateSecretModal/useCreateUpdateSecretModal'
 import type { SecretIdentifiers } from '@secrets/components/CreateUpdateSecret/CreateUpdateSecret'
 import type { ModulePathParams, ProjectPathProps, SecretsPathProps } from '@common/interfaces/RouteInterfaces'
@@ -248,6 +249,7 @@ const SecretDetails: React.FC<SecretDetailsProps> = props => {
   const [secretData, setSecretData] = useState(data?.data)
 
   const { openCreateSSHCredModal } = useCreateSSHCredModal({ onSuccess: props.refetch })
+  const { openCreateWinRmCredModal } = useCreateWinRmCredModal({ onSuccess: props.refetch })
   const { openCreateSecretModal } = useCreateUpdateSecretModal({ onSuccess: props.refetch })
 
   useDocumentTitle([getString('overview'), defaultTo(secretData?.secret.name, ''), getString('common.secrets')])
@@ -267,6 +269,10 @@ const SecretDetails: React.FC<SecretDetailsProps> = props => {
   const handleVisualMode = (): void => {
     if (secretData.secret.type === 'SSHKey') {
       openCreateSSHCredModal(data?.data?.secret)
+      return
+    }
+    if (secretData.secret.type === 'WinRmCredentials') {
+      openCreateWinRmCredModal(data?.data?.secret)
       return
     }
     openCreateSecretModal(secretData.secret.type, {

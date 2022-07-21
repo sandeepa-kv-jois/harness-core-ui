@@ -78,7 +78,7 @@ const useCreateWinRmCredModal = (props: UseCreateWinRmCredModalProps): UseCreate
             tgtGenerationMethod:
               ((_winrmData.spec as WinRmCredentialsSpecDTO)?.auth.spec as KerberosConfigDTO).tgtGenerationMethod ||
               'None',
-            userName: ((_winrmData.spec as WinRmCredentialsSpecDTO)?.auth.spec as NTLMConfigDTO)?.userName,
+            username: ((_winrmData.spec as WinRmCredentialsSpecDTO)?.auth.spec as NTLMConfigDTO)?.username,
             domain: ((_winrmData.spec as WinRmCredentialsSpecDTO)?.auth.spec as NTLMConfigDTO)?.domain,
             useSSL:
               ((_winrmData.spec as WinRmCredentialsSpecDTO)?.auth.spec as NTLMConfigDTO).useSSL ||

@@ -65,7 +65,7 @@ const WinRmAuthFormFields: React.FC<WinRmAuthFormFieldsProps> = props => {
             </Text>
           </Layout.Horizontal>
           <FormInput.Text name="domain" label={getString('secrets.winRmAuthFormFields.domain')} />
-          <FormInput.Text name="userName" label={getString('username')} />
+          <FormInput.Text name="username" label={getString('username')} />
           <SecretInput name={'password'} label={getString('password')} />
           <Layout.Horizontal margin={{ bottom: 'medium' }} flex>
             <FormInput.CheckBox name="useSSL" label={getString('secrets.winRmAuthFormFields.useSSL')} />

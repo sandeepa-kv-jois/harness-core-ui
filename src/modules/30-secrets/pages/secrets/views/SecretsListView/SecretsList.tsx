@@ -28,13 +28,15 @@ import type { PageSecretResponseWrapper, SecretTextSpecDTO } from 'services/cd-n
 import { getStringForType } from '@secrets/utils/SSHAuthUtils'
 import useCreateSSHCredModal from '@secrets/modals/CreateSSHCredModal/useCreateSSHCredModal'
 import useCreateUpdateSecretModal from '@secrets/modals/CreateSecretModal/useCreateUpdateSecretModal'
-import { useVerifyModal } from '@secrets/modals/CreateSSHCredModal/useVerifyModal'
+import { useVerifyModal as useVerifyModalSSH } from '@secrets/modals/CreateSSHCredModal/useVerifyModal'
+import { useVerifyModal as useVerifyModalWinRM } from '@secrets/modals/CreateWinRmCredModal/useVerifyModal'
 import { PermissionIdentifier } from '@rbac/interfaces/PermissionIdentifier'
 import type { SecretIdentifiers } from '@secrets/components/CreateUpdateSecret/CreateUpdateSecret'
 import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import { ResourceType } from '@rbac/interfaces/ResourceType'
 import RbacMenuItem from '@rbac/components/MenuItem/MenuItem'
 import useRBACError from '@rbac/utils/useRBACError/useRBACError'
+import useCreateWinRmCredModal from '@secrets/modals/CreateWinRmCredModal/useCreateWinRmCredModal'
 import css from './SecretsList.module.scss'
 
 interface SecretsListProps {
@@ -99,7 +101,8 @@ const RenderColumnActivity: Renderer<CellProps<SecretResponseWrapper>> = ({ row 
 
 const RenderColumnStatus: Renderer<CellProps<SecretResponseWrapper>> = ({ row }) => {
   const data = row.original.secret
-  const { openVerifyModal } = useVerifyModal()
+  const { openVerifyModal: openVerifyModalSSH } = useVerifyModalSSH()
+  const { openVerifyModal: openVerifyModalWinRM } = useVerifyModalWinRM()
   if (data.type === 'SecretText' || data.type === 'SecretFile') {
     return row.original.draft ? (
       <Text icon="warning-sign" intent="warning">
@@ -114,7 +117,12 @@ const RenderColumnStatus: Renderer<CellProps<SecretResponseWrapper>> = ({ row })
         text={<String stringID="common.labelTestConnection" />}
         onClick={e => {
           e.stopPropagation()
-          openVerifyModal(data)
+          if (data.type === 'SSHKey') {
+            openVerifyModalSSH(data)
+          }
+          if (data.type === 'WinRmCredentials') {
+            openVerifyModalWinRM(data)
+          }
           return
         }}
         withoutBoxShadow
@@ -136,6 +144,7 @@ const RenderColumnAction: Renderer<CellProps<SecretResponseWrapper>> = ({ row, c
   })
 
   const { openCreateSSHCredModal } = useCreateSSHCredModal({ onSuccess: (column as any).refreshSecrets })
+  const { openCreateWinRmCredModal } = useCreateWinRmCredModal({ onSuccess: (column as any).refreshSecrets })
   const { openCreateSecretModal } = useCreateUpdateSecretModal({ onSuccess: (column as any).refreshSecrets })
 
   const permissionRequest = {
@@ -174,13 +183,18 @@ const RenderColumnAction: Renderer<CellProps<SecretResponseWrapper>> = ({ row, c
   const handleEdit = (e: React.MouseEvent<HTMLElement, MouseEvent>): void => {
     e.stopPropagation()
     setMenuOpen(false)
-    data.type === 'SSHKey'
-      ? openCreateSSHCredModal(data)
-      : openCreateSecretModal(data.type, {
-          identifier: data.identifier,
-          orgIdentifier: data.orgIdentifier,
-          projectIdentifier: data.projectIdentifier
-        } as SecretIdentifiers)
+
+    if (data.type === 'SSHKey') {
+      openCreateSSHCredModal(data)
+    } else if (data.type === 'WinRmCredentials') {
+      openCreateWinRmCredModal(data)
+    } else {
+      openCreateSecretModal(data.type, {
+        identifier: data.identifier,
+        orgIdentifier: data.orgIdentifier,
+        projectIdentifier: data.projectIdentifier
+      } as SecretIdentifiers)
+    }
   }
 
   return (

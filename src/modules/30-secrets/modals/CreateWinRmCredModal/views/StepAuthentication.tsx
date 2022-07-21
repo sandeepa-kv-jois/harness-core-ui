@@ -37,7 +37,7 @@ export interface WinRmConfigFormData {
   domain: string
   authScheme: WinRmAuthDTO['type']
   tgtGenerationMethod?: KerberosConfigDTO['tgtGenerationMethod'] | 'None'
-  userName: string
+  username: string
   port: number
   principal: string
   realm: string
@@ -120,7 +120,7 @@ const StepAuthentication: React.FC<StepProps<WinRmCredSharedObj> & StepAuthentic
   }
   const validationSchema = Yup.object().shape({
     port: Yup.number().required(getString('common.smtp.portRequired')),
-    userName: Yup.string().when('authScheme', {
+    username: Yup.string().when('authScheme', {
       is: 'NTLM',
       then: Yup.string().trim().required(getString('secrets.createSSHCredWizard.validateUsername'))
     }),
@@ -136,6 +136,10 @@ const StepAuthentication: React.FC<StepProps<WinRmCredSharedObj> & StepAuthentic
     realm: Yup.string().when('authScheme', {
       is: 'Kerberos',
       then: Yup.string().trim().required(getString('secrets.createSSHCredWizard.validateRealm'))
+    }),
+    keyPath: Yup.string().when(['authScheme', 'tgtGenerationMethod'], {
+      is: (authScheme, tgtGenerationMethod) => authScheme === 'Kerberos' && tgtGenerationMethod == 'KeyTabFilePath',
+      then: Yup.string().trim().required(getString('secrets.createSSHCredWizard.validateKeypath'))
     })
   })
 
@@ -161,7 +165,7 @@ const StepAuthentication: React.FC<StepProps<WinRmCredSharedObj> & StepAuthentic
             useNoProfile: false,
             skipCertChecks: false,
             useSSL: false,
-            userName: '',
+            username: '',
             keyPath: '',
             port: 22,
             ...prevStepData?.authData

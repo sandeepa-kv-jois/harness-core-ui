@@ -6,21 +6,21 @@
  */
 
 import React, { useState } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import {
-  Layout,
-  Popover,
-  Icon,
-  ExpandingSearchInput,
-  Container,
-  ButtonVariation,
   ButtonSize,
+  ButtonVariation,
+  Container,
+  ExpandingSearchInput,
+  Icon,
+  Layout,
+  PageError,
   PageSpinner,
-  PageError
+  Popover
 } from '@wings-software/uicore'
 import { Color } from '@harness/design-system'
 import { Menu, PopoverInteractionKind, Position } from '@blueprintjs/core'
-import { useListSecretsV2, ResponsePageSecretResponseWrapper, Error } from 'services/cd-ng'
+import { Error, ResponsePageSecretResponseWrapper, useListSecretsV2 } from 'services/cd-ng'
 import routes from '@common/RouteDefinitions'
 import useCreateUpdateSecretModal from '@secrets/modals/CreateSecretModal/useCreateUpdateSecretModal'
 import useCreateSSHCredModal from '@secrets/modals/CreateSSHCredModal/useCreateSSHCredModal'
@@ -40,6 +40,8 @@ import { useTelemetry } from '@common/hooks/useTelemetry'
 import { Category, SecretActions } from '@common/constants/TrackingConstants'
 import { getPrincipalScopeFromDTO } from '@common/components/EntityReference/EntityReference'
 import useCreateWinRmCredModal from '@secrets/modals/CreateWinRmCredModal/useCreateWinRmCredModal'
+import { useFeatureFlag } from '@common/hooks/useFeatureFlag'
+import { FeatureFlag } from '@common/featureFlags'
 import SecretsList from './views/SecretsListView/SecretsList'
 
 import SecretEmptyState from './secrets-empty-state.png'
@@ -131,6 +133,9 @@ const SecretsPage: React.FC<SecretsPageProps> = ({ mock }) => {
       })
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    const SSH_NG = useFeatureFlag(FeatureFlag.SSH_NG)
+
     return (
       <Menu large>
         <Menu.Item
@@ -151,12 +156,14 @@ const SecretsPage: React.FC<SecretsPageProps> = ({ mock }) => {
           labelElement={<Icon name="secret-ssh" />}
           onClick={/* istanbul ignore next */ () => openCreateSSHCredModal()}
         />
-        <Menu.Item
-          labelClassName="menu-item-label"
-          text={getString('secrets.secret.winrmCredential')}
-          labelElement={<Icon name="command-winrm" />}
-          onClick={/* istanbul ignore next */ () => openCreateWinRmCredModal()}
-        />
+        {SSH_NG && (
+          <Menu.Item
+            labelClassName="menu-item-label"
+            text={getString('secrets.secret.winrmCredential')}
+            labelElement={<Icon name="command-winrm" />}
+            onClick={/* istanbul ignore next */ () => openCreateWinRmCredModal()}
+          />
+        )}
       </Menu>
     )
   }
