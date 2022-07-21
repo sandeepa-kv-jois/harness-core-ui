@@ -21,7 +21,7 @@ const SettingsList = () => {
   const { getString } = useStrings()
   const { projectIdentifier, orgIdentifier, accountId } = useParams<ProjectPathProps & ModulePathParams>()
   //const [savingSettingInProgress, updateSavingSettingInProgress] = useState<boolean>(false)
-  const defaultSettingsCategory: SettingCategory[] = DefaultSettingsFactory.getSettingCategoryNamesList()
+  const defaultSettingsCategory: SettingCategory[] = DefaultSettingsFactory.getCategoryNamesList()
   const [changedSettings, updateChangedSettings] = useState<Map<SettingType, SettingRequestDTO>>(new Map())
   const [allSettings, updateAllSettings] = useState<Map<SettingType, SettingDTO>>(new Map())
   const [settingErrrorMessage, updateSettingErrrorMessage] = useState<Map<SettingType, string>>(new Map())
