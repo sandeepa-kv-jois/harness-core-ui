@@ -23,7 +23,6 @@ export interface SettingRendererProps {
   onRestore: () => void
   settingValue: string
   allowedValues?: SettingDTO['allowedValues'] | undefined
-
   allSettings: Map<SettingType, SettingDTO>
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void
 }

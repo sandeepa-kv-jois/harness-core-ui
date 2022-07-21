@@ -63,45 +63,38 @@ We expose `settingRenderer` function prop from the `SettingHandler` interface by
 
 ```typescript
 export interface SettingRendererProps {
-  identifier: any
+  identifier: string
   onSettingSelectionChange: (val: string) => void
   onRestore: () => void
-  settingValue: any
+  settingValue: string
   allowedValues?: SettingDTO['allowedValues'] | undefined
-  otherSettingsWhichAreChanged: Map<SettingType, SettingRequestDTO>
+  allSettings: Map<SettingType, SettingDTO>
+  setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void
 }
 ```
 
 We created few reusable Setting components (Textbox, DropDown, Checkbox etc) in the [ReusableHandlers](https://github.com/wings-software/nextgenui/blob/master/src/modules/23-default-settings/components/ReusableHandlers.tsx) from which on boarding teams can take advantage of re using them while regestering there setting handlers
 
-While onboarding a new setting if the present setting is depenedent on other settings then UI component can take advantage of the `otherSettingsWhichAreChanged` prop from the `SettingRendererProps` to keep a watch on any of the changed setting value and accordingly re render or your setting component
+While onboarding a new setting if the present setting is depenedent on other settings then UI component can take advantage of the `allSettings` prop from the `SettingRendererProps` to keep a watch on any of the changed setting value and accordingly re render or your setting component
 
 Example below renders Even or Odd as Text when test_setting_CD_3 value changes
 
 ```typescript
-const DependendentValues: React.FC<SettingRendererProps> = ({ otherSettingsWhichAreChanged, ...otherProps }) => {
+const DependendentValues: React.FC<SettingRendererProps> = ({ allSettings, ...otherProps }) => {
   const isEvenorOdd = (number: string | undefined) => {
     if (isUndefined(number)) {
       return ''
     }
-    console.log({ number }, parseInt(number) % 2 ? 'Odd' : 'Even')
 
     return parseInt(number) % 2 ? 'Odd' : 'Even'
   }
   const [settingValue, updateSettingValue] = useState(
-    isEvenorOdd(otherSettingsWhichAreChanged.get(SettingType.test_setting_CD_3)?.value)
+    isEvenorOdd(allSettings.get(SettingType.test_setting_CD_3)?.value)
   )
   useEffect(() => {
-    console.log('otherSettingsWhichAreChanged', { otherSettingsWhichAreChanged })
-    updateSettingValue(isEvenorOdd(otherSettingsWhichAreChanged.get(SettingType.test_setting_CD_3)?.value))
-  }, [otherSettingsWhichAreChanged.get(SettingType.test_setting_CD_3)?.value])
-  return (
-    <DefaultSettingTextbox
-      {...otherProps}
-      otherSettingsWhichAreChanged={otherSettingsWhichAreChanged}
-      settingValue={settingValue}
-    />
-  )
+    updateSettingValue(isEvenorOdd(allSettings.get(SettingType.test_setting_CD_3)?.value))
+  }, [allSettings.get(SettingType.test_setting_CD_3)?.value])
+  return <DefaultSettingTextbox {...otherProps} allSettings={allSettings} settingValue={settingValue} />
 }
 ```
 
