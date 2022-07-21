@@ -19,13 +19,14 @@ export interface UseAddResourceModalProps {
 }
 
 export interface UseAddResourceModalReturn {
-  openAddResourceModal: (resource: ResourceType, selectedItems: string[]) => void
+  openAddResourceModal: (resource: ResourceType, selectedItems: string[], isAttributeFilter: boolean) => void
   closeAddResourceModal: () => void
 }
 
 const useAddResourceModal = (props: UseAddResourceModalProps): UseAddResourceModalReturn => {
   const [resource, setResource] = useState<ResourceType>()
   const [selectedItems, setSelectedItems] = useState<string[]>([])
+  const [isAttributeFilter, setIsAttributeFilter] = useState<boolean>(false)
   const { onSuccess } = props
   const [showModal, hideModal] = useModalHook(
     () => (
@@ -40,6 +41,7 @@ const useAddResourceModal = (props: UseAddResourceModalProps): UseAddResourceMod
         {resource && (
           <AddResourceModal
             resource={resource}
+            isAttributeFilter={isAttributeFilter}
             onSuccess={resources => {
               onSuccess(resources)
               hideModal()
@@ -55,9 +57,10 @@ const useAddResourceModal = (props: UseAddResourceModalProps): UseAddResourceMod
   )
 
   return {
-    openAddResourceModal: (_resource: ResourceType, _selectedItems: string[]) => {
+    openAddResourceModal: (_resource: ResourceType, _selectedItems: string[], _isAttributeFilter: boolean) => {
       setResource(_resource)
       setSelectedItems(_selectedItems)
+      setIsAttributeFilter(_isAttributeFilter)
       showModal()
     },
     closeAddResourceModal: hideModal

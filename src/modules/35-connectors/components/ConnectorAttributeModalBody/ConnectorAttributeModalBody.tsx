@@ -81,6 +81,7 @@ function ConnectorAttributeModalBody({ onSelectChange, selectedData }: RbacAttri
           }
         ]}
         onSelectChange={onSelectChange}
+        hideHeaders={true}
       />
     </Container>
   )

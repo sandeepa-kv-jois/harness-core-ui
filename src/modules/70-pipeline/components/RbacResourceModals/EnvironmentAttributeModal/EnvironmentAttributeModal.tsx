@@ -61,6 +61,7 @@ function EnvironmentAttributeModal({ onSelectChange, selectedData }: RbacAttribu
           }
         ]}
         onSelectChange={onSelectChange}
+        hideHeaders={true}
       />
     </Container>
   )

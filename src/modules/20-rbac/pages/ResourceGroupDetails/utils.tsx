@@ -7,7 +7,7 @@
 
 import produce from 'immer'
 import { RbacResourceGroupTypes } from '@rbac/constants/utils'
-import type { ResourceType } from '@rbac/interfaces/ResourceType'
+import { ResourceType } from '@rbac/interfaces/ResourceType'
 import { isDynamicResourceSelector, SelectionType } from '@rbac/utils/utils'
 import type {
   ResourceSelector,
@@ -33,6 +33,11 @@ export enum SelectorScope {
   INCLUDE_CHILD_SCOPES = 'INCLUDE_CHILD_SCOPES',
   CUSTOM = 'CUSTOM'
 }
+
+export const resourceAttributeMap = new Map<ResourceType, string>([
+  [ResourceType.CONNECTOR, 'category'],
+  [ResourceType.ENVIRONMENT, 'type']
+])
 
 export type ResourceSelectorValue = string[] | AttributeFilter | RbacResourceGroupTypes
 
@@ -101,7 +106,8 @@ export const computeResourceMapOnChange = (
   selectedResourcesMap: Map<ResourceType, ResourceSelectorValue>,
   resourceType: ResourceType,
   isAdd: boolean,
-  identifiers?: string[]
+  identifiers?: string[],
+  attributeFilterValues?: string[]
 ): void => {
   if (identifiers) {
     if (isAdd) {
@@ -121,6 +127,34 @@ export const computeResourceMapOnChange = (
           }
           const updatedIdentifiers = draft.get(resourceType) as string[]
           if (updatedIdentifiers?.length === 0) {
+            draft.delete(resourceType)
+          }
+        })
+      )
+    }
+  } else if (attributeFilterValues) {
+    if (isAdd) {
+      const attributeFilter = {
+        attributeName: resourceAttributeMap.get(resourceType),
+        attributeValues: attributeFilterValues
+      }
+      setSelectedResourceMap(
+        produce(selectedResourcesMap, draft => {
+          draft.set(resourceType, attributeFilter)
+        })
+      )
+    } else {
+      setSelectedResourceMap(
+        produce(selectedResourcesMap, draft => {
+          const prevFilters = (draft.get(resourceType) as AttributeFilter).attributeValues
+          const updatedFilters = prevFilters?.filter(attrFilter => !attributeFilterValues.includes(attrFilter))
+
+          if (Array.isArray(updatedFilters) && updatedFilters.length > 0) {
+            draft.set(resourceType, {
+              attributeName: resourceAttributeMap.get(resourceType),
+              attributeValues: updatedFilters
+            })
+          } else {
             draft.delete(resourceType)
           }
         })

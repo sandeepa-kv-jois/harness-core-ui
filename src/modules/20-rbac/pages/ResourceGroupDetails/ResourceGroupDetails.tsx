@@ -168,6 +168,22 @@ const ResourceGroupDetails: React.FC = () => {
     computeResourceMapOnChange(setSelectedResourceMap, selectedResourcesMap, resourceType, isAdd, identifiers)
   }
 
+  const onAttributeSelectionChange = (
+    resourceType: ResourceType,
+    isAdd: boolean,
+    attributeFilter: string[] | undefined
+  ): void => {
+    setIsUpdated(true)
+    computeResourceMapOnChange(
+      setSelectedResourceMap,
+      selectedResourcesMap,
+      resourceType,
+      isAdd,
+      undefined,
+      attributeFilter
+    )
+  }
+
   const onSelectionTypeChange = (type: SelectionType): void => {
     setSelectionType(type)
     setIsUpdated(true)
@@ -317,6 +333,7 @@ const ResourceGroupDetails: React.FC = () => {
                 resourceCategoryMap={resourceCategoryMap}
                 onResourceSelectionChange={onResourceSelectionChange}
                 onResourceCategorySelect={onResourceCategorySelect}
+                onAttributeSelectionChange={onAttributeSelectionChange}
                 disableAddingResources={isHarnessManaged}
                 disableSelection={
                   selectionType === SelectionType.ALL ||

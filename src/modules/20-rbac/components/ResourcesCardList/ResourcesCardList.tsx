@@ -18,6 +18,11 @@ export interface ResourcesCardListProps {
   resourceCategoryMap?: Map<ResourceType | ResourceCategory, ResourceType[] | undefined>
   onResourceSelectionChange: (resourceType: ResourceType, isAdd: boolean, identifiers?: string[] | undefined) => void
   onResourceCategorySelect: (types: ResourceType[], isAdd: boolean) => void
+  onAttributeSelectionChange: (
+    resourceType: ResourceType,
+    isAdd: boolean,
+    attributeFilter?: string[] | undefined
+  ) => void
   disableAddingResources?: boolean
   disableSelection?: boolean
 }
@@ -27,6 +32,7 @@ const ResourcesCardList: React.FC<ResourcesCardListProps> = ({
   resourceCategoryMap,
   onResourceSelectionChange,
   onResourceCategorySelect,
+  onAttributeSelectionChange,
   ...props
 }) => {
   const { getString } = useStrings()
@@ -77,6 +83,7 @@ const ResourcesCardList: React.FC<ResourcesCardListProps> = ({
               resourceType={resourceType}
               resourceValues={defaultTo(selectedResourcesMap.get(resourceType), [])}
               onResourceSelectionChange={onResourceSelectionChange}
+              onAttributeSelectionChange={onAttributeSelectionChange}
               {...props}
             />
           )

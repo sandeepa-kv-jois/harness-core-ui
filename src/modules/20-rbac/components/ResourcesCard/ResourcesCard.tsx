@@ -15,7 +15,7 @@ import type { ResourceType } from '@rbac/interfaces/ResourceType'
 import useAddResourceModal from '@rbac/modals/AddResourceModal/useAddResourceModal'
 import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
-import { isDynamicResourceSelector } from '@rbac/utils/utils'
+import { isAtrributeFilterSelector, isDynamicResourceSelector } from '@rbac/utils/utils'
 import type { ResourceSelectorValue } from '@rbac/pages/ResourceGroupDetails/utils'
 import css from './ResourcesCard.module.scss'
 
@@ -23,6 +23,11 @@ interface ResourcesCardProps {
   resourceType: ResourceType
   resourceValues: ResourceSelectorValue
   onResourceSelectionChange: (resourceType: ResourceType, isAdd: boolean, identifiers?: string[] | undefined) => void
+  onAttributeSelectionChange: (
+    resourceType: ResourceType,
+    isAdd: boolean,
+    attributeFilter?: string[] | undefined
+  ) => void
   disableAddingResources?: boolean
   disableSelection?: boolean
 }
@@ -31,6 +36,7 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
   resourceType,
   resourceValues,
   onResourceSelectionChange,
+  onAttributeSelectionChange,
   disableAddingResources,
   disableSelection
 }) => {
@@ -75,8 +81,8 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
                   <Radio
                     label={getString('common.byType')}
                     data-testid={`attr-${resourceType}`}
-                    checked={!isDynamicResourceSelector(resourceValues)}
-                    onChange={e => onResourceSelectionChange(resourceType, e.currentTarget.checked, [])}
+                    checked={isAtrributeFilterSelector(resourceValues)}
+                    onChange={e => onAttributeSelectionChange(resourceType, e.currentTarget.checked, [])}
                   />
                 </Layout.Horizontal>
               )}
@@ -85,16 +91,24 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
                   <Radio
                     label={getString('common.specified')}
                     data-testid={`static-${resourceType}`}
-                    checked={!isDynamicResourceSelector(resourceValues)}
+                    checked={!isDynamicResourceSelector(resourceValues) && !isAtrributeFilterSelector(resourceValues)}
                     onChange={e => onResourceSelectionChange(resourceType, e.currentTarget.checked, [])}
                   />
+                </Layout.Horizontal>
+              )}
+              {(attributeModalEnabled || addResourceModalBody) && (
+                <Layout.Horizontal spacing="small" flex padding={{ left: 'none' }}>
                   <Button
                     variation={ButtonVariation.LINK}
                     data-testid={`addResources-${resourceType}`}
                     disabled={disableAddingResources || isDynamicResourceSelector(resourceValues)}
                     className={css.addResourceBtn}
                     onClick={() => {
-                      openAddResourceModal(resourceType, Array.isArray(resourceValues) ? resourceValues : [])
+                      openAddResourceModal(
+                        resourceType,
+                        Array.isArray(resourceValues) ? resourceValues : [],
+                        isAtrributeFilterSelector(resourceValues)
+                      )
                     }}
                   >
                     {getString('plusAdd')}
