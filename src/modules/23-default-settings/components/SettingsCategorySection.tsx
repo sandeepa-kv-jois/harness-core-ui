@@ -70,14 +70,19 @@ const SettingsCategorySection: React.FC<SettingsCategorySectionProps> = ({
         const categorySettings = new Map()
         const validationsSchema: SettingYupValidation = {}
         data?.data?.forEach(val => {
+          const registeredSettingsOnUI = settingCategoryHandler?.settings.reduce((registerdSet, group) => {
+            registerdSet = new Set([...registerdSet, ...group.settingTypes])
+            return registerdSet
+          }, new Set())
           refiedSettingTypesWithDTOLocal[val.setting.identifier as SettingType] = val
           categorySettings.set(val.setting.identifier as SettingType, val.setting)
           setFieldValue(val.setting.identifier, val.setting.value)
           validationsSchema[val.setting.identifier as SettingType] = DefaultSettingsFactory.getYupValidationForSetting(
             val.setting.identifier as SettingType
           )
-
-          settingTypesTemp.add(val.setting.identifier as SettingType)
+          if (registeredSettingsOnUI?.has(val.setting.identifier)) {
+            settingTypesTemp.add(val.setting.identifier as SettingType)
+          }
         })
         updateAllSettings(categorySettings)
         updateAllSettingDTO(categorySettings)

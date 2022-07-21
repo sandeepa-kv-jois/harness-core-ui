@@ -7,6 +7,7 @@ rules:
         - '!microfrontends/ChildAppMounter'
         - modules/18-audit-trail/*
         - modules/20-rbac/*
+        - modules/23-default-settings/*
         - modules/25-governance/*
         - modules/28-et/*
         - modules/30-delegates/*
