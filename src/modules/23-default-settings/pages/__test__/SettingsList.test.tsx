@@ -12,6 +12,7 @@ import {
   responseData
 } from './DefaultFactoryMock'
 import SettingsList from '../SettingsList'
+import { InputTypes, setFieldValue } from '@common/utils/JestFormHelper'
 
 jest.mock('@default-settings/factories/DefaultSettingsFactory', () => ({
   getCategoryNamesList: jest.fn().mockImplementation(() => getCategoryNamesList()),
@@ -32,7 +33,7 @@ jest.mock('services/cd-ng', () => ({
     return { data: responseData, mutate: saveSettings, error: null, loading: false }
   })
 }))
-jest.mock('@default-settings/interfaces/SettingType', () => ({
+jest.mock('@default-settings/interfaces/SettingType.types', () => ({
   SettingType: SettingType
 }))
 describe('Default Settings Page', () => {
@@ -68,5 +69,11 @@ describe('Default Settings Page', () => {
     })
     expect(container).toMatchSnapshot()
     await waitFor(() => expect(valueChanged).toEqual('8'))
+    setFieldValue({ container, type: InputTypes.TEXTFIELD, fieldId: 'test_setting_CD_1', value: '9' })
+    act(() => {
+      fireEvent.click(saveBtn)
+    })
+    expect(container).toMatchSnapshot()
+    await waitFor(() => expect(valueChanged).toEqual('9'))
   })
 })

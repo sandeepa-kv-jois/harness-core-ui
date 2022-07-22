@@ -3,7 +3,7 @@ import React from 'react'
 import { useFormikContext } from 'formik'
 import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
 import type { SettingHandler, SettingRendererProps } from '@default-settings/factories/DefaultSettingsFactory'
-import type { SettingType } from '@default-settings/interfaces/SettingType'
+import type { SettingType } from '@default-settings/interfaces/SettingType.types'
 import { useStrings } from 'framework/strings'
 import type { SettingDTO, SettingRequestDTO } from 'services/cd-ng'
 

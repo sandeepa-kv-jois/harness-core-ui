@@ -1,6 +1,6 @@
 import React from 'react'
 import { FontVariation, Text } from '@harness/uicore'
-import type { SettingType } from '@default-settings/interfaces/SettingType'
+import type { SettingType } from '@default-settings/interfaces/SettingType.types'
 
 import DefaultSettingsFactory, { GroupedSettings } from '@default-settings/factories/DefaultSettingsFactory'
 import type { SettingDTO } from 'services/cd-ng'

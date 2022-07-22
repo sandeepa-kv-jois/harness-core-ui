@@ -16,7 +16,7 @@ import DefaultSettingsFactory from '@default-settings/factories/DefaultSettingsF
 import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
 import { getSettingsListPromise, SettingDTO, SettingRequestDTO } from 'services/cd-ng'
 import type { ModulePathParams, ProjectPathProps } from '@common/interfaces/RouteInterfaces'
-import type { SettingCategory, SettingType, SettingYupValidation } from '../interfaces/SettingType'
+import type { SettingCategory, SettingType, SettingYupValidation } from '../interfaces/SettingType.types'
 import SettingCategorySectionContents from './SettingCategorySectionContents'
 import css from './SettingsCategorySection.module.scss'
 

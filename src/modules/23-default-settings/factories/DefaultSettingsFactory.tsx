@@ -12,7 +12,7 @@ import type {
   SettingGroups,
   SettingType,
   YupValidation
-} from '@default-settings/interfaces/SettingType'
+} from '@default-settings/interfaces/SettingType.types'
 import type { StringsMap } from 'framework/strings/StringsContext'
 import type { FeatureFlag } from '@common/featureFlags'
 import type { SettingDTO } from 'services/cd-ng'

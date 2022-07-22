@@ -13,7 +13,7 @@ import { useStrings } from 'framework/strings'
 import { Scope } from '@common/interfaces/SecretsInterface'
 import DefaultSettingsFactory from '@default-settings/factories/DefaultSettingsFactory'
 import { SettingDTO, SettingRequestDTO, useUpdateSettingValue } from 'services/cd-ng'
-import type { SettingCategory, SettingType, SettingYupValidation } from '../interfaces/SettingType'
+import type { SettingCategory, SettingType, SettingYupValidation } from '../interfaces/SettingType.types'
 import SettingsCategorySection from '../components/SettingsCategorySection'
 import css from './SettingsList.module.scss'
 
