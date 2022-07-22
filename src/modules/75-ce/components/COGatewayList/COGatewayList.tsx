@@ -562,7 +562,7 @@ const EmptyListPage: React.FC<EmptyListPageProps> = () => {
   const history = useHistory()
   const { trackEvent } = useTelemetry()
   return (
-    <Container background={Color.WHITE} height="100vh">
+    <Container background={Color.WHITE}>
       <NGBreadcrumbs
         links={[
           {
@@ -1140,7 +1140,7 @@ const COGatewayList: React.FC = () => {
   // Render page loader for initial loading of the page
   if (isLoadingPage) {
     return (
-      <div style={{ position: 'relative', height: 'calc(100vh - 128px)' }}>
+      <div className={css.loaderContainer}>
         <PageSpinner />
       </div>
     )
@@ -1158,7 +1158,7 @@ const COGatewayList: React.FC = () => {
   // without search - data is available
   // with search - data is available or unavailable
   return (
-    <Container background={Color.WHITE} height="100vh">
+    <Container background={Color.WHITE}>
       <PageHeader
         title={
           <Layout.Horizontal flex={{ alignItems: 'center' }}>
