@@ -82,21 +82,23 @@ const Content = (props: CustomArtifactRenderContent): React.ReactElement => {
     <>
       {isRuntime && (
         <Layout.Vertical key={artifactPath} className={css.inputWidth}>
-          {isFieldRuntime(
-            `artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.timeout`,
-            template
-          ) && (
-            <FormMultiTypeDurationField
-              name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.timeout`}
-              label={getString('pipelineSteps.timeoutLabel')}
-              disabled={readonly}
-              multiTypeDurationProps={{
-                expressions,
-                enableConfigureOptions: false,
-                allowableTypes
-              }}
-            />
-          )}
+          <div className={cx(stepCss.formGroup, stepCss.md)}>
+            {isFieldRuntime(
+              `artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.timeout`,
+              template
+            ) && (
+              <FormMultiTypeDurationField
+                name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.timeout`}
+                label={getString('pipelineSteps.timeoutLabel')}
+                disabled={readonly}
+                multiTypeDurationProps={{
+                  expressions,
+                  enableConfigureOptions: false,
+                  allowableTypes
+                }}
+              />
+            )}
+          </div>
           <div className={cx(stepCss.formGroup, stepCss.md)}>
             {isFieldRuntime(
               `artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.script`,
