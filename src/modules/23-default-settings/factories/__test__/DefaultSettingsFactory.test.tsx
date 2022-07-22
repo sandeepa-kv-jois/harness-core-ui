@@ -1,15 +1,7 @@
 import React from 'react'
 import * as Yup from 'yup'
-import {
-  getCategoryNamesList,
-  SettingType,
-  getCategoryHandler,
-  getTypeHandler,
-  getYupValidationForSetting,
-  responseData
-} from '@default-settings/pages/__test__/DefaultFactoryMock'
+import { SettingType } from '@default-settings/pages/__test__/DefaultFactoryMock'
 import DefaultSettingsFactory from '@default-settings/factories/DefaultSettingsFactory'
-import { SettingCategory } from '@default-settings/interfaces/SettingType.types'
 import { DefaultSettingTextbox } from '@default-settings/components/ReusableHandlers'
 jest.mock('@default-settings/interfaces/SettingType.types', () => ({
   SettingType: SettingType

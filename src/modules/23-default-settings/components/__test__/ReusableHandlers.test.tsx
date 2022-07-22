@@ -10,7 +10,6 @@ import type { SettingRendererProps } from '@default-settings/factories/DefaultSe
 import { Formik } from '@harness/uicore'
 import { noop } from 'lodash'
 import { InputTypes, setFieldValue } from '@common/utils/JestFormHelper'
-import type { StringKey } from 'react-table'
 import type { StringsMap } from 'framework/strings/StringsContext'
 describe('Reusable Components', () => {
   const props: SettingRendererProps = {
