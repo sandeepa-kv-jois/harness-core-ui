@@ -84,6 +84,7 @@ export default function DeployStageSetupShell(): JSX.Element {
       originalPipeline,
       pipelineView,
       selectionState: { selectedStageId, selectedStepId, selectedSectionId },
+      gitDetails,
       templateTypes,
       templateServiceData
     },
@@ -309,13 +310,8 @@ export default function DeployStageSetupShell(): JSX.Element {
           const isServerlessDeploymentTypeSelected = isServerlessDeploymentType(selectedDeploymentType || '')
           const gitOpsEnabled = selectedStage?.stage?.spec?.gitOpsEnabled
           // Show executiomn strategies when openExecutionStrategy is true and deployment type is not serverless and
-          // when gitOpsEnabled to true
-          if (
-            openExecutionStrategy &&
-            !isServerlessDeploymentTypeSelected &&
-            selectedSectionId === DeployTabs.EXECUTION &&
-            !gitOpsEnabled
-          ) {
+          // when gitOpsEnabled to false
+          if (openExecutionStrategy && !isServerlessDeploymentTypeSelected && !gitOpsEnabled) {
             updatePipelineView({
               ...pipelineView,
               isDrawerOpened: true,
@@ -341,7 +337,7 @@ export default function DeployStageSetupShell(): JSX.Element {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedStage, selectedTabId, selectedStageId, selectedDeploymentType, selectedSectionId])
+  }, [selectedStage, selectedTabId, selectedStageId, selectedDeploymentType])
 
   React.useEffect(() => {
     if (!selectedDeploymentType) {
@@ -543,6 +539,7 @@ export default function DeployStageSetupShell(): JSX.Element {
             <SaveTemplateButton
               data={selectedStage.stage}
               type={'Stage'}
+              gitDetails={gitDetails}
               buttonProps={{
                 margin: { right: 'medium' },
                 disabled: !!selectedStage.stage.spec?.serviceConfig?.useFromStage

@@ -239,6 +239,7 @@ export interface StringsMap {
   'common.errorHandler.possibleReasons': string
   'common.errorHandler.tryTheseSuggestions': string
   'common.execute': string
+  'common.executedBy': string
   'common.expiration': string
   'common.expiryDate': string
   'common.exploreAllPlans': string
@@ -3211,7 +3212,6 @@ export interface StringsMap {
   'pipeline.jiraUpdateStep.validations.status': string
   'pipeline.keyPlaceholder': string
   'pipeline.kubernetesStep.workload': string
-  'pipeline.lastExecutedBy': string
   'pipeline.lastExecution': string
   'pipeline.lastModified': string
   'pipeline.lastSevenDays': string
@@ -6209,7 +6209,6 @@ export interface StringsMap {
   'cv.monitoredServices.editMonitoredServices': string
   'cv.monitoredServices.editService': string
   'cv.monitoredServices.environmentValidation': string
-  'cv.monitoredServices.executedBy': string
   'cv.monitoredServices.failedToFetchHealthScore': string
   'cv.monitoredServices.failedToFetchSummaryData': string
   'cv.monitoredServices.filterlabel': string

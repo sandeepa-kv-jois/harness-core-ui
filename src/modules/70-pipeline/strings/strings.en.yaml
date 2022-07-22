@@ -1205,7 +1205,6 @@ recentTenExecutions: 'Recent 10 Executions'
 lastExecution: 'Last Execution'
 lastModified: 'Last Modified'
 executionId: Execution Id
-lastExecutedBy: Last Executed By
 imageTag: 'image: {{image}}'
 fileSource: 'File Source'
 fileDetails: 'File Details'
