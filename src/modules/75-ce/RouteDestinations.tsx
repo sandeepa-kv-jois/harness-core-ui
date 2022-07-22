@@ -138,13 +138,38 @@ AuditTrailFactory.registerResourceHandler('PERSPECTIVE_BUDGET', {
 AuditTrailFactory.registerResourceHandler('PERSPECTIVE_REPORT', {
   moduleIcon: { name: 'ccm-solid' },
   moduleLabel: 'common.purpose.ce.continuous',
-  resourceLabel: 'ce.perspectives.reports.perspectiveReport'
+  resourceLabel: 'ce.perspectives.reports.perspectiveReport',
+  resourceUrl: (resource: ResourceDTO, resourceScope: ResourceScope) => {
+    const { accountIdentifier } = resourceScope
+    const perspectiveId = resource.labels?.RelatedPerspectiveId
+
+    if (perspectiveId) {
+      return routes.toPerspectiveDetails({
+        accountId: accountIdentifier,
+        perspectiveId: perspectiveId,
+        perspectiveName: perspectiveId
+      })
+    }
+    return undefined
+  }
 })
 
 AuditTrailFactory.registerResourceHandler('COST_CATEGORY', {
   moduleIcon: { name: 'ccm-solid' },
   moduleLabel: 'common.purpose.ce.continuous',
   resourceLabel: 'ce.businessMapping.costCategory'
+})
+
+AuditTrailFactory.registerResourceHandler('PERSPECTIVE_FOLDER', {
+  moduleIcon: { name: 'ccm-solid' },
+  moduleLabel: 'common.purpose.ce.continuous',
+  resourceLabel: 'ce.perspectives.folders.title',
+  resourceUrl: (resource: ResourceDTO, resourceScope: ResourceScope) => {
+    const { accountIdentifier } = resourceScope
+    return `${routes.toCEPerspectives({
+      accountId: accountIdentifier
+    })}?folderId="${resource.identifier}"`
+  }
 })
 
 const CESideNavProps: SidebarContext = {

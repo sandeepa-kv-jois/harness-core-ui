@@ -5010,6 +5010,7 @@ export interface StringsMap {
   'ce.perspectives.folders.moveToLabel': string
   'ce.perspectives.folders.newFolder': string
   'ce.perspectives.folders.selectPerspectiveLabel': string
+  'ce.perspectives.folders.title': string
   'ce.perspectives.largeNoOfRowsWarning': string
   'ce.perspectives.newPerspective': string
   'ce.perspectives.newPerspectiveLimitWarning': string

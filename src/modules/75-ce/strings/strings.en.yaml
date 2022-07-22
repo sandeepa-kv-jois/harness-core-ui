@@ -873,6 +873,7 @@ perspectives:
       enterPercent: Enter %
       emailPlaceholder: Enter email IDs/email groups/Slack webhook url
   folders:
+    title: Perspective Folder
     customFolders: '{{ $.dashboards.homePage.folders }}'
     newFolder: New folder
     createNewFolderHeading: Create new Folder for Perspectives
