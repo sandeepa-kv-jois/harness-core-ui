@@ -84,6 +84,7 @@ import HelmWithOCI from '../ManifestWizardSteps/HelmWithOCI/HelmWithOCI'
 import { getConnectorPath } from '../ManifestWizardSteps/ManifestUtils'
 import HarnessFileStore from '../ManifestWizardSteps/HarnessFileStore/HarnessFileStore'
 import KustomizeWithHarnessStore from '../ManifestWizardSteps/KustomizeWithHarnessStore/KustomizeWithHarnessStore'
+import CommonManifestDetails from '../ManifestWizardSteps/CommonManifestDetails/CommonManifestDetails'
 import css from '../ManifestSelection.module.scss'
 
 const DIALOG_PROPS: IDialogProps = {
@@ -288,8 +289,10 @@ function ManifestListView({
         break
       case [ManifestDataType.K8sManifest, ManifestDataType.Values].includes(selectedManifest as ManifestTypes) &&
         isGitTypeStores:
-      default:
         manifestDetailStep = <K8sValuesManifest {...lastStepProps()} />
+        break
+      default:
+        manifestDetailStep = <CommonManifestDetails {...lastStepProps()} />
         break
     }
     arr.push(manifestDetailStep)

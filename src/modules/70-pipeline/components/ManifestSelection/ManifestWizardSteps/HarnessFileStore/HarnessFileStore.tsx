@@ -27,7 +27,7 @@ import MultiTypeFieldSelector from '@common/components/MultiTypeFieldSelector/Mu
 import FileStoreSelectField from '@filestore/components/MultiTypeFileSelect/FileStoreSelect/FileStoreSelectField'
 import { ManifestDataType, ManifestIdentifierValidation, ManifestStoreMap } from '../../Manifesthelper'
 import type { HarnessFileStoreDataType, HarnessFileStoreFormData, ManifestTypes } from '../../ManifestInterface'
-import css from '../K8sValuesManifest/ManifestDetails.module.scss'
+import css from '../CommonManifestDetails/CommonManifestDetails.module.scss'
 
 interface HarnessFileStorePropType {
   stepName: string

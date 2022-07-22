@@ -29,7 +29,7 @@ import type { ConnectorConfigDTO, ManifestConfig, ManifestConfigWrapper } from '
 import { ManifestIdentifierValidation, ManifestStoreMap } from '../../Manifesthelper'
 import DragnDropPaths from '../../DragnDropPaths'
 import type { InheritFromManifestDataType, ManifestTypes } from '../../ManifestInterface'
-import css from '../K8sValuesManifest/ManifestDetails.module.scss'
+import css from '../CommonManifestDetails/CommonManifestDetails.module.scss'
 
 interface InheritFromManifestPropType {
   stepName: string

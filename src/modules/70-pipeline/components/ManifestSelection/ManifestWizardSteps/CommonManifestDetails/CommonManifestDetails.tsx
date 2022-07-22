@@ -6,6 +6,11 @@
  */
 
 import React from 'react'
+import cx from 'classnames'
+import { get, set, isEmpty } from 'lodash-es'
+import { Form } from 'formik'
+import { v4 as nameSpace, v5 as uuid } from 'uuid'
+import * as Yup from 'yup'
 import {
   Accordion,
   Layout,
@@ -19,18 +24,12 @@ import {
   ButtonVariation,
   AllowedTypes
 } from '@wings-software/uicore'
-import cx from 'classnames'
 import { FontVariation } from '@harness/design-system'
-import { Form } from 'formik'
-import { v4 as nameSpace, v5 as uuid } from 'uuid'
-import * as Yup from 'yup'
-
-import { get, set, isEmpty } from 'lodash-es'
-import { ConfigureOptions } from '@common/components/ConfigureOptions/ConfigureOptions'
-import { FormMultiTypeCheckboxField } from '@common/components'
 
 import { useStrings } from 'framework/strings'
 import type { ConnectorConfigDTO, ManifestConfig, ManifestConfigWrapper } from 'services/cd-ng'
+import { ConfigureOptions } from '@common/components/ConfigureOptions/ConfigureOptions'
+import { FormMultiTypeCheckboxField } from '@common/components'
 import type { K8sValuesManifestDataType, ManifestTypes } from '../../ManifestInterface'
 import {
   gitFetchTypeList,
@@ -42,11 +41,10 @@ import {
 } from '../../Manifesthelper'
 import GitRepositoryName from '../GitRepositoryName/GitRepositoryName'
 import DragnDropPaths from '../../DragnDropPaths'
-
 import { getRepositoryName } from '../ManifestUtils'
-import css from '../CommonManifestDetails/CommonManifestDetails.module.scss'
+import css from './CommonManifestDetails.module.scss'
 
-interface K8sValuesManifestPropType {
+interface CommonManifestDetailsPropType {
   stepName: string
   expressions: string[]
   allowableTypes: AllowedTypes
@@ -61,7 +59,7 @@ const showAdvancedSection = (selectedManifest: ManifestTypes | null): boolean =>
   return selectedManifest === ManifestDataType.K8sManifest
 }
 
-function K8sValuesManifest({
+function CommonManifestDetails({
   stepName,
   selectedManifest,
   expressions,
@@ -72,7 +70,7 @@ function K8sValuesManifest({
   previousStep,
   manifestIdsList,
   isReadonly = false
-}: StepProps<ConnectorConfigDTO> & K8sValuesManifestPropType): React.ReactElement {
+}: StepProps<ConnectorConfigDTO> & CommonManifestDetailsPropType): React.ReactElement {
   const { getString } = useStrings()
   const isActiveAdvancedStep: boolean = initialValues?.spec?.skipResourceVersioning
 
@@ -102,11 +100,7 @@ function K8sValuesManifest({
         paths:
           typeof specValues.paths === 'string'
             ? specValues.paths
-            : specValues.paths?.map((path: string) => ({ path, uuid: uuid(path, nameSpace()) })),
-        valuesPaths:
-          typeof initialValues?.spec?.valuesPaths === 'string'
-            ? initialValues?.spec?.valuesPaths
-            : initialValues?.spec?.valuesPaths?.map((path: string) => ({ path, uuid: uuid(path, nameSpace()) }))
+            : specValues.paths?.map((path: string) => ({ path, uuid: uuid(path, nameSpace()) }))
       }
     }
     return {
@@ -136,11 +130,7 @@ function K8sValuesManifest({
                   ? formData?.paths
                   : formData?.paths?.map((path: { path: string }) => path.path)
             }
-          },
-          valuesPaths:
-            typeof formData?.valuesPaths === 'string'
-              ? formData?.valuesPaths
-              : formData?.valuesPaths?.map((path: { path: string }) => path.path)
+          }
         }
       }
     }
@@ -182,16 +172,6 @@ function K8sValuesManifest({
             then: Yup.string().trim().required(getString('validation.commitId'))
           }),
           paths: Yup.lazy((value): Yup.Schema<unknown> => {
-            if (getMultiTypeFromValue(value as any) === MultiTypeInputType.FIXED) {
-              return Yup.array().of(
-                Yup.object().shape({
-                  path: Yup.string().min(1).required(getString('pipeline.manifestType.pathRequired'))
-                })
-              )
-            }
-            return Yup.string().required(getString('pipeline.manifestType.pathRequired'))
-          }),
-          valuesPaths: Yup.lazy((value): Yup.Schema<unknown> => {
             if (getMultiTypeFromValue(value as any) === MultiTypeInputType.FIXED) {
               return Yup.array().of(
                 Yup.object().shape({
@@ -328,17 +308,6 @@ function K8sValuesManifest({
                       placeholder={getString('pipeline.manifestType.manifestPathPlaceholder')}
                       defaultValue={{ path: '', uuid: uuid('', nameSpace()) }}
                     />
-                    {selectedManifest === ManifestDataType.K8sManifest && (
-                      <DragnDropPaths
-                        formik={formik}
-                        expressions={expressions}
-                        allowableTypes={allowableTypes}
-                        fieldPath="valuesPaths"
-                        pathLabel={getString('pipeline.manifestType.valuesYamlPath')}
-                        placeholder={getString('pipeline.manifestType.manifestPathPlaceholder')}
-                        defaultValue={{ path: '', uuid: uuid('', nameSpace()) }}
-                      />
-                    )}
                   </div>
 
                   {showAdvancedSection(selectedManifest) && (
@@ -407,4 +376,4 @@ function K8sValuesManifest({
   )
 }
 
-export default K8sValuesManifest
+export default CommonManifestDetails

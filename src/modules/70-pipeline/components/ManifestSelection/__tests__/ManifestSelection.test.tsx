@@ -6,26 +6,44 @@
  */
 
 import React from 'react'
-import { render, findByText, fireEvent, findAllByText, waitFor } from '@testing-library/react'
+import {
+  render,
+  findByText,
+  fireEvent,
+  findAllByText,
+  waitFor,
+  getByText,
+  queryByAttribute,
+  act,
+  findByTestId
+} from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { AllowedTypesWithRunTime, MultiTypeInputType } from '@wings-software/uicore'
+
 import type { ManifestConfigWrapper, ServiceDefinition } from 'services/cd-ng'
 import { TestWrapper } from '@common/utils/testUtils'
 import {
   PipelineContext,
   PipelineContextInterface
 } from '@pipeline/components/PipelineStudio/PipelineContext/PipelineContext'
+import { ServiceDeploymentType } from '@pipeline/utils/stageHelpers'
 import ManifestSelection from '../ManifestSelection'
 import ManifestListView from '../ManifestListView/ManifestListView'
 import pipelineContextMock from './pipeline_mock.json'
 import gitOpsEnabledPipeline from './gitops_pipeline.json'
 import connectorsData from './connectors_mock.json'
+import { addManifestUpdateStageArg } from './helper'
 
 const fetchConnectors = (): Promise<unknown> => Promise.resolve(connectorsData)
 
 jest.mock('@common/components/YAMLBuilder/YamlBuilder')
 
 jest.mock('services/cd-ng', () => ({
+  getConnectorListPromise: jest.fn().mockImplementation(() => Promise.resolve(connectorsData)),
   useGetConnectorListV2: jest.fn().mockImplementation(() => ({ mutate: fetchConnectors })),
+  useGetConnector: jest.fn().mockImplementation(() => {
+    return { data: connectorsData.data.content[1], refetch: fetchConnectors, loading: false }
+  }),
   useGetServiceV2: jest.fn().mockImplementation(() => ({ loading: false, data: {}, refetch: jest.fn() }))
 }))
 
@@ -389,5 +407,155 @@ describe('ManifestSelection tests', () => {
     )
 
     expect(container).toMatchSnapshot()
+  })
+
+  test('is manifest type list containing required types for Amazon ECS', async () => {
+    const context = {
+      ...pipelineContextMock,
+      getStageFromPipeline: jest.fn(() => {
+        return { stage: pipelineContextMock.state.pipeline.stages[0], parent: undefined }
+      })
+    } as any
+
+    const { container } = render(
+      <TestWrapper
+        defaultAppStoreValues={{
+          featureFlags: { NG_AZURE: true, CUSTOM_ARTIFACT_NG: true }
+        }}
+      >
+        <PipelineContext.Provider value={context}>
+          <ManifestSelection
+            isReadonlyServiceMode={false}
+            readonly={false}
+            deploymentType={ServiceDeploymentType.ECS}
+          />
+        </PipelineContext.Provider>
+      </TestWrapper>
+    )
+
+    const addManifestButton = await findByText(container, 'pipelineSteps.serviceTab.manifestList.addManifest')
+    expect(addManifestButton).toBeDefined()
+    fireEvent.click(addManifestButton)
+    const portal = document.getElementsByClassName('bp3-dialog')[0] as HTMLElement
+    const manifestFirstStepTitle = await waitFor(() =>
+      findByText(portal, 'pipeline.manifestType.specifyManifestRepoType')
+    )
+    expect(manifestFirstStepTitle).toBeDefined()
+
+    const queryByValueAttribute = (value: string): HTMLElement | null => queryByAttribute('value', portal, value)
+
+    // EcsTaskDefinition, EcsServiceDefinition, EcsScalingPolicyDefinition and EcsScalableTargetDefinition should be rendered
+    const EcsTaskDefinition = queryByValueAttribute('EcsTaskDefinition')
+    expect(EcsTaskDefinition).not.toBeNull()
+    const EcsServiceDefinition = queryByValueAttribute('EcsServiceDefinition')
+    expect(EcsServiceDefinition).not.toBeNull()
+    const EcsScalingPolicyDefinition = queryByValueAttribute('EcsScalingPolicyDefinition')
+    expect(EcsScalingPolicyDefinition).not.toBeNull()
+    const EcsScalableTargetDefinition = queryByValueAttribute('EcsScalableTargetDefinition')
+    expect(EcsScalableTargetDefinition).not.toBeNull()
+
+    // K8sManifest, Values, HelmChart, Kustomize, OpenshiftTemplate, OpenshiftParam, KustomizePatches, ServerlessAwsLambda should NOT be rendered
+    const K8sManifest = queryByValueAttribute('K8sManifest')
+    expect(K8sManifest).toBeNull()
+    const Values = queryByValueAttribute('Values')
+    expect(Values).toBeNull()
+    const HelmChart = queryByValueAttribute('HelmChart')
+    expect(HelmChart).toBeNull()
+    const Kustomize = queryByValueAttribute('Kustomize')
+    expect(Kustomize).toBeNull()
+    const OpenshiftTemplate = queryByValueAttribute('OpenshiftTemplate')
+    expect(OpenshiftTemplate).toBeNull()
+    const OpenshiftParam = queryByValueAttribute('OpenshiftParam')
+    expect(OpenshiftParam).toBeNull()
+    const KustomizePatches = queryByValueAttribute('KustomizePatches')
+    expect(KustomizePatches).toBeNull()
+    const ServerlessAwsLambda = queryByValueAttribute('ServerlessAwsLambda')
+    expect(ServerlessAwsLambda).toBeNull()
+  })
+
+  test('for Amazon ECS deployment type, add EcsTaskDefinition manifest', async () => {
+    const updateStage = jest.fn()
+    const context = {
+      ...pipelineContextMock,
+      getStageFromPipeline: jest.fn(() => {
+        return { stage: pipelineContextMock.state.pipeline.stages[0], parent: undefined }
+      }),
+      allowableTypes: [MultiTypeInputType.FIXED, MultiTypeInputType.RUNTIME, MultiTypeInputType.EXPRESSION],
+      updateStage
+    } as any
+
+    const { container } = render(
+      <TestWrapper>
+        <PipelineContext.Provider value={context}>
+          <ManifestSelection
+            isReadonlyServiceMode={false}
+            readonly={false}
+            deploymentType={ServiceDeploymentType.ECS}
+          />
+        </PipelineContext.Provider>
+      </TestWrapper>
+    )
+
+    const addManifestButton = await findByText(container, 'pipelineSteps.serviceTab.manifestList.addManifest')
+    expect(addManifestButton).toBeDefined()
+    fireEvent.click(addManifestButton)
+    const portal = document.getElementsByClassName('bp3-dialog')[0] as HTMLElement
+    const manifestFirstStepTitle = await waitFor(() =>
+      findByText(portal, 'pipeline.manifestType.specifyManifestRepoType')
+    )
+    expect(manifestFirstStepTitle).toBeDefined()
+
+    const queryByValueAttribute = (value: string): HTMLElement | null => queryByAttribute('value', portal, value)
+
+    const EcsTaskDefinition = queryByValueAttribute('EcsTaskDefinition')
+    expect(EcsTaskDefinition).not.toBeNull()
+    userEvent.click(EcsTaskDefinition!)
+    const firstStepContinueButton = getByText(portal, 'continue').parentElement as HTMLElement
+    await waitFor(() => expect(firstStepContinueButton).not.toBeDisabled())
+    userEvent.click(firstStepContinueButton)
+
+    await waitFor(() => expect(queryByValueAttribute('Github')).not.toBeNull())
+    const Git = queryByValueAttribute('Git')
+    expect(Git).not.toBeNull()
+    const GitLab = queryByValueAttribute('GitLab')
+    expect(GitLab).not.toBeNull()
+    const Bitbucket = queryByValueAttribute('Bitbucket')
+    expect(Bitbucket).not.toBeNull()
+
+    userEvent.click(Git!)
+    const connnectorRefInput = await findByTestId(portal, /connectorRef/)
+    expect(connnectorRefInput).toBeTruthy()
+    userEvent.click(connnectorRefInput!)
+
+    await act(async () => {
+      const connectorSelectorDialog = document.getElementsByClassName('bp3-dialog')[1] as HTMLElement
+      const githubConnector1 = await findByText(connectorSelectorDialog, 'Git CTR')
+      expect(githubConnector1).toBeTruthy()
+      const githubConnector2 = await findByText(connectorSelectorDialog, 'Sample')
+      expect(githubConnector2).toBeTruthy()
+      userEvent.click(githubConnector1)
+      const applySelected = getByText(connectorSelectorDialog, 'entityReference.apply')
+      await act(async () => {
+        fireEvent.click(applySelected)
+      })
+      await waitFor(() => expect(document.getElementsByClassName('bp3-dialog')).toHaveLength(1))
+    })
+    const secondStepContinueButton = getByText(portal, 'continue').parentElement as HTMLElement
+    await waitFor(() => expect(secondStepContinueButton).not.toBeDisabled())
+    userEvent.click(secondStepContinueButton)
+    await waitFor(() => expect(getByText(portal, 'pipeline.manifestType.manifestIdentifier')).toBeInTheDocument())
+
+    const queryByNameAttribute = (name: string): HTMLElement | null => queryByAttribute('name', portal, name)
+    await act(async () => {
+      fireEvent.change(queryByNameAttribute('identifier')!, { target: { value: 'testidentifier' } })
+      fireEvent.change(queryByNameAttribute('gitFetchType')!, { target: { value: 'Branch' } })
+      fireEvent.change(queryByNameAttribute('branch')!, { target: { value: 'testBranch' } })
+      fireEvent.change(queryByNameAttribute('paths[0].path')!, { target: { value: 'test-path' } })
+    })
+    const submitButton = getByText(portal, 'submit').parentElement as HTMLElement
+    userEvent.click(submitButton)
+    await waitFor(() => {
+      expect(updateStage).toHaveBeenCalledWith(addManifestUpdateStageArg)
+    })
   })
 })

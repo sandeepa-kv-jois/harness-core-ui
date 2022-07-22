@@ -23,7 +23,7 @@ import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautif
 import { useStrings } from 'framework/strings'
 import MultiTypeFieldSelector from '@common/components/MultiTypeFieldSelector/MultiTypeFieldSelector'
 
-import css from './ManifestWizardSteps/K8sValuesManifest/ManifestDetails.module.scss'
+import css from './ManifestWizardSteps/CommonManifestDetails/CommonManifestDetails.module.scss'
 
 export interface DragnDropPathsProps<T = unknown> {
   formik: FormikValues

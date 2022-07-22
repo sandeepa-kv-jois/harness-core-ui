@@ -36,7 +36,7 @@ import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import type { CustomManifestManifestDataType, ManifestTypes } from '../../ManifestInterface'
 import { ManifestDataType, ManifestIdentifierValidation } from '../../Manifesthelper'
 import DragnDropPaths from '../../DragnDropPaths'
-import css from '../K8sValuesManifest/ManifestDetails.module.scss'
+import css from '../CommonManifestDetails/CommonManifestDetails.module.scss'
 
 interface CustomRemoteManifestPropType {
   stepName: string
