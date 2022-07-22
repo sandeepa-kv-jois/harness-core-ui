@@ -602,6 +602,10 @@ exports[`Resource Groups Page render data 1`] = `
                           />
                           common.specified
                         </label>
+                      </div>
+                      <div
+                        class="Layout--horizontal Layout--layout-spacing-small StyledProps--main StyledProps--flex StyledProps--padding-left-none"
+                      >
                         <button
                           class="bp3-button bp3-disabled Button--button StyledProps--font StyledProps--main addResourceBtn Button--with-current-color Button--iconOnly Button--variation Button--variation-link"
                           data-testid="addResources-SECRET"
