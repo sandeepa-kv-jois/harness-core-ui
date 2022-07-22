@@ -5,11 +5,9 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-.empty {
-  --page-header-height: 303px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  height: calc(var(--page-min-height) - var(--page-header-height));
+import type { MonitoredServiceDTO } from 'services/cv'
+import type { NGTemplateInfoConfig } from 'services/template-ng'
+
+export interface NGMonitoredServiceTemplateInfoConfig extends NGTemplateInfoConfig {
+  notificationRuleRefs?: MonitoredServiceDTO['notificationRuleRefs']
 }

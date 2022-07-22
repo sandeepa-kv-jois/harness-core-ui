@@ -5,11 +5,8 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-.empty {
-  --page-header-height: 303px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+.loaderContainer {
+  --page-header-height: 128px;
+  position: relative;
   height: calc(var(--page-min-height) - var(--page-header-height));
 }
