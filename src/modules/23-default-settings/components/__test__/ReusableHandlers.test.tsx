@@ -1,14 +1,14 @@
 import React from 'react'
+import { noop } from 'lodash-es'
 import {
   DefaultSettingNumberTextbox,
   DefaultSettingCheckBoxWithTrueAndFalse,
   DefaultSettingStringDropDown,
   DefaultSettingTextbox
 } from '@default-settings/components/ReusableHandlers'
-import { render, RenderResult } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import type { SettingRendererProps } from '@default-settings/factories/DefaultSettingsFactory'
 import { Formik } from '@harness/uicore'
-import { noop } from 'lodash'
 import { InputTypes, setFieldValue } from '@common/utils/JestFormHelper'
 import type { StringsMap } from 'framework/strings/StringsContext'
 describe('Reusable Components', () => {
@@ -23,9 +23,7 @@ describe('Reusable Components', () => {
   }
 
   test('text box', () => {
-    let renderObj: RenderResult
-
-    renderObj = render(
+    const renderObj = render(
       <Formik initialValues={{ textbx: 'abcd' }} onSubmit={noop} formName="testing">
         <DefaultSettingTextbox {...props} identifier="textbx" />
       </Formik>
@@ -37,18 +35,14 @@ describe('Reusable Components', () => {
     expect(container).toMatchSnapshot()
   })
   test('DefaultSettingCheckBoxWithTrueAndFalse', () => {
-    let renderObj: RenderResult
-
-    renderObj = render(<DefaultSettingCheckBoxWithTrueAndFalse {...props} identifier="check" />)
+    const renderObj = render(<DefaultSettingCheckBoxWithTrueAndFalse {...props} identifier="check" />)
 
     const { container } = renderObj
     setFieldValue({ container, type: InputTypes.CHECKBOX, fieldId: 'check', value: 'false' })
     expect(container).toMatchSnapshot()
   })
   test('DefaultSettingCheckBoxWithTrueAndFalse with different labels', () => {
-    let renderObj: RenderResult
-
-    renderObj = render(
+    const renderObj = render(
       <DefaultSettingCheckBoxWithTrueAndFalse
         {...props}
         identifier="check"
@@ -62,26 +56,20 @@ describe('Reusable Components', () => {
     expect(container).toMatchSnapshot()
   })
   test('DefaultSettingStringDropDown', () => {
-    let renderObj: RenderResult
-
-    renderObj = render(<DefaultSettingStringDropDown {...props} identifier="drpdown" />)
+    const renderObj = render(<DefaultSettingStringDropDown {...props} identifier="drpdown" />)
 
     const { container } = renderObj
     setFieldValue({ container, type: InputTypes.SELECT, fieldId: 'drpdown', value: 'bcd' })
     expect(container).toMatchSnapshot()
   })
   test('no DefaultSettingStringDropDown', () => {
-    let renderObj: RenderResult
-
-    renderObj = render(<DefaultSettingStringDropDown {...props} identifier="drpdown" allowedValues={undefined} />)
+    const renderObj = render(<DefaultSettingStringDropDown {...props} identifier="drpdown" allowedValues={undefined} />)
 
     const { container } = renderObj
     expect(container).toMatchSnapshot()
   })
   test('DefaultSettingTextbox', () => {
-    let renderObj: RenderResult
-
-    renderObj = render(<DefaultSettingNumberTextbox {...props} identifier="nbr" />)
+    const renderObj = render(<DefaultSettingNumberTextbox {...props} identifier="nbr" />)
 
     const { container } = renderObj
     setFieldValue({ container, type: InputTypes.TEXTFIELD, fieldId: 'nbr', value: '3' })
