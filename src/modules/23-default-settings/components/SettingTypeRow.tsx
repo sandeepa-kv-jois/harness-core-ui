@@ -55,15 +55,18 @@ const SettingTypeRow: React.FC<SettingTypeRowProps> = ({
   return (
     <>
       <Text>{getString(label)}</Text>
-      {settingRenderer({
-        identifier: settingType,
-        onSettingSelectionChange: onSelectionChange,
-        onRestore,
-        settingValue: settingValue || '',
-        allowedValues,
-        allSettings,
-        setFieldValue
-      })}
+      <div className={css.typeRenderer}>
+        {settingRenderer({
+          identifier: settingType,
+          onSettingSelectionChange: onSelectionChange,
+          onRestore,
+          settingValue: settingValue || '',
+          allowedValues,
+          allSettings,
+          setFieldValue
+        })}
+      </div>
+
       <span className={css.settingOverrideRestore}>
         <Checkbox
           label={getString('defaultSettings.allowOverrides')}

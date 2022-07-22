@@ -14,5 +14,6 @@ declare const styles: {
   readonly settingTable: string
   readonly summaryCard: string
   readonly summarySetting: string
+  readonly typeRenderer: string
 }
 export default styles
