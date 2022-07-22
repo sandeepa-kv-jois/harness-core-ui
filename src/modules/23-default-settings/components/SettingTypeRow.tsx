@@ -1,5 +1,5 @@
-import { Button, ButtonSize, ButtonVariation, Checkbox, Color, Layout, Text } from '@harness/uicore'
-import React from 'react'
+import { Button, ButtonSize, ButtonVariation, Checkbox, Color, Text } from '@harness/uicore'
+import React, { useEffect } from 'react'
 import { useFormikContext } from 'formik'
 import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
 import type { SettingHandler, SettingRendererProps } from '@default-settings/factories/DefaultSettingsFactory'
@@ -36,10 +36,15 @@ const SettingTypeRow: React.FC<SettingTypeRowProps> = ({
 }) => {
   const { label, settingRenderer, featureFlag } = settingTypeHandler
 
-  const { setFieldValue } = useFormikContext()
+  const { setFieldValue, setFieldError } = useFormikContext()
   const { getString } = useStrings()
   let enableFeatureFlag = true
   const currentFeatureFlagsInSystem = useFeatureFlags()
+  useEffect(() => {
+    if (errorMessage) {
+      setFieldError(settingType, errorMessage)
+    }
+  }, [errorMessage])
   if (featureFlag) {
     enableFeatureFlag = !!currentFeatureFlagsInSystem[featureFlag]
   }
@@ -50,22 +55,15 @@ const SettingTypeRow: React.FC<SettingTypeRowProps> = ({
   return (
     <>
       <Text>{getString(label)}</Text>
-      <Layout.Vertical>
-        {settingRenderer({
-          identifier: settingType,
-          onSettingSelectionChange: onSelectionChange,
-          onRestore,
-          settingValue: settingValue || '',
-          allowedValues,
-          allSettings,
-          setFieldValue
-        })}
-        {errorMessage && (
-          <Text lineClamp={1} intent="danger">
-            {errorMessage}
-          </Text>
-        )}
-      </Layout.Vertical>
+      {settingRenderer({
+        identifier: settingType,
+        onSettingSelectionChange: onSelectionChange,
+        onRestore,
+        settingValue: settingValue || '',
+        allowedValues,
+        allSettings,
+        setFieldValue
+      })}
       <span className={css.settingOverrideRestore}>
         <Checkbox
           label={getString('defaultSettings.allowOverrides')}

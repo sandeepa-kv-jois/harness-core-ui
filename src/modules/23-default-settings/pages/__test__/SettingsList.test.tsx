@@ -3,6 +3,7 @@ import { render, act, fireEvent, waitFor, RenderResult } from '@testing-library/
 import { TestWrapper } from '@common/utils/testUtils'
 import { accountPathProps } from '@common/utils/routeUtils'
 import routes from '@common/RouteDefinitions'
+import { InputTypes, setFieldValue } from '@common/utils/JestFormHelper'
 import {
   getCategoryNamesList,
   SettingType,
@@ -12,7 +13,6 @@ import {
   responseData
 } from './DefaultFactoryMock'
 import SettingsList from '../SettingsList'
-import { InputTypes, setFieldValue } from '@common/utils/JestFormHelper'
 
 jest.mock('@default-settings/factories/DefaultSettingsFactory', () => ({
   getCategoryNamesList: jest.fn().mockImplementation(() => getCategoryNamesList()),
