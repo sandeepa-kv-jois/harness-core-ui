@@ -11,6 +11,7 @@ declare const styles: {
   readonly barContainer: string
   readonly dataBar: string
   readonly moveRight: string
+  readonly reverseDirection: string
   readonly simpleBar: string
 }
 export default styles

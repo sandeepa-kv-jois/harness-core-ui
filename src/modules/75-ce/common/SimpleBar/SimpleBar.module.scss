@@ -29,6 +29,9 @@
       }
     }
   }
+  &.reverseDirection {
+    flex-direction: column-reverse;
+  }
 
   @keyframes moveRight {
     from {

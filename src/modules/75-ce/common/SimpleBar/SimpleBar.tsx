@@ -21,14 +21,14 @@ interface SimpleBarProps {
 const SimpleBar: React.FC<SimpleBarProps> = ({
   widthInPercentage = 0,
   description,
-  // descriptionDirection,
+  descriptionDirection,
   primaryColor,
   secondaryColor = Color.GREY_200
 }) => {
   return (
     <Layout.Vertical className={css.simpleBar}>
-      <Layout.Horizontal flex>
-        <Text font={{ variation: FontVariation.BODY }}>{description}</Text>
+      <Layout.Horizontal flex className={descriptionDirection === 'bottom' ? css.reverseDirection : ''}>
+        <Text font={{ variation: FontVariation.SMALL }}>{description}</Text>
         <Text color={primaryColor} font={{ variation: FontVariation.BODY2_SEMI }}>
           {widthInPercentage + '%'}
         </Text>

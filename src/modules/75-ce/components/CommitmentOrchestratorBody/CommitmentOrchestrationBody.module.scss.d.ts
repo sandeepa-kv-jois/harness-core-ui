@@ -7,9 +7,16 @@
  **/
 // this is an auto-generated file, do not update this manually
 declare const styles: {
+  readonly activeTab: string
   readonly bodyWidgetsContainer: string
   readonly commitmentBody: string
+  readonly dataVisualisationContainer: string
+  readonly enableBanner: string
   readonly filterPanel: string
   readonly infoContainer: string
+  readonly largeContainer: string
+  readonly semiLargeContainer: string
+  readonly tab: string
+  readonly tabsContainer: string
 }
 export default styles
