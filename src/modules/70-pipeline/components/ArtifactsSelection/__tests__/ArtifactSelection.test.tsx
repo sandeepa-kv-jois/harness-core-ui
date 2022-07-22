@@ -6,13 +6,23 @@
  */
 
 import React from 'react'
-import { render, findByText, fireEvent, waitFor, findAllByText, getByText } from '@testing-library/react'
+import {
+  render,
+  findByText,
+  fireEvent,
+  waitFor,
+  findAllByText,
+  getByText,
+  queryByAttribute
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+
 import { TestWrapper } from '@common/utils/testUtils'
 import {
   PipelineContext,
   PipelineContextInterface
 } from '@pipeline/components/PipelineStudio/PipelineContext/PipelineContext'
+import { ServiceDeploymentType } from '@pipeline/utils/stageHelpers'
 import ArtifactsSelection from '../ArtifactsSelection'
 import pipelineContextMock from './pipelineContext.json'
 import pipelineContextWithoutArtifactsMock from './pipelineContextWithoutArtifacts.json'
@@ -571,5 +581,56 @@ describe('ArtifactsSelection tests', () => {
     const overviewTitle = await findAllByText(portal, 'overview')
     expect(overviewTitle).toHaveLength(2)
     expect(getByText(portal, 'name')).toBeDefined()
+  })
+
+  test('is artifacts type list containing required types for Amazon ECS', async () => {
+    const context = {
+      ...pipelineContextWithoutArtifactsMock,
+      getStageFromPipeline: jest.fn(() => {
+        return { stage: pipelineContextWithoutArtifactsMock.state.pipeline.stages[0], parent: undefined }
+      })
+    } as any
+
+    const { container } = render(
+      <TestWrapper
+        defaultAppStoreValues={{
+          featureFlags: { ECS_NG: true, NG_AZURE: true, CUSTOM_ARTIFACT_NG: true }
+        }}
+      >
+        <PipelineContext.Provider value={context}>
+          <ArtifactsSelection
+            isReadonlyServiceMode={false}
+            readonly={false}
+            deploymentType={ServiceDeploymentType.ECS}
+          />
+        </PipelineContext.Provider>
+      </TestWrapper>
+    )
+
+    const addPrimaryButton = await findByText(container, 'pipelineSteps.serviceTab.artifactList.addPrimary')
+    expect(addPrimaryButton).toBeDefined()
+    fireEvent.click(addPrimaryButton)
+    const portal = document.getElementsByClassName('bp3-dialog')[0] as HTMLElement
+    const artifactLabel = await waitFor(() => findByText(portal, 'connectors.specifyArtifactRepoType'))
+    expect(artifactLabel).toBeDefined()
+    const queryByValueAttribute = (value: string): HTMLElement | null => queryByAttribute('value', portal, value)
+    // Jenkins, Artifactory, Docker, ECR, Nexus, Custom should be rendered
+    const Jenkins = queryByValueAttribute('Jenkins')
+    expect(Jenkins).not.toBeNull()
+    const ArtifactoryRegistry = queryByValueAttribute('ArtifactoryRegistry')
+    expect(ArtifactoryRegistry).not.toBeNull()
+    const DockerRegistry = queryByValueAttribute('DockerRegistry')
+    expect(DockerRegistry).not.toBeNull()
+    const Ecr = queryByValueAttribute('Ecr')
+    expect(Ecr).not.toBeNull()
+    const Nexus3Registry = queryByValueAttribute('Nexus3Registry')
+    expect(Nexus3Registry).not.toBeNull()
+    const CustomArtifact = queryByValueAttribute('CustomArtifact')
+    expect(CustomArtifact).not.toBeNull()
+    // ACR, AmazonS3 should NOT be rendered
+    const amazonS3 = await portal.querySelector('input[value="AmazonS3"]')
+    expect(amazonS3).toBeNull()
+    const acr = await portal.querySelector('input[value="Acr"]')
+    expect(acr).toBeNull()
   })
 })
