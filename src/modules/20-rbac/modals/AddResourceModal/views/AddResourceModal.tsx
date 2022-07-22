@@ -68,7 +68,9 @@ const AddResourceModal: React.FC<RoleModalData> = ({
     <Layout.Vertical padding="xxxlarge">
       <Layout.Vertical>
         <Text color={Color.BLACK} font="medium">
-          {`${getString('add')} ${getString(resourceHandler.label)}`}
+          {isAttributeFilter
+            ? `${getString('add')} ${getString(resourceHandler.label)} ${getString('common.types')}`
+            : `${getString('add')} ${getString(resourceHandler.label)}`}
         </Text>
         {!isAttributeFilter && (
           <Layout.Horizontal padding={{ top: 'large' }} flex>
@@ -94,7 +96,7 @@ const AddResourceModal: React.FC<RoleModalData> = ({
               resource === ResourceType['DASHBOARDS']
                 ? getString(resourceHandler.labelOverride || 'dashboards.homePage.folders')
                 : getString(resourceHandler.label)
-            }`}
+            } ${isAttributeFilter ? getString('common.types') : ''}`}
             onClick={() => onSuccess(selectedItems)}
           />
           <Button text={getString('cancel')} onClick={onClose} />

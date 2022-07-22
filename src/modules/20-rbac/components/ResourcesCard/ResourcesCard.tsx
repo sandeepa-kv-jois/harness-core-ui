@@ -5,7 +5,7 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Layout, Text, Card, Button, Radio, Container, ButtonVariation } from '@wings-software/uicore'
 import { Color } from '@harness/design-system'
 import { useParams } from 'react-router-dom'
@@ -17,6 +17,7 @@ import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
 import { isAtrributeFilterSelector, isDynamicResourceSelector } from '@rbac/utils/utils'
 import type { ResourceSelectorValue } from '@rbac/pages/ResourceGroupDetails/utils'
+import type { AttributeFilter } from 'services/resourcegroups'
 import css from './ResourcesCard.module.scss'
 
 interface ResourcesCardProps {
@@ -41,10 +42,15 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
   disableSelection
 }) => {
   const { accountId, orgIdentifier, projectIdentifier } = useParams<ProjectPathProps>()
+  const isAtrributeFilterEnabled = useMemo(() => isAtrributeFilterSelector(resourceValues), [resourceValues])
   const { getString } = useStrings()
   const { openAddResourceModal } = useAddResourceModal({
     onSuccess: resources => {
-      onResourceSelectionChange(resourceType, true, resources)
+      if (isAtrributeFilterEnabled) {
+        onAttributeSelectionChange(resourceType, true, resources)
+      } else {
+        onResourceSelectionChange(resourceType, true, resources)
+      }
     }
   })
   const { ATTRIBUTE_TYPE_ACL_ENABLED } = useFeatureFlags()
@@ -53,6 +59,9 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
   if (!resourceDetails) return null
   const { label, icon, addResourceModalBody, addAttributeModalBody, staticResourceRenderer } = resourceDetails
   const attributeModalEnabled = !ATTRIBUTE_TYPE_ACL_ENABLED && addAttributeModalBody
+  const staticResourceValues = isAtrributeFilterEnabled
+    ? (resourceValues as AttributeFilter).attributeValues
+    : resourceValues
 
   return (
     <Card className={css.selectedResourceGroupCardDetails} key={resourceType}>
@@ -81,7 +90,7 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
                   <Radio
                     label={getString('common.byType')}
                     data-testid={`attr-${resourceType}`}
-                    checked={isAtrributeFilterSelector(resourceValues)}
+                    checked={isAtrributeFilterEnabled}
                     onChange={e => onAttributeSelectionChange(resourceType, e.currentTarget.checked, [])}
                   />
                 </Layout.Horizontal>
@@ -91,7 +100,7 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
                   <Radio
                     label={getString('common.specified')}
                     data-testid={`static-${resourceType}`}
-                    checked={!isDynamicResourceSelector(resourceValues) && !isAtrributeFilterSelector(resourceValues)}
+                    checked={!isDynamicResourceSelector(resourceValues) && !isAtrributeFilterEnabled}
                     onChange={e => onResourceSelectionChange(resourceType, e.currentTarget.checked, [])}
                   />
                 </Layout.Horizontal>
@@ -106,8 +115,8 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
                     onClick={() => {
                       openAddResourceModal(
                         resourceType,
-                        Array.isArray(resourceValues) ? resourceValues : [],
-                        isAtrributeFilterSelector(resourceValues)
+                        Array.isArray(staticResourceValues) ? staticResourceValues : [],
+                        isAtrributeFilterEnabled
                       )
                     }}
                   >
@@ -119,23 +128,27 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
           )}
         </Layout.Horizontal>
 
-        {Array.isArray(resourceValues) && resourceValues.length > 0 && (
+        {Array.isArray(staticResourceValues) && staticResourceValues.length > 0 && (
           <Layout.Vertical padding={{ top: 'large' }}>
             {staticResourceRenderer
               ? staticResourceRenderer({
-                  identifiers: resourceValues,
+                  identifiers: staticResourceValues,
                   resourceScope: { accountIdentifier: accountId, orgIdentifier, projectIdentifier },
                   onResourceSelectionChange,
                   resourceType
                 })
-              : resourceValues.map(resource => (
+              : staticResourceValues.map(resource => (
                   <Layout.Horizontal padding="large" className={css.staticResource} key={resource} flex>
                     <Text>{resource}</Text>
                     <Button
                       icon="trash"
                       minimal
                       onClick={() => {
-                        onResourceSelectionChange(resourceType, false, [resource])
+                        if (isAtrributeFilterEnabled) {
+                          onAttributeSelectionChange(resourceType, false, [resource])
+                        } else {
+                          onResourceSelectionChange(resourceType, false, [resource])
+                        }
                       }}
                     />
                   </Layout.Horizontal>

@@ -8,7 +8,7 @@
 import produce from 'immer'
 import { RbacResourceGroupTypes } from '@rbac/constants/utils'
 import { ResourceType } from '@rbac/interfaces/ResourceType'
-import { isDynamicResourceSelector, SelectionType } from '@rbac/utils/utils'
+import { isAtrributeFilterSelector, isDynamicResourceSelector, SelectionType } from '@rbac/utils/utils'
 import type {
   ResourceSelector,
   ResponseResourceTypeDTO,
@@ -90,6 +90,11 @@ export const getResourceSelectorsfromMap = (map: Map<ResourceType, ResourceSelec
     if (isDynamicResourceSelector(value)) {
       resourceSelectors.push({
         resourceType: key
+      })
+    } else if (isAtrributeFilterSelector(value)) {
+      resourceSelectors.push({
+        resourceType: key,
+        attributeFilter: value as AttributeFilter
       })
     } else {
       resourceSelectors.push({

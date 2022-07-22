@@ -786,6 +786,7 @@ export interface StringsMap {
   'common.triggerLabel': string
   'common.triggerName': string
   'common.triggersLabel': string
+  'common.types': string
   'common.unlimited': string
   'common.unsavedChanges': string
   'common.updating': string
