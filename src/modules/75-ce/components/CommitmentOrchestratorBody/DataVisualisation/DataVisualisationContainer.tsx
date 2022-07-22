@@ -5,7 +5,7 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import cx from 'classnames'
 import { Container, FontVariation, Layout, Text } from '@harness/uicore'
 import ComputeCoverage from './ComputeCoverage'
@@ -54,10 +54,34 @@ const DataVisualisationContainer: React.FC<DataVisualisationContainerProps> = ()
 
 const TabNavigation: React.FC<TabNavigationProps> = ({ tabs, commonProps, className, defaultTab = 0 }) => {
   const [activeTab, setActiveTab] = useState<number>(defaultTab)
+  const TabsRef = useRef<HTMLDivElement>(null)
+  const [highlightProps, setHighlightProps] = useState({
+    width: 0,
+    translatePos: 0
+  })
+
+  useEffect(() => {
+    if (TabsRef.current) {
+      const width = TabsRef.current.children[activeTab].getBoundingClientRect().width
+      let translatePos = 0
+      if (activeTab > 0) {
+        const tabNodes = TabsRef.current.children
+        for (let i = 0; i < activeTab; i++) {
+          translatePos += tabNodes[i].getBoundingClientRect().width
+        }
+      }
+      setHighlightProps({ width, translatePos })
+    }
+  }, [activeTab, TabsRef.current])
+
   return (
     <Container>
       <Layout.Horizontal flex={{ justifyContent: 'center' }}>
-        <Layout.Horizontal className={className} flex={{ justifyContent: 'center', alignItems: 'center' }}>
+        <Layout.Horizontal
+          className={className}
+          flex={{ justifyContent: 'center', alignItems: 'center' }}
+          ref={TabsRef}
+        >
           {tabs.map((tab, index) => {
             return (
               <Container
@@ -65,12 +89,23 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ tabs, commonProps, classN
                 className={cx(css.tab, {
                   [css.activeTab]: activeTab === index
                 })}
-                onClick={() => activeTab !== index && setActiveTab(index)}
+                onClick={() => {
+                  activeTab !== index && setActiveTab(index)
+                }}
               >
                 <Text font={{ variation: FontVariation.H6 }}>{tab.title}</Text>
               </Container>
             )
           })}
+          {highlightProps.width && (
+            <Container
+              className={css.highlightTab}
+              style={{
+                width: highlightProps.width,
+                transform: `translateX(${highlightProps.translatePos}px)`
+              }}
+            />
+          )}
         </Layout.Horizontal>
       </Layout.Horizontal>
       <Container className={css.infoContainer}>

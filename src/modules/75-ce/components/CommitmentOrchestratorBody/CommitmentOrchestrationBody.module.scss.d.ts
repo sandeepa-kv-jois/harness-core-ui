@@ -13,6 +13,7 @@ declare const styles: {
   readonly dataVisualisationContainer: string
   readonly enableBanner: string
   readonly filterPanel: string
+  readonly highlightTab: string
   readonly infoContainer: string
   readonly largeContainer: string
   readonly semiLargeContainer: string
