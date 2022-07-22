@@ -143,13 +143,13 @@ describe('Test case for Anomalies alert notification method selection', () => {
   })
 
   test('should be able to submit the form', async () => {
-    const { getByText } = render(
+    const { container } = render(
       <TestWrapper pathParams={params}>
         <NotificationMethod {...props} />
       </TestWrapper>
     )
 
-    const continueBtn = getByText('saveAndContinue')
+    const continueBtn = container?.querySelector('[data-testid="submitForm"]')
     expect(continueBtn).toBeDefined()
     act(() => {
       fireEvent.click(continueBtn!)
