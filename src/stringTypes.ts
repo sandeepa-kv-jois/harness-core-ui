@@ -40,8 +40,10 @@ export interface StringsMap {
   'common.accountSettings': string
   'common.accountSetup': string
   'common.addAccountName': string
+  'common.addAttribute': string
   'common.addName': string
   'common.addVariable': string
+  'common.additionalAttributes': string
   'common.advanced': string
   'common.agent': string
   'common.agents': string
@@ -2754,6 +2756,7 @@ export interface StringsMap {
   'pipeline.artifactsSelection.artifactPathPlaceholder': string
   'pipeline.artifactsSelection.artifactType': string
   'pipeline.artifactsSelection.artifactTyperequired': string
+  'pipeline.artifactsSelection.artifactsArrayPath': string
   'pipeline.artifactsSelection.errors.noRepositories': string
   'pipeline.artifactsSelection.existingDocker.enterTagRegex': string
   'pipeline.artifactsSelection.existingDocker.imageNamePlaceholder': string
@@ -2763,6 +2766,7 @@ export interface StringsMap {
   'pipeline.artifactsSelection.filePathRegexPlaceholder': string
   'pipeline.artifactsSelection.loadingArtifactPaths': string
   'pipeline.artifactsSelection.loadingTags': string
+  'pipeline.artifactsSelection.optionalConfiguration': string
   'pipeline.artifactsSelection.repositoryPlaceholder': string
   'pipeline.artifactsSelection.repositoryPort': string
   'pipeline.artifactsSelection.repositoryPortPlaceholder': string
@@ -2777,6 +2781,9 @@ export interface StringsMap {
   'pipeline.artifactsSelection.validation.sidecarId': string
   'pipeline.artifactsSelection.validation.tag': string
   'pipeline.artifactsSelection.validation.tagRegex': string
+  'pipeline.artifactsSelection.version': string
+  'pipeline.artifactsSelection.versionPath': string
+  'pipeline.artifactsSelection.versionPathPlaceholder': string
   'pipeline.artifactsSelection.versionPlaceholder': string
   'pipeline.barrierStep.barrierReference': string
   'pipeline.barrierStep.barrierReferencePlaceholder': string

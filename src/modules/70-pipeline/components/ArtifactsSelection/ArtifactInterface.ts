@@ -85,8 +85,37 @@ export interface ImagePathTypes {
   artifactDirectory?: string
 }
 
-export interface CustomArtifactSource extends ImagePathTypes {
-  version: string
+export interface variableInterface {
+  value: number | string
+  id: string
+  name?: string
+  type?: 'String' | 'Number'
+}
+
+export interface CustomArtifactSource {
+  identifier?: string
+  spec?: {
+    version: string
+    delegateSelectors?: string[]
+    inputs?: variableInterface[]
+    scripts: {
+      fetchAllArtifacts?: {
+        artifactsArrayPath?: string
+        attributes?: variableInterface[]
+        versionPath?: string
+        spec: {
+          shell?: string
+          source: {
+            spec: {
+              script?: string
+            }
+            type?: string
+            timeout?: string
+          }
+        }
+      }
+    }
+  }
 }
 
 export interface AmazonS3InitialValuesType {

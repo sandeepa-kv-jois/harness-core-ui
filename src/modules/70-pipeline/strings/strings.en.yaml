@@ -751,10 +751,15 @@ selectArtifactPathPlaceholder: Select or Enter an Artifact Path (Optional)
 artifactPathFilterLabel: Artifact Path Filter
 artifactsSelection:
   repositoryPort: Repository Port
+  artifactsArrayPath: Artifacts Array Path
+  versionPath: Version Path
+  version: Version
+  versionPathPlaceholder: Enter Version Path
   repositoryPortPlaceholder: Enter Repository Port
   repositoryPlaceholder: Enter Repository
   artifactType: Artifact Type
   artifactDetails: Artifact Details
+  optionalConfiguration: Optional Configuration
   artifactTyperequired: Artifact Type is required
   loadingTags: Loading Tags...
   loadingArtifactPaths: Loading Artifact Paths...

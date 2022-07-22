@@ -8,11 +8,13 @@
 import { getMultiTypeFromValue, MultiTypeInputType, RUNTIME_INPUT_VALUE } from '@harness/uicore'
 import type { FormikValues } from 'formik'
 import { defaultTo, get, isEmpty, merge } from 'lodash-es'
+import { shellScriptType } from '@cd/components/PipelineSteps/ShellScriptStep/BaseShellScript'
 import type { ArtifactConfig, ConnectorConfigDTO } from 'services/cd-ng'
 import { ENABLED_ARTIFACT_TYPES } from './ArtifactHelper'
 import {
   ArtifactTagHelperText,
   ArtifactType,
+  CustomArtifactSource,
   ImagePathTypes,
   JenkinsArtifactType,
   RepositoryPortOrServer,
@@ -230,6 +232,23 @@ export const getArtifactFormData = (
   return values
 }
 
+export const getCustomArtifactFormData = (
+  initialValues: CustomArtifactSource,
+  selectedArtifact: ArtifactType,
+  isSideCar: boolean
+): CustomArtifactSource => {
+  const specValues = get(initialValues, 'spec', null)
+
+  if (selectedArtifact !== (initialValues as any)?.type || !specValues) {
+    return defaultArtifactInitialValues(selectedArtifact)
+  }
+
+  if (isSideCar && initialValues?.identifier) {
+    merge(initialValues, { identifier: initialValues?.identifier })
+  }
+  return initialValues
+}
+
 export const getJenkinsFormData = (
   initialValues: JenkinsArtifactType,
   selectedArtifact: ArtifactType,
@@ -269,7 +288,28 @@ export const defaultArtifactInitialValues = (selectedArtifact: ArtifactType): an
     case ENABLED_ARTIFACT_TYPES.CustomArtifact:
       return {
         identifier: '',
-        version: RUNTIME_INPUT_VALUE
+        spec: {
+          version: '',
+          delegateSelectors: [],
+          inputs: [],
+          scripts: {
+            fetchAllArtifacts: {
+              artifactsArrayPath: '',
+              attributes: [],
+              versionPath: '',
+              spec: {
+                shell: shellScriptType[0].label,
+                source: {
+                  spec: {
+                    script: ''
+                  },
+                  type: 'inline',
+                  timeout: ''
+                }
+              }
+            }
+          }
+        }
       }
     case ENABLED_ARTIFACT_TYPES.AmazonS3:
       return {

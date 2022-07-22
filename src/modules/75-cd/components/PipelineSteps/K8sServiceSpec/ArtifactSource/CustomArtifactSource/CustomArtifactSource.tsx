@@ -6,19 +6,25 @@
  */
 
 import React from 'react'
-import { defaultTo } from 'lodash-es'
+import { defaultTo, get, isArray } from 'lodash-es'
 
 import { FormInput, Layout } from '@wings-software/uicore'
+import { FieldArray } from 'formik'
 import { ArtifactSourceBase, ArtifactSourceRenderProps } from '@cd/factory/ArtifactSourceFactory/ArtifactSourceBase'
-
+import MultiTypeFieldScriptSelector, {
+  MultiTypeFieldSelector
+} from '@common/components/MultiTypeFieldSelector/MultiTypeFieldSelector'
 import { ENABLED_ARTIFACT_TYPES } from '@pipeline/components/ArtifactsSelection/ArtifactHelper'
 import { useStrings } from 'framework/strings'
 import { useVariablesExpression } from '@pipeline/components/PipelineStudio/PiplineHooks/useVariablesExpression'
+import { FormMultiTypeDurationField } from '@common/components/MultiTypeDuration/MultiTypeDuration'
+import { ScriptType, ShellScriptMonacoField } from '@common/components/ShellScriptMonaco/ShellScriptMonaco'
+import { scriptInputType } from '@cd/components/PipelineSteps/ShellScriptStep/shellScriptTypes'
 import type { SidecarArtifact } from 'services/cd-ng'
-import { isFieldRuntime } from '../../K8sServiceSpecHelper'
 import { isArtifactSourceRuntime, isFieldfromTriggerTabDisabled } from '../artifactSourceUtils'
-import css from '../../K8sServiceSpec.module.scss'
-
+import { isFieldRuntime } from '../../K8sServiceSpecHelper'
+import css from '@pipeline/components/ArtifactsSelection/ArtifactRepository/ArtifactConnector.module.scss'
+import stepCss from '@pipeline/components/PipelineSteps/Steps/Steps.module.scss'
 interface CustomArtifactRenderContent extends ArtifactSourceRenderProps {
   isTagsSelectionDisabled: (data: ArtifactSourceRenderProps) => boolean
 }
@@ -41,6 +47,7 @@ const Content = (props: CustomArtifactRenderContent): React.ReactElement => {
 
   const { getString } = useStrings()
   const { expressions } = useVariablesExpression()
+  const scriptType: ScriptType = get(template, `artifacts.${artifactPath}.spec.source.spec.script`) || 'Bash'
 
   const isFieldDisabled = (fieldName: string, isTag = false): boolean => {
     /* instanbul ignore else */
@@ -67,17 +74,203 @@ const Content = (props: CustomArtifactRenderContent): React.ReactElement => {
     <>
       {isRuntime && (
         <Layout.Vertical key={artifactPath} className={css.inputWidth}>
-          {isFieldRuntime(`artifacts.${artifactPath}.spec.version`, template) && (
+          {isFieldRuntime(
+            `artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.timeout`,
+            template
+          ) && (
+            <FormMultiTypeDurationField
+              name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.timeout`}
+              label={getString('pipelineSteps.timeoutLabel')}
+              disabled={readonly}
+              multiTypeDurationProps={{
+                expressions,
+                enableConfigureOptions: false,
+                allowableTypes
+              }}
+            />
+          )}
+          {isFieldRuntime(
+            `artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.script`,
+            template
+          ) && (
+            <MultiTypeFieldScriptSelector
+              name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.script`}
+              label={getString('script')}
+              defaultValueToReset=""
+              disabled={readonly}
+              allowedTypes={allowableTypes}
+              disableTypeSelection={readonly}
+              skipRenderValueInExpressionLabel
+              expressionRender={() => {
+                return (
+                  <ShellScriptMonacoField
+                    name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.script`}
+                    scriptType={scriptType}
+                    disabled={readonly}
+                    expressions={expressions}
+                  />
+                )
+              }}
+            >
+              <ShellScriptMonacoField
+                name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.spec.source.spec.script`}
+                scriptType={scriptType}
+                disabled={readonly}
+                expressions={expressions}
+              />
+            </MultiTypeFieldScriptSelector>
+          )}
+          {isFieldRuntime(`artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.artifactsArrayPath`, template) && (
             <FormInput.MultiTextInput
-              label={getString('version')}
-              disabled={isFieldDisabled(`artifacts.${artifactPath}.spec.version`)}
+              name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.artifactsArrayPath`}
+              label={getString('pipeline.artifactsSelection.artifactsArrayPath')}
+              placeholder={getString('pipeline.artifactsSelection.artifactPathPlaceholder')}
+              disabled={readonly}
               multiTextInputProps={{
                 expressions,
                 allowableTypes
               }}
-              name={`${path}.artifacts.${artifactPath}.spec.version`}
             />
           )}
+          {isFieldRuntime(`artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.versionPath`, template) && (
+            <FormInput.MultiTextInput
+              name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.versionPath`}
+              label={getString('pipeline.artifactsSelection.versionPath')}
+              placeholder={getString('pipeline.artifactsSelection.versionPathPlaceholder')}
+              disabled={readonly}
+              multiTextInputProps={{
+                expressions,
+                allowableTypes
+              }}
+            />
+          )}
+
+          {isFieldRuntime(`artifacts.${artifactPath}.spec.version`, template) && (
+            <FormInput.MultiTextInput
+              label={getString('version')}
+              name={`${path}.artifacts.${artifactPath}.spec.version`}
+              disabled={isFieldDisabled(`artifacts.${artifactPath}.spec.version`)}
+              placeholder={getString('pipeline.artifactsSelection.versionPlaceholder')}
+              multiTextInputProps={{
+                expressions,
+                allowableTypes
+              }}
+            />
+          )}
+
+          {get(template, `artifacts.${artifactPath}.spec.inputs`) &&
+          isArray(get(template, `artifacts.${artifactPath}.spec.inputs`)) ? (
+            <div className={stepCss.formGroup}>
+              <MultiTypeFieldSelector
+                name={`${path}.artifacts.${artifactPath}.spec.inputs`}
+                label={getString('pipeline.scriptInputVariables')}
+                defaultValueToReset={[]}
+                disableTypeSelection
+                formik={formik}
+              >
+                <FieldArray
+                  name={`${path}.artifacts.${artifactPath}.spec.inputs`}
+                  render={() => {
+                    return (
+                      <div className={css.panel}>
+                        <div className={css.variables}>
+                          <span className={css.label}>Name</span>
+                          <span className={css.label}>Type</span>
+                          <span className={css.label}>Value</span>
+                        </div>
+                        {get(template, `artifacts.${artifactPath}.spec.inputs`)?.map((type: any, i: number) => {
+                          return (
+                            <div className={css.variables} key={type.value}>
+                              <FormInput.Text
+                                name={`${path}.artifacts.${artifactPath}.spec.inputs[${i}].name`}
+                                placeholder={getString('name')}
+                                disabled={true}
+                              />
+                              <FormInput.Select
+                                items={scriptInputType}
+                                name={`${path}.artifacts.${artifactPath}.spec.inputs[${i}].type`}
+                                placeholder={getString('typeLabel')}
+                                disabled={true}
+                              />
+                              <FormInput.MultiTextInput
+                                name={`${path}.artifacts.${artifactPath}.spec.inputs[${i}].value`}
+                                multiTextInputProps={{
+                                  allowableTypes,
+                                  expressions,
+                                  disabled: readonly
+                                }}
+                                label=""
+                                disabled={readonly}
+                                placeholder={getString('valueLabel')}
+                              />
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )
+                  }}
+                />
+              </MultiTypeFieldSelector>
+            </div>
+          ) : null}
+
+          {get(template, `artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.attributes`) &&
+          isArray(get(template, `artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.attributes`)) ? (
+            <div className={stepCss.formGroup}>
+              <MultiTypeFieldSelector
+                name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.attributes`}
+                label={getString('common.additionalAttributes')}
+                defaultValueToReset={[]}
+                disableTypeSelection
+                formik={formik}
+              >
+                <FieldArray
+                  name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.attributes`}
+                  render={() => {
+                    return (
+                      <div className={css.panel}>
+                        <div className={css.variables}>
+                          <span className={css.label}>Name</span>
+                          <span className={css.label}>Type</span>
+                          <span className={css.label}>Value</span>
+                        </div>
+                        {get(template, `artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.attributes`)?.map(
+                          (type: any, i: number) => {
+                            return (
+                              <div className={css.variables} key={type.value}>
+                                <FormInput.Text
+                                  name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.attributes[${i}].name`}
+                                  placeholder={getString('name')}
+                                  disabled={true}
+                                />
+                                <FormInput.Select
+                                  items={scriptInputType}
+                                  name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.attributes[${i}].type`}
+                                  placeholder={getString('typeLabel')}
+                                  disabled={true}
+                                />
+                                <FormInput.MultiTextInput
+                                  name={`${path}.artifacts.${artifactPath}.spec.scripts.fetchAllArtifacts.attributes[${i}].value`}
+                                  multiTextInputProps={{
+                                    allowableTypes,
+                                    expressions,
+                                    disabled: readonly
+                                  }}
+                                  label=""
+                                  disabled={readonly}
+                                  placeholder={getString('valueLabel')}
+                                />
+                              </div>
+                            )
+                          }
+                        )}
+                      </div>
+                    )
+                  }}
+                />
+              </MultiTypeFieldSelector>
+            </div>
+          ) : null}
         </Layout.Vertical>
       )}
     </>
