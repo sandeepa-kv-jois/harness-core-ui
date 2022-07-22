@@ -5,7 +5,7 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-export enum LookerEvents {
+export enum LookerEventType {
   DASHBOARD_FILTERS_CHANGED = 'dashboard:filters:changed',
   PAGE_CHANGED = 'page:changed'
 }

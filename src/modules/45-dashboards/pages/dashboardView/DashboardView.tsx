@@ -10,11 +10,13 @@ import { useParams, useHistory } from 'react-router-dom'
 import { Breadcrumb, Layout } from '@harness/uicore'
 import routes from '@common/RouteDefinitions'
 import { Page } from '@common/exports'
+import { useQueryParamsState } from '@common/hooks/useQueryParamsState'
 import type { AccountPathProps } from '@common/interfaces/RouteInterfaces'
 import { useStrings } from 'framework/strings'
 import { useDashboardsContext } from '@dashboards/pages/DashboardsContext'
 import { SHARED_FOLDER_ID } from '@dashboards/constants'
-import { LookerEvents } from '@dashboards/constants/LookerEvents'
+import { LookerEventType } from '@dashboards/constants/LookerEventType'
+import type { DashboardFiltersChangedEvent, PageChangedEvent } from '@dashboards/types/LookerTypes'
 import {
   ErrorResponse,
   useCreateSignedUrl,
@@ -30,14 +32,14 @@ const DashboardViewPage: React.FC = () => {
 
   const { accountId, viewId, folderId } = useParams<AccountPathProps & { viewId: string; folderId: string }>()
   const [embedUrl, setEmbedUrl] = React.useState<string>()
+  const [dashboardFilters, setDashboardFilters] = useQueryParamsState<string | undefined>('filters', '')
   const [iframeState] = React.useState(0)
   const history = useHistory()
-  const query = location.href.split('?')[1]
 
-  const signedQueryUrl: string = useMemo(
-    () => `/embed/dashboards-next/${viewId}?embed_domain=${location.host}&${query}`,
-    [viewId, query]
-  )
+  const signedQueryUrl: string = useMemo(() => {
+    const filters = dashboardFilters ?? ''
+    return `/embed/dashboards-next/${viewId}?embed_domain=${location.host}${filters}`
+  }, [dashboardFilters, viewId])
 
   const {
     mutate: createSignedUrl,
@@ -56,12 +58,27 @@ const DashboardViewPage: React.FC = () => {
     generateSignedUrl()
   }, [createSignedUrl, viewId])
 
+  const lookerDashboardFilterChangedEvent = (eventData: DashboardFiltersChangedEvent): void => {
+    setDashboardFilters(new URLSearchParams(eventData.dashboard.dashboard_filters).toString())
+  }
+
+  const lookerPageChangedEvent = (eventData: PageChangedEvent): void => {
+    if (eventData.page?.url?.includes('embed/explore')) {
+      history.go(0)
+    }
+  }
+
   React.useEffect(() => {
     const lookerEventHandler = (event: MessageEvent<string>): void => {
       if (event.origin === DASHBOARDS_ORIGIN) {
-        const eventData = JSON.parse(event.data)
-        if (eventData?.type === LookerEvents.PAGE_CHANGED && eventData.page?.url?.includes('embed/explore')) {
-          history.go(0)
+        const eventType = JSON.parse(event.data)
+        switch (eventType.type) {
+          case LookerEventType.PAGE_CHANGED:
+            lookerPageChangedEvent(eventType as PageChangedEvent)
+            break
+          case LookerEventType.DASHBOARD_FILTERS_CHANGED:
+            lookerDashboardFilterChangedEvent(eventType as DashboardFiltersChangedEvent)
+            break
         }
       }
     }
