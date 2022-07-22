@@ -5,7 +5,7 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   Formik,
   Layout,
@@ -21,7 +21,8 @@ import {
 import { FieldArray, Form, FormikProps } from 'formik'
 import * as Yup from 'yup'
 import { FontVariation } from '@harness/design-system'
-import { cloneDeep, merge, set } from 'lodash-es'
+import { useParams } from 'react-router-dom'
+import { cloneDeep, get, merge, set } from 'lodash-es'
 import cx from 'classnames'
 import { useStrings } from 'framework/strings'
 import type {
@@ -41,6 +42,9 @@ import { ArtifactIdentifierValidation, ModalViewFor } from '../../../ArtifactHel
 import SideCarArtifactIdentifier from '../SideCarArtifactIdentifier'
 import css from '../../ArtifactConnector.module.scss'
 import stepCss from '@pipeline/components/PipelineSteps/Steps/Steps.module.scss'
+import { useGetDelegateSelectorsUpTheHierarchy } from 'services/portal'
+import type { AccountPathProps, PipelinePathProps, PipelineType } from '@common/interfaces/RouteInterfaces'
+import { DelegateSelectors } from '@common/components'
 
 export const shellScriptType: SelectOption[] = [
   { label: 'Bash', value: 'Bash' },
@@ -51,6 +55,8 @@ export const scriptInputType: SelectOption[] = [
   { label: 'String', value: 'String' },
   { label: 'Number', value: 'Number' }
 ]
+
+const DELEGATE_POLLING_INTERVAL_IN_MS = 5000
 
 function FormContent({
   context,
@@ -337,6 +343,8 @@ function OptionalConfigurationFormContent(
   props: StepProps<ConnectorConfigDTO> & ImagePathProps<ImagePathTypes> & { formik: FormikProps<CustomArtifactSource> }
 ): React.ReactElement {
   const { formik, allowableTypes, isReadonly, expressions, previousStep, prevStepData } = props
+  const { projectIdentifier, orgIdentifier } = useParams<PipelineType<PipelinePathProps & AccountPathProps>>()
+  const scope = { projectIdentifier, orgIdentifier }
 
   const { getString } = useStrings()
 
@@ -486,6 +494,22 @@ function OptionalConfigurationFormContent(
           />
         </MultiTypeFieldSelector>
       </div>
+      <DelegateSelectors
+        className={stepCss.formGroup}
+        fill
+        allowNewTag={false}
+        placeholder={getString('connectors.delegate.delegateselectionPlaceholder')}
+        selectedItems={get(formik, `spec.delegateSelectors`)}
+        onChange={selectors => {
+          formik.setFieldValue('spec.delegateSelectors', selectors)
+          //  setDelegateSelectors(selectors as Array<string>)
+          //  if (selectors.length) {
+          //    setMode(DelegateOptions.DelegateOptionsSelective)
+          //  }
+        }}
+        pollingInterval={DELEGATE_POLLING_INTERVAL_IN_MS}
+        {...scope}
+      />
       <Layout.Horizontal spacing="medium">
         <Button
           variation={ButtonVariation.SECONDARY}
