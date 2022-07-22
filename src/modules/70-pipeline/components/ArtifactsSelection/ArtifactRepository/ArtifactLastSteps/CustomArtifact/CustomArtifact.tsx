@@ -5,7 +5,7 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import {
   Formik,
   Layout,
@@ -16,7 +16,8 @@ import {
   FormInput,
   getMultiTypeFromValue,
   MultiTypeInputType,
-  SelectOption
+  SelectOption,
+  MultiSelectOption
 } from '@harness/uicore'
 import { FieldArray, Form, FormikProps } from 'formik'
 import * as Yup from 'yup'
@@ -38,13 +39,12 @@ import { getCustomArtifactFormData } from '@pipeline/components/ArtifactsSelecti
 import { FormMultiTypeDurationField } from '@common/components/MultiTypeDuration/MultiTypeDuration'
 import MultiTypeFieldSelector from '@common/components/MultiTypeFieldSelector/MultiTypeFieldSelector'
 import { ScriptType, ShellScriptMonacoField } from '@common/components/ShellScriptMonaco/ShellScriptMonaco'
+import type { AccountPathProps, PipelinePathProps, PipelineType } from '@common/interfaces/RouteInterfaces'
+import { useGetDelegateSelectorsUpTheHierarchy } from 'services/portal'
 import { ArtifactIdentifierValidation, ModalViewFor } from '../../../ArtifactHelper'
 import SideCarArtifactIdentifier from '../SideCarArtifactIdentifier'
 import css from '../../ArtifactConnector.module.scss'
 import stepCss from '@pipeline/components/PipelineSteps/Steps/Steps.module.scss'
-import { useGetDelegateSelectorsUpTheHierarchy } from 'services/portal'
-import type { AccountPathProps, PipelinePathProps, PipelineType } from '@common/interfaces/RouteInterfaces'
-import { DelegateSelectors } from '@common/components'
 
 export const shellScriptType: SelectOption[] = [
   { label: 'Bash', value: 'Bash' },
@@ -106,7 +106,7 @@ function FormContent({
             />
           )}
         </div>
-        <div className={cx(stepCss.formGroup)}>
+        <div className={cx(css.customArtifactContainer)}>
           <MultiTypeFieldSelector
             name="spec.scripts.fetchAllArtifacts.spec.source.spec.script"
             label={getString('script')}
@@ -138,6 +138,7 @@ function FormContent({
             <ConfigureOptions
               value={formik?.values?.spec.source?.spec?.script as string}
               type="String"
+              style={{ marginTop: 27 }}
               variableName="spec.scripts.fetchAllArtifacts.spec.source.spec.script"
               // className={css.minConfigBtn}
               showRequiredField={false}
@@ -301,12 +302,19 @@ export function CustomArtifactOptionalConfiguration(
 
   const submitFormData = (formData: CustomArtifactSource): void => {
     const artifactObj: CustomArtifactSource = cloneDeep(prevStepData) || {}
-    set(artifactObj, 'spec.input', formData?.spec?.inputs)
+    set(artifactObj, 'spec.inputs', formData?.spec?.inputs)
     set(
       artifactObj,
       'spec.scripts.fetchAllArtifacts.attributes',
       formData?.spec?.scripts?.fetchAllArtifacts?.attributes
     )
+    const delegateSelectorsStrings =
+      getMultiTypeFromValue(formData?.spec?.delegateSelectors) === MultiTypeInputType.FIXED
+        ? (formData?.spec?.delegateSelectors as unknown as MultiSelectOption[])?.map(
+            (item: MultiSelectOption) => item.value
+          )
+        : formData?.spec?.delegateSelectors
+    set(artifactObj, 'spec.delegateSelectors', delegateSelectorsStrings)
     if (context === ModalViewFor.SIDECAR) {
       merge(artifactObj, { identifier: formData?.identifier })
     }
@@ -314,8 +322,21 @@ export function CustomArtifactOptionalConfiguration(
   }
 
   const getInitialValues = (): CustomArtifactSource => {
+    const initialValuesWithDelegates = cloneDeep(initialValues)
+    if (getMultiTypeFromValue(get(initialValuesWithDelegates, `spec.delegateSelectors`)) === MultiTypeInputType.FIXED) {
+      set(
+        initialValuesWithDelegates,
+        `spec.delegateSelectors`,
+        get(initialValuesWithDelegates, `spec.delegateSelectors`)?.map((item: string) => {
+          return {
+            label: item,
+            value: item
+          }
+        })
+      )
+    }
     return getCustomArtifactFormData(
-      initialValues,
+      initialValuesWithDelegates,
       selectedArtifact as ArtifactType,
       context === ModalViewFor.SIDECAR
     ) as CustomArtifactSource
@@ -343,121 +364,85 @@ function OptionalConfigurationFormContent(
   props: StepProps<ConnectorConfigDTO> & ImagePathProps<ImagePathTypes> & { formik: FormikProps<CustomArtifactSource> }
 ): React.ReactElement {
   const { formik, allowableTypes, isReadonly, expressions, previousStep, prevStepData } = props
-  const { projectIdentifier, orgIdentifier } = useParams<PipelineType<PipelinePathProps & AccountPathProps>>()
-  const scope = { projectIdentifier, orgIdentifier }
+  const { accountId, projectIdentifier, orgIdentifier } =
+    useParams<PipelineType<PipelinePathProps & AccountPathProps>>()
+  const [delegates, setDelegates] = React.useState<MultiSelectOption[]>([])
+  const queryParams = { accountId, orgId: orgIdentifier, projectId: projectIdentifier }
+  const {
+    data: delegatesData,
+    loading,
+    refetch
+  } = useGetDelegateSelectorsUpTheHierarchy({
+    queryParams
+  })
+
+  React.useEffect(() => {
+    if (delegatesData) {
+      setDelegates(
+        delegatesData.resource?.map(item => {
+          return {
+            label: item,
+            value: item
+          }
+        }) as any
+      )
+    }
+  }, [delegatesData])
+
+  // polling logic
+  React.useEffect(() => {
+    let id: number | null
+    if (!loading) {
+      id = window.setTimeout(() => refetch(), DELEGATE_POLLING_INTERVAL_IN_MS)
+    }
+    return () => {
+      if (id) {
+        window.clearTimeout(id)
+      }
+    }
+  }, [delegatesData, loading, refetch])
 
   const { getString } = useStrings()
 
   return (
     <Form>
-      <div className={stepCss.formGroup}>
-        <MultiTypeFieldSelector
-          name="spec.inputs"
-          label={getString('pipeline.scriptInputVariables')}
-          isOptional
-          allowedTypes={allowableTypes}
-          optionalLabel={getString('common.optionalLabel')}
-          defaultValueToReset={[]}
-          disableTypeSelection={true}
-        >
-          <FieldArray
+      <div className={css.connectorForm}>
+        <div className={stepCss.formGroup}>
+          <MultiTypeFieldSelector
             name="spec.inputs"
-            render={({ push, remove }) => {
-              return (
-                <div className={css.panel}>
-                  <div className={css.variables}>
-                    <span className={css.label}>Name</span>
-                    <span className={css.label}>Type</span>
-                    <span className={css.label}>Value</span>
-                  </div>
-                  {formik.values?.spec?.inputs?.map(({ id }: variableInterface, i: number) => {
-                    return (
-                      <div className={css.variables} key={id}>
-                        <FormInput.Text
-                          name={`spec.inputs.[${i}].name`}
-                          placeholder={getString('name')}
-                          disabled={isReadonly}
-                        />
-                        <FormInput.Select
-                          items={scriptInputType}
-                          name={`spec.inputs.[${i}].type`}
-                          placeholder={getString('typeLabel')}
-                          disabled={isReadonly}
-                        />
-                        <FormInput.MultiTextInput
-                          name={`spec.inputs.[${i}].value`}
-                          placeholder={getString('valueLabel')}
-                          multiTextInputProps={{
-                            allowableTypes,
-                            expressions,
-                            disabled: isReadonly
-                          }}
-                          label=""
-                          disabled={isReadonly}
-                        />
-                        <Button
-                          variation={ButtonVariation.ICON}
-                          icon="main-trash"
-                          data-testid={`remove-environmentVar-${i}`}
-                          onClick={() => remove(i)}
-                          disabled={isReadonly}
-                        />
-                      </div>
-                    )
-                  })}
-                  <Button
-                    icon="plus"
-                    variation={ButtonVariation.LINK}
-                    data-testid="add-environmentVar"
-                    disabled={isReadonly}
-                    onClick={() => push({ name: '', type: 'String', value: '' })}
-                    // className={css.addButton}
-                  >
-                    {getString('addInputVar')}
-                  </Button>
-                </div>
-              )
-            }}
-          />
-        </MultiTypeFieldSelector>
-      </div>
-      <div className={stepCss.formGroup}>
-        <MultiTypeFieldSelector
-          name="spec.scripts.fetchAllArtifacts.attributes"
-          label={getString('common.additionalAttributes')}
-          isOptional
-          allowedTypes={allowableTypes}
-          optionalLabel={getString('common.optionalLabel')}
-          defaultValueToReset={[]}
-          disableTypeSelection={true}
-        >
-          <FieldArray
-            name="spec.scripts.fetchAllArtifacts.attributes"
-            render={({ push, remove }) => {
-              return (
-                <div className={css.panel}>
-                  <div className={css.variables}>
-                    <span className={css.label}>Name</span>
-                    <span className={css.label}>Type</span>
-                    <span className={css.label}>Value</span>
-                  </div>
-                  {formik.values?.spec?.scripts?.fetchAllArtifacts?.attributes?.map(
-                    ({ id }: variableInterface, i: number) => {
+            label={getString('pipeline.scriptInputVariables')}
+            isOptional
+            allowedTypes={allowableTypes}
+            optionalLabel={getString('common.optionalLabel')}
+            defaultValueToReset={[]}
+            disableTypeSelection={true}
+          >
+            <FieldArray
+              name="spec.inputs"
+              render={({ push, remove }) => {
+                return (
+                  <div className={css.panel}>
+                    <div className={css.variables}>
+                      <span className={css.label}>Name</span>
+                      <span className={css.label}>Type</span>
+                      <span className={css.label}>Value</span>
+                    </div>
+                    {formik.values?.spec?.inputs?.map(({ id }: variableInterface, i: number) => {
                       return (
                         <div className={css.variables} key={id}>
                           <FormInput.Text
-                            name={`spec.scripts.fetchAllArtifacts.attributes.[${i}].name`}
+                            name={`spec.inputs.[${i}].name`}
                             placeholder={getString('name')}
                             disabled={isReadonly}
                           />
                           <FormInput.Select
                             items={scriptInputType}
-                            name={`spec.scripts.fetchAllArtifacts.attributes.[${i}].type`}
+                            name={`spec.inputs.[${i}].type`}
                             placeholder={getString('typeLabel')}
                             disabled={isReadonly}
                           />
                           <FormInput.MultiTextInput
-                            name={`spec.scripts.fetchAllArtifacts.attributes.[${i}].value`}
+                            name={`spec.inputs.[${i}].value`}
                             placeholder={getString('valueLabel')}
                             multiTextInputProps={{
                               allowableTypes,
@@ -476,40 +461,130 @@ function OptionalConfigurationFormContent(
                           />
                         </div>
                       )
-                    }
-                  )}
-                  <Button
-                    icon="plus"
-                    variation={ButtonVariation.LINK}
-                    data-testid="add-environmentVar"
-                    disabled={isReadonly}
-                    onClick={() => push({ name: '', type: 'String', value: '' })}
-                    // className={css.addButton}
-                  >
-                    {getString('common.addAttribute')}
-                  </Button>
-                </div>
-              )
+                    })}
+                    <Button
+                      icon="plus"
+                      variation={ButtonVariation.LINK}
+                      data-testid="add-environmentVar"
+                      disabled={isReadonly}
+                      onClick={() => push({ name: '', type: 'String', value: '' })}
+                      // className={css.addButton}
+                    >
+                      {getString('addInputVar')}
+                    </Button>
+                  </div>
+                )
+              }}
+            />
+          </MultiTypeFieldSelector>
+        </div>
+        <div className={stepCss.formGroup}>
+          <MultiTypeFieldSelector
+            name="spec.scripts.fetchAllArtifacts.attributes"
+            label={getString('common.additionalAttributes')}
+            isOptional
+            allowedTypes={allowableTypes}
+            optionalLabel={getString('common.optionalLabel')}
+            defaultValueToReset={[]}
+            disableTypeSelection={true}
+          >
+            <FieldArray
+              name="spec.scripts.fetchAllArtifacts.attributes"
+              render={({ push, remove }) => {
+                return (
+                  <div className={css.panel}>
+                    <div className={css.variables}>
+                      <span className={css.label}>Name</span>
+                      <span className={css.label}>Type</span>
+                      <span className={css.label}>Value</span>
+                    </div>
+                    {formik.values?.spec?.scripts?.fetchAllArtifacts?.attributes?.map(
+                      ({ id }: variableInterface, i: number) => {
+                        return (
+                          <div className={css.variables} key={id}>
+                            <FormInput.Text
+                              name={`spec.scripts.fetchAllArtifacts.attributes.[${i}].name`}
+                              placeholder={getString('name')}
+                              disabled={isReadonly}
+                            />
+                            <FormInput.Select
+                              items={scriptInputType}
+                              name={`spec.scripts.fetchAllArtifacts.attributes.[${i}].type`}
+                              placeholder={getString('typeLabel')}
+                              disabled={isReadonly}
+                            />
+                            <FormInput.MultiTextInput
+                              name={`spec.scripts.fetchAllArtifacts.attributes.[${i}].value`}
+                              placeholder={getString('valueLabel')}
+                              multiTextInputProps={{
+                                allowableTypes,
+                                expressions,
+                                disabled: isReadonly
+                              }}
+                              label=""
+                              disabled={isReadonly}
+                            />
+                            <Button
+                              variation={ButtonVariation.ICON}
+                              icon="main-trash"
+                              data-testid={`remove-environmentVar-${i}`}
+                              onClick={() => remove(i)}
+                              disabled={isReadonly}
+                            />
+                          </div>
+                        )
+                      }
+                    )}
+                    <Button
+                      icon="plus"
+                      variation={ButtonVariation.LINK}
+                      data-testid="add-environmentVar"
+                      disabled={isReadonly}
+                      onClick={() => push({ name: '', type: 'String', value: '' })}
+                      // className={css.addButton}
+                    >
+                      {getString('common.addAttribute')}
+                    </Button>
+                  </div>
+                )
+              }}
+            />
+          </MultiTypeFieldSelector>
+        </div>
+        <div className={css.customArtifactContainer}>
+          <FormInput.MultiSelectTypeInput
+            selectItems={delegates || []}
+            name="spec.delegateSelectors"
+            label={getString('pipeline.artifactsSelection.defineDelegateSelector')}
+            placeholder={getString('pipeline.artifactsSelection.delegateselectionPlaceholder')}
+            key="delegateSelectors"
+            multiSelectTypeInputProps={{
+              allowableTypes,
+              multiSelectProps: {
+                items: delegates || [],
+                allowCreatingNewItems: false
+              }
             }}
           />
-        </MultiTypeFieldSelector>
+          {getMultiTypeFromValue(formik.values?.spec?.delegateSelectors) === MultiTypeInputType.RUNTIME && (
+            <div className={css.configureOptions}>
+              <ConfigureOptions
+                style={{ alignSelf: 'center' }}
+                value={formik.values?.spec?.delegateSelectors as string}
+                type={getString('string')}
+                variableName="delegateSelectors"
+                showRequiredField={false}
+                showDefaultField={false}
+                showAdvanced={true}
+                onChange={value => {
+                  formik.setFieldValue('spec.delegateSelectors', value)
+                }}
+                isReadonly={isReadonly}
+              />
+            </div>
+          )}
+        </div>
       </div>
-      <DelegateSelectors
-        className={stepCss.formGroup}
-        fill
-        allowNewTag={false}
-        placeholder={getString('connectors.delegate.delegateselectionPlaceholder')}
-        selectedItems={get(formik, `spec.delegateSelectors`)}
-        onChange={selectors => {
-          formik.setFieldValue('spec.delegateSelectors', selectors)
-          //  setDelegateSelectors(selectors as Array<string>)
-          //  if (selectors.length) {
-          //    setMode(DelegateOptions.DelegateOptionsSelective)
-          //  }
-        }}
-        pollingInterval={DELEGATE_POLLING_INTERVAL_IN_MS}
-        {...scope}
-      />
       <Layout.Horizontal spacing="medium">
         <Button
           variation={ButtonVariation.SECONDARY}

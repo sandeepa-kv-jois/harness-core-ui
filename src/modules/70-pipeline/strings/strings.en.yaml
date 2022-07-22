@@ -750,6 +750,8 @@ artifactPathLabel: Artifact Path
 selectArtifactPathPlaceholder: Select or Enter an Artifact Path (Optional)
 artifactPathFilterLabel: Artifact Path Filter
 artifactsSelection:
+  defineDelegateSelector: Define Delegate Selector
+  delegateselectionPlaceholder: Add specific selectors or leave empty to target any delegate
   repositoryPort: Repository Port
   artifactsArrayPath: Artifacts Array Path
   versionPath: Version Path

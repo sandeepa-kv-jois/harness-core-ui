@@ -96,7 +96,7 @@ export interface CustomArtifactSource {
   identifier?: string
   spec?: {
     version: string
-    delegateSelectors?: string[]
+    delegateSelectors?: string[] | string
     inputs?: variableInterface[]
     scripts: {
       fetchAllArtifacts?: {
