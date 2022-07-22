@@ -1,3 +1,10 @@
+/*
+ * Copyright 2022 Harness Inc. All rights reserved.
+ * Use of this source code is governed by the PolyForm Shield 1.0.0 license
+ * that can be found in the licenses directory at the root of this repository, also available at
+ * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
+ */
+
 import React, { useMemo, useState } from 'react'
 import {
   Card,
@@ -10,6 +17,7 @@ import {
   Layout,
   PageBody,
   PageHeader,
+  PageSpinner,
   Text
 } from '@harness/uicore'
 import { Link, useParams } from 'react-router-dom'
@@ -17,71 +25,18 @@ import { NGBreadcrumbs } from '@common/components/NGBreadcrumbs/NGBreadcrumbs'
 import { useStrings } from 'framework/strings'
 import { getResourceIcon, getServiceIcons } from '@ce/utils/iconsUtils'
 import routes from '@common/RouteDefinitions'
+import { BIDashboardSummary, useListBIDashboards } from 'services/ce'
 import { QuickFilters } from '../perspective-list/PerspectiveListPage'
 import css from './BIDashboard.module.scss'
 
-const data = [
-  {
-    dashboardName: 'AWS EC2 Inventory Cost Dashboard',
-    dashboardId: 156,
-    cloudProvider: 'AWS',
-    service: 'RDS',
-    description: 'This contains all the AWS EC2 instances inventory'
-  },
-  {
-    dashboardName: 'AWS EC2 Inventory Cost Dashboard',
-    dashboardId: 662,
-    cloudProvider: 'AWS',
-    service: 'RDS',
-    description: 'This contains all the AWS EC2 instances inventory'
-  },
-  {
-    dashboardName: 'AWS EC2 Inventory Cost Dashboard',
-    dashboardId: 663,
-    cloudProvider: 'AWS',
-    service: 'RDS',
-    description: 'This contains all the AWS EC2 instances inventory'
-  },
-  {
-    dashboardName: 'AWS Orphaned EBS Volumes and Snapshots',
-    dashboardId: 664,
-    cloudProvider: 'AWS',
-    service: 'RDS',
-    description: 'This contains all the AWS EC2 instances inventory'
-  },
-  {
-    dashboardName: 'Amazon RDS',
-    dashboardId: 665,
-    cloudProvider: 'AWS',
-    service: 'RDS',
-    description: 'This contains all the AWS EC2 instances inventory'
-  },
-  {
-    dashboardName: 'GCP Compute Engine',
-    dashboardId: 666,
-    service: 'RDS',
-    cloudProvider: 'GCP',
-    description: 'This contains all the AWS EC2 instances inventory'
-  },
-  {
-    dashboardName: 'GCP Cost Dashboard',
-    dashboardId: 230,
-    cloudProvider: 'GCP',
-    service: 'RDS',
-    description: 'GCP Cost Dashboard..'
-  },
-  {
-    dashboardName: 'GCP Cost Dashboard',
-    dashboardId: 231,
-    cloudProvider: 'GCP',
-    service: 'RDS',
-    description: 'GCP Cost Dashboard..'
-  }
-]
-
-const filterDashboardData = (biData: any, searchParam: string, quickFilters: Record<string, boolean>) => {
+/* istanbul ignore next */
+const filterDashboardData: (
+  biData: BIDashboardSummary[],
+  searchParam: string,
+  quickFilters: Record<string, boolean>
+) => BIDashboardSummary[] = (biData, searchParam, quickFilters) => {
   return biData
-    .filter((dashboardData: any) => {
+    .filter((dashboardData: BIDashboardSummary) => {
       if (!dashboardData?.dashboardName) {
         return false
       }
@@ -90,13 +45,13 @@ const filterDashboardData = (biData: any, searchParam: string, quickFilters: Rec
       }
       return true
     })
-    .filter((dashboardData: any) => {
+    .filter((dashboardData: BIDashboardSummary) => {
       const quickFilterKeysArr = Object.keys(quickFilters)
       if (!quickFilterKeysArr.length) {
         return true
       }
 
-      if (quickFilterKeysArr.includes(dashboardData.cloudProvider)) {
+      if (quickFilterKeysArr.includes(dashboardData?.cloudProvider || '')) {
         return true
       }
 
@@ -109,6 +64,14 @@ const BIDashboard: React.FC = () => {
   const [quickFilters, setQuickFilters] = useState<Record<string, boolean>>({})
   const [searchParam, setSearchParam] = useState<string>('')
   const { accountId } = useParams<{ accountId: string }>()
+
+  const { data: dashboardList, loading } = useListBIDashboards({
+    queryParams: {
+      accountIdentifier: accountId
+    }
+  })
+
+  const data = dashboardList?.data || /* istanbul ignore next */ []
 
   const filteredDashboardData = useMemo(() => {
     return filterDashboardData(data, searchParam, quickFilters)
@@ -146,11 +109,18 @@ const BIDashboard: React.FC = () => {
         />
       </Layout.Horizontal>
       <PageBody>
+        {loading ? <PageSpinner /> : null}
         <Container className={css.bannerWrapper}>
           <Layout.Horizontal className={css.banner} flex={{ justifyContent: 'space-between', alignItems: 'center' }}>
             <Text font={{ variation: FontVariation.BODY2 }} icon="info-messaging" iconProps={{ size: 24 }}>
               {getString('ce.biDashboard.bannerText')}
-              <a href="#">{getString('ce.biDashboard.bannerLinkText')}</a>
+              <Link
+                to={routes.toCustomDashboardHome({
+                  accountId: accountId
+                })}
+              >
+                {getString('ce.biDashboard.bannerLinkText')}
+              </Link>
             </Text>
             <Icon name="cross" size={18} />
           </Layout.Horizontal>
@@ -159,7 +129,7 @@ const BIDashboard: React.FC = () => {
           <Layout.Masonry
             center
             gutter={25}
-            items={filteredDashboardData || []}
+            items={filteredDashboardData || /* istanbul ignore next */ []}
             renderItem={item => (
               <Link
                 to={routes.toViewCustomDashboard({
@@ -177,7 +147,11 @@ const BIDashboard: React.FC = () => {
                     >
                       {item.dashboardName}
                     </Text>
-                    <Icon size={62} name={getServiceIcons(item.service as string)} style={{ alignSelf: 'center' }} />
+                    <Icon
+                      size={62}
+                      name={getServiceIcons(item.serviceType as string)}
+                      style={{ alignSelf: 'center' }}
+                    />
                     <Text font={{ variation: FontVariation.SMALL }} color={Color.GREY_600}>
                       {item.description}
                     </Text>

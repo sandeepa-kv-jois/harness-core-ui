@@ -1140,5 +1140,5 @@ businessMapping:
   costCategory: Cost Category
 biDashboard:
   sideNavText: BI Dashboards
-  bannerText: These are dashboards created by Harness for you. You can head to the Dashboards section and create your own
+  bannerText: 'These are dashboards created by Harness for you. You can head to the Dashboards section and create your own '
   bannerLinkText: '{{ $.dashboards.getStarted.title }}'
