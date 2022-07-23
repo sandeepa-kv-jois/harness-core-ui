@@ -44,12 +44,11 @@
     "fmt": "prettier --write \"./src/**/*.{ts,tsx,css,scss}\"",
     "generate-merged-coverage": "node mergedCoverage.js",
     "generate-microfrontend-types": "rm -rf src/microfrontends/dist && webpack --config src/microfrontends/webpack.config.js",
-    "publish-types": "yarn generate-microfrontend-types; yarn publish src/microfrontends;",
     "generate-certificate": "sh scripts/generate-certificate.sh",
     "generate-eslint": "node scripts/generate-eslint-config-for-imports.mjs",
     "build-docker": "sh scripts/docker-build.sh",
     "lighthouse": "node scripts/lighthouse/lighthouse.js",
-    "custom-coverage": "npx new-files-coverage-check --e !**/*.test.tsx !**/*.test.ts !**/*.snap !**/*.js !**/*.scss !**/*.mock.ts !**/*.spec.ts !**/*.d.ts !**/*.json !**/*.types.ts !**/*.yml !**/*.yaml !**cypress/** !**/cypress/** !**/__test*/** !**/*.png !**/*.svg !**/src/services/** !**/src/queries/** !**/src/**/__mocks__/** !**/src/**/RouteDestinations.tsx"
+    "custom-coverage": "npx new-files-coverage-check --e !**/*.test.tsx !**/*.test.ts !**/*.snap !**/*.js !**/*.scss !**/*.mock.ts !**/*.spec.ts !**/*.d.ts !**/*.json !**/*.types.ts !**/*.yml !**/*.yaml !**cypress/** !**/cypress/** !**/__test*/** !**/*.png !**/*.svg !**/src/services/** !**/src/queries/** !**/src/**/__mocks__/** !**/src/**/RouteDestinations.tsx !**/*.sh !**/*.md"
   },
   "dependencies": {
     "@blueprintjs/core": "3.26.1",

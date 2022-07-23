@@ -249,7 +249,7 @@ const COLoadBalancerList: React.FC = () => {
     setSelectedAccessPoints([])
   }
   return (
-    <Container background={Color.WHITE} height="100vh">
+    <Container background={Color.WHITE}>
       <Page.Header
         breadcrumbs={<NGBreadcrumbs />}
         title={getString('ce.co.accessPoint.landingPageTitle')}
@@ -277,7 +277,7 @@ const COLoadBalancerList: React.FC = () => {
             />
           )
         ) : (
-          <div style={{ position: 'relative', height: 'calc(100vh - 128px)' }}>
+          <div className={css.loaderContainer}>
             <PageSpinner />
           </div>
         )}
