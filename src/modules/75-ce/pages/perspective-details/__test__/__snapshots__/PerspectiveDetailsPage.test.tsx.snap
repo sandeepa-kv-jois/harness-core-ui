@@ -641,7 +641,7 @@ exports[`test cases for Perspective details Page should be able to render no dat
             class="bp3-popover-wrapper"
           >
             <span
-              class="bp3-popover-target preferencesPopover"
+              class="bp3-popover-target popoverTarget"
             >
               <div
                 class="StyledProps--font StyledProps--main preferencesContainer"
@@ -1520,7 +1520,7 @@ exports[`test cases for Perspective details Page should be able to render the de
             class="bp3-popover-wrapper"
           >
             <span
-              class="bp3-popover-target preferencesPopover"
+              class="bp3-popover-target popoverTarget"
             >
               <div
                 class="StyledProps--font StyledProps--main preferencesContainer"

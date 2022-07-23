@@ -226,9 +226,9 @@ const GetChart: React.FC<GetChartProps> = ({
       chart.map(chartItem => {
         switch (chartItem.name) {
           case 'Others':
-            return { ...chartItem, color: 'var(--primary-2)' }
-          case 'Unallocated':
             return { ...chartItem, color: 'var(--blue-100)' }
+          case 'Unallocated':
+            return { ...chartItem, color: 'var(--primary-2)' }
           default:
             return chartItem
         }

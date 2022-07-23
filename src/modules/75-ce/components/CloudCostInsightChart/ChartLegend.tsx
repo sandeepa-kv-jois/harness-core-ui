@@ -78,7 +78,7 @@ const ChartLegend: React.FC<ChartLegendProps> = ({ chartRefObj }) => {
         const chartColor: string = (chart as any).color
         return (
           <Layout.Horizontal
-            key={chart.userOptions.name}
+            key={chart.userOptions.id}
             spacing="small"
             style={{
               alignItems: 'center'

@@ -797,7 +797,7 @@ perspectives:
       opNotNull: 'NOT NULL'
       opLike: 'LIKE'
     preferences:
-      changeLater: You can change them later when vieweing perspectives
+      changeLater: You can change them later when viewing perspectives
       includeOthers: Include Others
       includeUnallocated: Include Unallocated
   reports:

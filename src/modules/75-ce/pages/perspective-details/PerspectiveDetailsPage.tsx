@@ -12,7 +12,7 @@ import qs from 'qs'
 import cx from 'classnames'
 import { Button, Container, Text, PageHeader, PageBody, Icon, useToaster } from '@wings-software/uicore'
 import { FontVariation, Color } from '@harness/design-system'
-import { Popover, Position, Switch } from '@blueprintjs/core'
+import { Popover, PopoverInteractionKind, Position, Switch } from '@blueprintjs/core'
 import routes from '@common/RouteDefinitions'
 import {
   PerspectiveAnomalyData,
@@ -425,9 +425,6 @@ const PerspectiveDetailsPage: React.FC = () => {
   const { licenseInformation } = useLicenseStore()
   const isFreeEdition = licenseInformation['CE']?.edition === ModuleLicenseType.FREE
 
-  const isClusterDatasource =
-    perspectiveData?.dataSources?.length === 1 && perspectiveData?.dataSources.includes('CLUSTER')
-
   return (
     <>
       <PerspectiveHeader title={persName} viewType={perspectiveData?.viewType || ViewType.Default} />
@@ -466,9 +463,8 @@ const PerspectiveDetailsPage: React.FC = () => {
                 <PreferencesDropDown
                   preferences={preferences}
                   setPreferences={setPreferences}
-                  showIncludeUnallocatedCost={
-                    isClusterDatasource &&
-                    (Object.values(UnallocatedCostClusterFields) as string[]).includes(groupBy.fieldId)
+                  showIncludeUnallocated={
+                    isClusterOnly && (Object.values(UnallocatedCostClusterFields) as string[]).includes(groupBy.fieldId)
                   }
                 />
               }
@@ -551,40 +547,59 @@ export default PerspectiveDetailsPage
 const PreferencesDropDown: React.FC<{
   preferences: QlceViewPreferencesInput
   setPreferences: React.Dispatch<React.SetStateAction<QlceViewPreferencesInput>>
-  showIncludeUnallocatedCost: boolean
-}> = ({ preferences, setPreferences, showIncludeUnallocatedCost }) => {
+  showIncludeUnallocated: boolean
+}> = ({ preferences, setPreferences, showIncludeUnallocated }) => {
   const { getString } = useStrings()
 
   return (
     <Popover
-      interactionKind="click"
-      targetClassName={css.preferencesPopover}
+      interactionKind={PopoverInteractionKind.CLICK}
+      targetClassName={css.popoverTarget}
+      popoverClassName={css.preferencesPopover}
       content={
         <Container className={css.preferenceMenu}>
           <Switch
             large
             checked={Boolean(preferences.includeOthers)}
-            label={getString('ce.perspectives.createPerspective.preferences.includeOthers')}
-            className={css.prefLabel}
+            labelElement={
+              <Text
+                font={{ variation: FontVariation.SMALL_SEMI }}
+                color={Color.GREY_1000}
+                tooltipProps={{ dataTooltipId: 'includeOthers' }}
+              >
+                {getString('ce.perspectives.createPerspective.preferences.includeOthers')}
+              </Text>
+            }
+            className={css.labelCtn}
             onChange={event => {
               setPreferences(prevPref => ({ ...prevPref, includeOthers: event.currentTarget.checked }))
             }}
           />
-          {showIncludeUnallocatedCost ? (
-            <Switch
-              large
-              checked={Boolean(preferences.includeUnallocatedCost)}
-              label={getString('ce.perspectives.createPerspective.preferences.includeUnallocated')}
-              className={css.prefLabel}
-              onChange={event => {
-                setPreferences(prevPref => ({ ...prevPref, includeUnallocatedCost: event.currentTarget.checked }))
-              }}
-            />
+          {showIncludeUnallocated ? (
+            <>
+              <Switch
+                large
+                checked={Boolean(preferences.includeUnallocatedCost)}
+                labelElement={
+                  <Text
+                    font={{ variation: FontVariation.SMALL_SEMI }}
+                    color={Color.GREY_1000}
+                    tooltipProps={{ dataTooltipId: 'includeUnallocated' }}
+                  >
+                    {getString('ce.perspectives.createPerspective.preferences.includeUnallocated')}
+                  </Text>
+                }
+                className={css.labelCtn}
+                onChange={event => {
+                  setPreferences(prevPref => ({ ...prevPref, includeUnallocatedCost: event.currentTarget.checked }))
+                }}
+              />
+            </>
           ) : null}
         </Container>
       }
       minimal
-      position={Position.BOTTOM}
+      position={Position.BOTTOM_RIGHT}
     >
       <Container className={css.preferencesContainer}>
         <Text color={Color.GREY_800} font={{ variation: FontVariation.SMALL_SEMI }}>
