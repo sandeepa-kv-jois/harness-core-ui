@@ -129,19 +129,13 @@ describe('Test Azure WebApp Infrastructure Spec snapshot', () => {
     )
     expect(container).toMatchSnapshot()
 
-    await act(async () => {
-      await act(async () => {
-        const subscriptionInput = getByPlaceholderText('cd.steps.azureInfraStep.subscriptionPlaceholder') as HTMLElement
-        subscriptionInput.focus()
-        await waitFor(() => expect(subscriptionsResponse.refetch).toHaveBeenCalled())
+    const subscriptionInput = getByPlaceholderText('cd.steps.azureInfraStep.subscriptionPlaceholder') as HTMLElement
+    subscriptionInput.focus()
+    await waitFor(() => expect(subscriptionsResponse.refetch).toHaveBeenCalled())
 
-        const resourceGroupInput = getByPlaceholderText(
-          'cd.steps.azureInfraStep.resourceGroupPlaceholder'
-        ) as HTMLElement
-        resourceGroupInput.focus()
-        await waitFor(() => expect(resourceGroupsResponse.refetch).toHaveBeenCalled())
-      })
-    })
+    const resourceGroupInput = getByPlaceholderText('cd.steps.azureInfraStep.resourceGroupPlaceholder') as HTMLElement
+    resourceGroupInput.focus()
+    await waitFor(() => expect(resourceGroupsResponse.refetch).toHaveBeenCalled())
   })
 
   test('Should render variable view', () => {
@@ -202,19 +196,13 @@ describe('Test Azure Infrastructure Spec behavior', () => {
       />
     )
 
-    await act(async () => {
-      await act(async () => {
-        const subscriptionInput = getByPlaceholderText('cd.steps.azureInfraStep.subscriptionPlaceholder') as HTMLElement
-        expect(subscriptionInput).not.toBeDisabled()
-        fireEvent.change(subscriptionInput!, { target: { label: 's1', value: 'subscription1' } })
-        const resourceGroupInput = getByPlaceholderText(
-          'cd.steps.azureInfraStep.resourceGroupPlaceholder'
-        ) as HTMLElement
-        fireEvent.change(resourceGroupInput!, { target: { value: 'rg1' } })
-      })
+    const subscriptionInput = getByPlaceholderText('cd.steps.azureInfraStep.subscriptionPlaceholder') as HTMLElement
+    expect(subscriptionInput).not.toBeDisabled()
+    fireEvent.change(subscriptionInput!, { target: { label: 's1', value: 'subscription1' } })
+    const resourceGroupInput = getByPlaceholderText('cd.steps.azureInfraStep.resourceGroupPlaceholder') as HTMLElement
+    fireEvent.change(resourceGroupInput!, { target: { value: 'rg1' } })
 
-      await waitFor(() => expect(onUpdateHandler).toHaveBeenCalled())
-    })
+    await waitFor(() => expect(onUpdateHandler).toHaveBeenCalled())
   })
 })
 
