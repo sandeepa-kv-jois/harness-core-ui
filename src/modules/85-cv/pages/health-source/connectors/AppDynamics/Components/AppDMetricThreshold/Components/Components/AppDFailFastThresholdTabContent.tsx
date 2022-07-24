@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import cx from 'classnames'
 import { Button, ButtonVariation, Container, FormInput, Layout, Text } from '@harness/uicore'
+import { cloneDeep } from 'lodash-es'
 import { Color } from '@harness/design-system'
 import { FieldArray, useFormikContext } from 'formik'
 import { useStrings } from 'framework/strings'
@@ -76,8 +77,9 @@ export default function AppDFailFastThresholdTabContent(): JSX.Element {
 
   // TODO: Update the type from Swagger
   const handleAddThreshold = (addFn: (newValue: any) => void): void => {
+    const clonedDefaultValue = cloneDeep(NewDefaultVauesForFailFastThreshold)
     const defaultValueForMetricType = getDefaultMetricTypeValue(formValues.metricData, metricPacks)
-    const newIgnoreThresholdRow = { ...NewDefaultVauesForFailFastThreshold, metricType: defaultValueForMetricType }
+    const newIgnoreThresholdRow = { ...clonedDefaultValue, metricType: defaultValueForMetricType }
     addFn(newIgnoreThresholdRow)
   }
 

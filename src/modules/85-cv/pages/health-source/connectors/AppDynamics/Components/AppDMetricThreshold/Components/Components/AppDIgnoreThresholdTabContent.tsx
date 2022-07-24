@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { Container, Text, FormInput, Layout, Button, ButtonVariation } from '@harness/uicore'
 import { Color } from '@harness/design-system'
+import { cloneDeep } from 'lodash-es'
 import { useFormikContext, FieldArray } from 'formik'
 import { useStrings } from 'framework/strings'
 import { AppDynamicsMonitoringSourceFieldNames as FieldName } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.constants'
@@ -60,8 +61,9 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
 
   // TODO: Update the type from Swagger
   const handleAddThreshold = (addFn: (newValue: any) => void): void => {
+    const clonedDefaultValue = cloneDeep(NewDefaultVauesForIgnoreThreshold)
     const defaultValueForMetricType = getDefaultMetricTypeValue(formValues.metricData, metricPacks)
-    const newIgnoreThresholdRow = { ...NewDefaultVauesForIgnoreThreshold, metricType: defaultValueForMetricType }
+    const newIgnoreThresholdRow = { ...clonedDefaultValue, metricType: defaultValueForMetricType }
     addFn(newIgnoreThresholdRow)
   }
 

@@ -29,7 +29,7 @@ import type {
 } from './AppDHealthSource.types'
 import type { BasePathData } from './Components/BasePath/BasePath.types'
 import type { MetricPathData } from './Components/MetricPath/MetricPath.types'
-import { AppDynamicsMonitoringSourceFieldNames, initCustomForm } from './AppDHealthSource.constants'
+import { AppDynamicsMonitoringSourceFieldNames, initCustomForm, ThresholdTypes } from './AppDHealthSource.constants'
 import { PATHTYPE } from './Components/AppDCustomMetricForm/AppDCustomMetricForm.constants'
 import type { CustomMappedMetric } from '../../common/CustomMetric/CustomMetric.types'
 
@@ -509,6 +509,73 @@ export const convertMetricPackToMetricData = (value?: MetricPackDTO[]) => {
   return dataObject
 }
 
+export const getIsMetricPacksSelected = (metricData: { [key: string]: boolean }): boolean => {
+  return Object.keys(metricData).some(metricPackKey => metricData[metricPackKey])
+}
+
+export const getAllMetricThresholds = (metricPacks?: MetricPackDTO[]): any[] => {
+  const availableMetricPacks = []
+
+  metricPacks?.forEach(metricPack => {
+    availableMetricPacks.push(...(metricPack?.metricThresholds ? metricPack.metricThresholds : []))
+  })
+
+  return availableMetricPacks
+}
+
+export const getFilteredMetricThresholdValues = (thresholdName: string, metricPacks?: MetricPackDTO[]): any[] => {
+  if (!metricPacks?.length) {
+    return []
+  }
+
+  const metricThresholds = getAllMetricThresholds(metricPacks)
+
+  console.log('metricThresholds', metricThresholds)
+
+  return metricThresholds.filter(metricThreshold => metricThreshold.type === thresholdName)
+}
+
+// TODO: 🚨 remove this
+const temproaryMetricPacksData = [
+  {
+    metricThresholds: [
+      {
+        metricType: null,
+        groupName: null,
+        metricName: null,
+        type: ThresholdTypes.IgnoreThreshold,
+        spec: {
+          action: 'Ignore'
+        },
+        criteria: {
+          type: 'Absolute',
+          spec: {
+            greaterThan: 0,
+            lessThan: 0
+          }
+        }
+      },
+      {
+        metricType: null,
+        groupName: null,
+        metricName: null,
+        type: ThresholdTypes.FailImmediately,
+        spec: {
+          action: 'FailImmediately',
+          spec: {}
+        },
+        criteria: {
+          type: 'Absolute',
+          spec: {
+            greaterThan: 0,
+            lessThan: 0
+          }
+        }
+      }
+    ]
+  }
+]
+
 export const createAppDFormData = (
   appDynamicsData: AppDynamicsData,
   mappedMetrics: Map<string, CustomMappedMetric>,
@@ -557,58 +624,8 @@ export const createAppDFormData = (
     metricName: selectedMetric,
     showCustomMetric,
     metricIdentifier,
-    ignoreThresholds: [
-      {
-        metricType: 'Performance',
-        groupName: 'register',
-        metricName: 'calls_per_minute',
-        spec: {
-          action: 'Ignore'
-        },
-        criteria: {
-          type: 'Percentage',
-          spec: {
-            greaterThan: 10,
-            lessThan: 20
-          }
-        }
-      },
-      {
-        metricType: '',
-        groupName: '',
-        metricName: '',
-        spec: {
-          action: 'Ignore'
-        },
-        criteria: {
-          type: 'Absolute',
-          spec: {
-            greaterThan: 200,
-            lessThan: 300
-          }
-        }
-      }
-    ],
-    failFastThresholds: [
-      {
-        metricType: 'Performance',
-        groupName: 'register',
-        metricName: 'averageWaitTime',
-        spec: {
-          action: 'failImmediately',
-          spec: {
-            count: 5
-          }
-        },
-        criteria: {
-          type: 'Absolute',
-          spec: {
-            greaterThan: 10,
-            lessThan: 20
-          }
-        }
-      }
-    ]
+    ignoreThresholds: getFilteredMetricThresholdValues(ThresholdTypes.IgnoreThreshold, temproaryMetricPacksData),
+    failFastThresholds: getFilteredMetricThresholdValues(ThresholdTypes.FailImmediately, temproaryMetricPacksData)
   }
 }
 

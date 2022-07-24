@@ -94,7 +94,7 @@ export default function ThresholdCriteria(props: ThresholdCriteriaPropsType): JS
           inline
           className={css.appDMetricThresholdContentInput}
           label={isAbsoluteSelected ? getString('cv.monitoringSources.appD.greaterThan') : null}
-          inputGroup={{ type: 'number' }}
+          inputGroup={{ type: 'number', min: 1 }}
           name={`${thresholdTypeName}.${index}.criteria.spec.${FieldName.METRIC_THRESHOLD_GREATER_THAN}`}
         />
       )}
@@ -104,7 +104,7 @@ export default function ThresholdCriteria(props: ThresholdCriteriaPropsType): JS
           inline
           className={css.appDMetricThresholdContentInput}
           label={isAbsoluteSelected ? getString('cv.monitoringSources.appD.lesserThan') : null}
-          inputGroup={{ type: 'number' }}
+          inputGroup={{ type: 'number', min: 1 }}
           name={`${thresholdTypeName}.${index}.criteria.spec.${FieldName.METRIC_THRESHOLD_LESS_THAN}`}
         />
       )}

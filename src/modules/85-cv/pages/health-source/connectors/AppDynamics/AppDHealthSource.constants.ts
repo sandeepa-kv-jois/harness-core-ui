@@ -26,6 +26,8 @@ export const AppDynamicsMonitoringSourceFieldNames = {
   METRIC_PATH: 'metricPath',
   SERVICE_INSTANCE_METRIC_PATH: 'serviceInstanceMetricPath',
   PATH_TYPE: 'pathType',
+  IGNORETHRESHOLDS: 'ignoreThresholds',
+  FAILFASTTHRESHOLDS: 'failFastThresholds',
   METRIC_THRESHOLD_METRIC_TYPE: 'metricType',
   METRIC_THRESHOLD_METRIC_NAME: 'metricName',
   METRIC_THRESHOLD_GROUP_NAME: 'groupName',
@@ -35,6 +37,11 @@ export const AppDynamicsMonitoringSourceFieldNames = {
   METRIC_THRESHOLD_GREATER_THAN: 'greaterThan',
   METRIC_THRESHOLD_ACTION: 'action',
   METRIC_THRESHOLD_COUNT: 'count'
+}
+
+export const ThresholdTypes = {
+  IgnoreThreshold: 'IgnoreThreshold',
+  FailImmediately: 'FailImmediately'
 }
 
 export const initCustomForm = {

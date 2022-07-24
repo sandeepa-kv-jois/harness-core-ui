@@ -44,6 +44,7 @@ import {
   checkAppAndTierAreNotFixed,
   createAppDFormData,
   getAllowedTypes,
+  getIsMetricPacksSelected,
   initAppDCustomFormValue,
   initializeNonCustomFields,
   resetShowCustomMetric,
@@ -78,6 +79,10 @@ export default function AppDMonitoredSource({
 }): JSX.Element {
   const { getString } = useStrings()
   const { showError, clear } = useToaster()
+
+  // FEATURE FOR METRIC THRESHOLD
+  // const isMetricThresholdEnabled = useFeatureFlag(FeatureFlag.CVNG_METRIC_THRESHOLD)
+  const isMetricThresholdEnabled = true
 
   const [selectedMetricPacks, setSelectedMetricPacks] = useState<MetricPackDTO[]>([])
   const [validationResultData, setValidationResultData] = useState<AppdynamicsValidationResponse[]>()
@@ -415,11 +420,14 @@ export default function AppDMonitoredSource({
                 </Button>
               </CardWithOuterTitle>
             )}
-            <AppDMetricThreshold
-              formikValues={formik.values}
-              groupedCreatedMetrics={groupedCreatedMetrics}
-              metricPacks={selectedMetricPacks}
-            />
+            {isMetricThresholdEnabled && getIsMetricPacksSelected(formik.values.metricData) && (
+              <AppDMetricThreshold
+                formikValues={formik.values}
+                groupedCreatedMetrics={groupedCreatedMetrics}
+                metricPacks={selectedMetricPacks}
+              />
+            )}
+
             <DrawerFooter
               isSubmit
               onPrevious={onPrevious}

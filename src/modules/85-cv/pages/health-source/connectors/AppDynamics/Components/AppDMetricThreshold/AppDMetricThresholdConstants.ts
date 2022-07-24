@@ -1,3 +1,4 @@
+import { ThresholdTypes } from '../../AppDHealthSource.constants'
 import type { SelectItem } from './AppDMetricThreshold.types'
 
 export const MetricTypeValues = {
@@ -33,15 +34,13 @@ export const NewDefaultVauesForIgnoreThreshold = {
   metricType: null,
   groupName: null,
   metricName: null,
+  type: ThresholdTypes.IgnoreThreshold,
   spec: {
     action: IgnoreThresholdType
   },
   criteria: {
     type: CriteriaValues.Absolute,
-    spec: {
-      greaterThan: 0,
-      lessThan: 0
-    }
+    spec: {}
   }
 }
 
@@ -49,16 +48,14 @@ export const NewDefaultVauesForFailFastThreshold = {
   metricType: null,
   groupName: null,
   metricName: null,
+  type: ThresholdTypes.FailImmediately,
   spec: {
     action: FailFastActionValues.FailImmediately,
     spec: {}
   },
   criteria: {
     type: CriteriaValues.Absolute,
-    spec: {
-      greaterThan: 0,
-      lessThan: 0
-    }
+    spec: {}
   }
 }
 
