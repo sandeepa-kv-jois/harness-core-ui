@@ -83,7 +83,7 @@ const InstallComponents: React.FC<StepProps<ConnectorInfoDTO> & InstallComponent
             {getString('ce.cloudIntegration.autoStoppingModal.createSecret.step1')}
           </Text>
           <Button
-            loading={yamlLoading}
+            disabled={yamlLoading}
             rightIcon="launch"
             variation={ButtonVariation.SECONDARY}
             margin={{ right: 'medium' }}
@@ -91,7 +91,7 @@ const InstallComponents: React.FC<StepProps<ConnectorInfoDTO> & InstallComponent
             onClick={handleDownload}
           />
           <Button
-            loading={yamlLoading}
+            disabled={yamlLoading}
             rightIcon="launch"
             variation={ButtonVariation.SECONDARY}
             text={getString('ce.cloudIntegration.autoStoppingModal.installComponents.previewYaml')}

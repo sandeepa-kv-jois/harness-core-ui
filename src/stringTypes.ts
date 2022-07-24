@@ -4396,8 +4396,6 @@ export interface StringsMap {
   'ce.cloudIntegration.costVisibilityDialog.popover.title': string
   'ce.cloudIntegration.costVisibilityDialog.step1.desc': string
   'ce.cloudIntegration.costVisibilityDialog.step1.step1': string
-  'ce.cloudIntegration.costVisibilityDialog.step1.step2': string
-  'ce.cloudIntegration.costVisibilityDialog.step1.step3': string
   'ce.cloudIntegration.costVisibilityDialog.step1.title': string
   'ce.cloudIntegration.costVisibilityDialog.step2.title': string
   'ce.cloudIntegration.enableAutoStopping': string

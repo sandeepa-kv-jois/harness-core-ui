@@ -14,12 +14,14 @@ declare const styles: {
   readonly enableCloudCostsDialog: string
   readonly failure: string
   readonly features: string
+  readonly lastEvent: string
   readonly main: string
   readonly nameCell: string
   readonly permissionTag: string
   readonly search: string
   readonly spinner: string
   readonly statusCell: string
+  readonly statusError: string
   readonly success: string
   readonly table: string
   readonly testBtn: string

@@ -38,11 +38,15 @@
 
     .statusCell {
       display: grid;
-      grid-template-columns: 120px 60px;
+      grid-template-columns: 120px max-content;
 
       .testBtn {
         align-self: center;
-        border-radius: 50px;
+        border-radius: 8px;
+        font-size: 10px;
+        padding-left: var(--spacing-small);
+        padding-right: var(--spacing-small);
+        letter-spacing: 0.2px;
       }
     }
 
@@ -52,6 +56,7 @@
       font-size: 13px;
       font-weight: 400;
       border-radius: 4px;
+      height: 32px;
 
       &.success {
         background: var(--purple-50);
@@ -76,6 +81,8 @@
       }
 
       .addAutoStoppingBtn {
+        height: 32px;
+
         :global {
           .bp3-button-text {
             font-weight: 500;
@@ -110,4 +117,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.lastEvent {
+  padding: var(--spacing-medium) !important;
+  max-width: 417px;
+  padding-bottom: var(--spacing-large);
+
+  p {
+    text-transform: capitalize;
+  }
+}
+
+.statusError {
+  padding: var(--spacing-medium) !important;
+  max-width: 400px;
 }

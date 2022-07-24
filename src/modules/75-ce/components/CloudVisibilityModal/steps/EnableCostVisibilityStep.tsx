@@ -42,20 +42,8 @@ interface Props {
 }
 
 const Step1: React.FC = () => (
-  <Text font={{ variation: FontVariation.BODY2 }}>
+  <Text color={Color.GREY_800} font={{ variation: FontVariation.BODY2 }}>
     <String stringID="ce.cloudIntegration.costVisibilityDialog.step1.step1" />
-  </Text>
-)
-
-const Step2: React.FC = () => (
-  <Text font={{ variation: FontVariation.BODY2 }}>
-    <String stringID="ce.cloudIntegration.costVisibilityDialog.step1.step2" />
-  </Text>
-)
-
-const Step3: React.FC = () => (
-  <Text font={{ variation: FontVariation.BODY2 }}>
-    <String stringID="ce.cloudIntegration.costVisibilityDialog.step1.step3" useRichText />
   </Text>
 )
 
@@ -87,7 +75,7 @@ const EnableCostVisibilityStep: React.FC<Props & StepProps<ConnectorInfoDTO>> = 
     }
   })
 
-  const saveConnector = async () => {
+  const saveConnector = async (): Promise<void> => {
     try {
       const res = await createConnector({
         connector: {
@@ -109,7 +97,7 @@ const EnableCostVisibilityStep: React.FC<Props & StepProps<ConnectorInfoDTO>> = 
     }
   }
 
-  const createAndVerifyCcmK8sConnector = async () => {
+  const createAndVerifyCcmK8sConnector = async (): Promise<void> => {
     await saveConnector()
 
     if (stepDetails.status === 'PROCESS') {
@@ -117,7 +105,7 @@ const EnableCostVisibilityStep: React.FC<Props & StepProps<ConnectorInfoDTO>> = 
         const result = await testConnection()
         setTestConnectionRes(result)
         if (result?.data?.status === 'SUCCESS') {
-          setStepDetails({ step: 3, intent: Intent.SUCCESS, status: 'DONE' })
+          setStepDetails({ step: 1, intent: Intent.SUCCESS, status: 'DONE' })
         } else {
           setStepDetails({ step: 1, intent: Intent.DANGER, status: 'ERROR' })
         }
@@ -132,7 +120,7 @@ const EnableCostVisibilityStep: React.FC<Props & StepProps<ConnectorInfoDTO>> = 
     createAndVerifyCcmK8sConnector()
   }, [])
 
-  const renderError = () => {
+  const renderError = (): React.ReactNode | null => {
     const { responseMessages = null } = testConnectionRes?.data as Error
 
     return responseMessages ? (
@@ -157,7 +145,7 @@ const EnableCostVisibilityStep: React.FC<Props & StepProps<ConnectorInfoDTO>> = 
         </Text>
         <div className={css.steps}>
           <StepsProgress
-            steps={[<Step1 key={1} />, <Step2 key={2} />, <Step3 key={3} />]}
+            steps={[<Step1 key={1} />]}
             intent={stepDetails.intent}
             current={stepDetails.step}
             currentStatus={stepDetails.status}

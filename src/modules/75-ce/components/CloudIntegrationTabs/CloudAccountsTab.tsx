@@ -13,13 +13,12 @@ import {
   Container,
   ExpandingSearchInput,
   FlexExpander,
-  IconName,
   Layout,
   TableV2,
   Text
 } from '@harness/uicore'
 import { Color, FontVariation } from '@harness/design-system'
-import { Classes, Menu, Popover, Spinner } from '@blueprintjs/core'
+import { Spinner } from '@blueprintjs/core'
 import { useHistory, useParams } from 'react-router-dom'
 import type { CellProps, Column, Renderer } from 'react-table'
 import { debounce } from 'lodash-es'
@@ -27,7 +26,12 @@ import ReactTimeago from 'react-timeago'
 
 import routes from '@common/RouteDefinitions'
 import { useStrings } from 'framework/strings'
-import { ConnectorResponse, PageConnectorResponse, useGetConnectorListV2 } from 'services/cd-ng'
+import {
+  ConnectorResponse,
+  PageConnectorResponse,
+  useGetConnectorListV2,
+  useGetTestConnectionResult
+} from 'services/cd-ng'
 import { CcmMetaData, useFetchCcmMetaDataQuery } from 'services/ce/services'
 import { getIconByType } from '@connectors/pages/connectors/utils/ConnectorUtils'
 
@@ -55,68 +59,73 @@ const ConnectorNameCell: CustomCell = cell => {
 
 const ConnectorStatusCell: CustomCell = cell => {
   const { getString } = useStrings()
+  const { accountId } = useParams<{ accountId: string }>()
 
-  const data = cell.row.original.status
-  const isStatusSuccess = data?.status === 'SUCCESS'
+  const data = cell.row.original
 
-  const iconProps: { icon: IconName; iconProps: { size: number; color: Color } } = useMemo(() => {
-    if (isStatusSuccess) {
-      return { icon: 'full-circle', iconProps: { size: 8, color: Color.GREEN_500 } }
-    } else {
-      return { icon: 'warning-sign', iconProps: { size: 12, color: Color.RED_500 } }
+  const [status, setStatus] = useState(data?.status?.status)
+  const [errorSummary, setErrorSummary] = useState(data.status?.errorSummary)
+  const [lastTestedAt, setLastTestedAt] = useState<number | undefined>(
+    data?.status?.lastTestedAt || data?.status?.testedAt
+  )
+
+  const { mutate: testConnection } = useGetTestConnectionResult({
+    identifier: data.connector?.identifier || '',
+    queryParams: {
+      accountIdentifier: accountId
     }
-  }, [isStatusSuccess])
+  })
+
+  const isStatusSuccess = status === 'SUCCESS'
 
   return (
     <div className={css.statusCell}>
       <Text
-        {...iconProps}
+        icon={'full-circle'}
+        iconProps={{ size: 8, color: isStatusSuccess ? Color.GREEN_500 : Color.RED_500 }}
         font={{ variation: FontVariation.BODY }}
+        tooltip={
+          <Text className={css.statusError} color={Color.WHITE} font={{ variation: FontVariation.BODY }}>
+            {errorSummary?.trim()}
+          </Text>
+        }
+        tooltipProps={{ isDark: true, position: 'bottom', disabled: isStatusSuccess }}
         color={isStatusSuccess ? Color.GREY_800 : Color.RED_500}
       >
-        <ReactTimeago date={data?.lastTestedAt || data?.testedAt || ''} />
+        <ReactTimeago date={lastTestedAt || ''} />
       </Text>
       {!isStatusSuccess ? (
         <Button
           variation={ButtonVariation.SECONDARY}
           size={ButtonSize.SMALL}
-          text={getString('test')}
+          text={getString('common.smtp.testConnection')}
           className={css.testBtn}
+          onClick={async e => {
+            try {
+              e.stopPropagation()
+              const res = await testConnection()
+              if (res.status === 'SUCCESS') {
+                setStatus(res.status)
+              }
+            } catch (err) {
+              setErrorSummary(err?.data?.message)
+            } finally {
+              setLastTestedAt(new Date().getTime())
+            }
+          }}
         />
       ) : null}
     </div>
   )
 }
 
-const MenuCell: CustomCell = () => {
-  const { getString } = useStrings()
-
-  // const data = cell.row.original.status
-
-  const [menuOpen, setMenuOpen] = useState(false)
+const LastUpdatedCell: CustomCell = cell => {
+  const lastModifiedAt = cell.row.original.lastModifiedAt
 
   return (
-    <Popover
-      isOpen={menuOpen}
-      className={Classes.DARK}
-      interactionKind={'click'}
-      onInteraction={nextOpenState => {
-        setMenuOpen(nextOpenState)
-      }}
-    >
-      <Button
-        minimal
-        icon="Options"
-        onClick={e => {
-          e.stopPropagation()
-          setMenuOpen(true)
-        }}
-      />
-      <Menu style={{ minWidth: 'unset' }}>
-        <Menu.Item icon="edit" text={getString('edit')} />
-        <Menu.Item icon="trash" text={getString('delete')} />
-      </Menu>
-    </Popover>
+    <Text font={{ variation: FontVariation.BODY }} color={Color.GREY_800} lineClamp={1}>
+      <ReactTimeago date={lastModifiedAt || ''} />
+    </Text>
   )
 }
 
@@ -169,16 +178,11 @@ const CloudAccountsTab: React.FC = () => {
     const defaultPerspectiveIdString = defaultPerspectiveIdMap[connectorType]
     const defaultPerspectiveId = ccmMetaData?.[defaultPerspectiveIdString] as string
 
-    const perspectiveLink = useMemo(
-      () => ({
-        pathname: routes.toPerspectiveDetails({
-          accountId: accountId,
-          perspectiveId: defaultPerspectiveId,
-          perspectiveName: defaultPerspectiveId
-        })
-      }),
-      []
-    )
+    const route = routes.toPerspectiveDetails({
+      accountId: accountId,
+      perspectiveId: defaultPerspectiveId,
+      perspectiveName: defaultPerspectiveId
+    })
 
     return isReportingEnabled ? (
       <Button
@@ -188,7 +192,8 @@ const CloudAccountsTab: React.FC = () => {
         text={getString('ce.cloudIntegration.viewCosts')}
         onClick={e => {
           e.stopPropagation()
-          history.push(perspectiveLink)
+          const baseUrl = window.location.href.split('#')[0]
+          window.open(`${baseUrl}#${route}`)
         }}
       />
     ) : null
@@ -206,19 +211,19 @@ const CloudAccountsTab: React.FC = () => {
         accessor: 'connector.status',
         Header: getString('ce.cloudIntegration.connectorStatus'),
         Cell: ConnectorStatusCell,
-        width: '55%'
+        width: '35%'
+      },
+      {
+        accessor: 'lastUpdated',
+        Header: getString('delegates.lastUpdated'),
+        Cell: LastUpdatedCell,
+        width: '25%'
       },
       {
         accessor: 'viewCosts',
         Header: '',
         Cell: ViewCostsCell,
         width: '15%'
-      },
-      {
-        accessor: 'menu',
-        Header: '',
-        Cell: MenuCell,
-        width: '5%'
       }
     ],
     [ccmMetaData]
@@ -240,7 +245,6 @@ const CloudAccountsTab: React.FC = () => {
           onChange={text => debouncedSearch(text)}
           className={css.search}
         />
-        {/* TODO - Quick Filters / Filter Panel */}
       </Layout.Horizontal>
       {!isLoading ? (
         <TableV2<ConnectorResponse>
