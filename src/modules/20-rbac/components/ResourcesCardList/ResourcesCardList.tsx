@@ -16,13 +16,13 @@ import type { ResourceSelectorValue } from '@rbac/pages/ResourceGroupDetails/uti
 export interface ResourcesCardListProps {
   selectedResourcesMap: Map<ResourceType, ResourceSelectorValue>
   resourceCategoryMap?: Map<ResourceType | ResourceCategory, ResourceType[] | undefined>
-  onResourceSelectionChange: (resourceType: ResourceType, isAdd: boolean, identifiers?: string[] | undefined) => void
-  onResourceCategorySelect: (types: ResourceType[], isAdd: boolean) => void
-  onAttributeSelectionChange: (
+  onResourceSelectionChange: (
     resourceType: ResourceType,
     isAdd: boolean,
+    identifiers?: string[] | undefined,
     attributeFilter?: string[] | undefined
   ) => void
+  onResourceCategorySelect: (types: ResourceType[], isAdd: boolean) => void
   disableAddingResources?: boolean
   disableSelection?: boolean
 }
@@ -32,7 +32,6 @@ const ResourcesCardList: React.FC<ResourcesCardListProps> = ({
   resourceCategoryMap,
   onResourceSelectionChange,
   onResourceCategorySelect,
-  onAttributeSelectionChange,
   ...props
 }) => {
   const { getString } = useStrings()
@@ -83,7 +82,6 @@ const ResourcesCardList: React.FC<ResourcesCardListProps> = ({
               resourceType={resourceType}
               resourceValues={defaultTo(selectedResourcesMap.get(resourceType), [])}
               onResourceSelectionChange={onResourceSelectionChange}
-              onAttributeSelectionChange={onAttributeSelectionChange}
               {...props}
             />
           )

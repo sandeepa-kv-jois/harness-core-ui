@@ -65,15 +65,10 @@ const AddResourceModal: React.FC<RoleModalData> = ({
       })
 
   return (
-    <Layout.Vertical padding="xxxlarge">
+    <Layout.Vertical padding="xsmall">
       <Layout.Vertical>
-        <Text color={Color.BLACK} font="medium">
-          {isAttributeFilter
-            ? `${getString('add')} ${getString(resourceHandler.label)} ${getString('common.types')}`
-            : `${getString('add')} ${getString(resourceHandler.label)}`}
-        </Text>
         {!isAttributeFilter && (
-          <Layout.Horizontal padding={{ top: 'large' }} flex>
+          <Layout.Horizontal flex padding={{ bottom: 'medium' }}>
             <ExpandingSearchInput
               alwaysExpanded
               onChange={text => {

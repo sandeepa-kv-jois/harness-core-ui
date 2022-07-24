@@ -21,7 +21,12 @@ export interface RbacResourceModalProps {
 export interface RbacResourceRendererProps {
   identifiers: string[]
   resourceScope: ResourceScope
-  onResourceSelectionChange: (resourceType: ResourceType, isAdd: boolean, identifiers?: string[] | undefined) => void
+  onResourceSelectionChange: (
+    resourceType: ResourceType,
+    isAdd: boolean,
+    identifiers?: string[] | undefined,
+    attributeFilter?: string[]
+  ) => void
   resourceType: ResourceType
 }
 
@@ -40,6 +45,7 @@ export interface ResourceHandler {
   addResourceModalBody?: (props: RbacResourceModalProps) => React.ReactElement
   addAttributeModalBody?: (props: RbacAttributeModalProps) => React.ReactElement
   staticResourceRenderer?: (props: RbacResourceRendererProps) => React.ReactElement
+  attributeRenderer?: (props: RbacResourceRendererProps) => React.ReactElement
   category?: ResourceCategory
 }
 

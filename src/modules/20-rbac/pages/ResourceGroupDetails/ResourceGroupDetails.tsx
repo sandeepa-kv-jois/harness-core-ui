@@ -118,7 +118,7 @@ const ResourceGroupDetails: React.FC = () => {
       )
     )
     setSelectionType(getSelectionType(resourceGroupDetails?.data?.resourceGroup))
-  }, [resourceGroupDetails?.data?.resourceGroup])
+  }, [resourceGroupDetails?.data?.resourceGroup, accountId, orgIdentifier, projectIdentifier, resourceTypes])
 
   useDeepCompareEffect(() => {
     const types = getFilteredResourceTypes(resourceTypeData, selectedScope)
@@ -163,15 +163,11 @@ const ResourceGroupDetails: React.FC = () => {
     }
   }
 
-  const onResourceSelectionChange = (resourceType: ResourceType, isAdd: boolean, identifiers?: string[]): void => {
-    setIsUpdated(true)
-    computeResourceMapOnChange(setSelectedResourceMap, selectedResourcesMap, resourceType, isAdd, identifiers)
-  }
-
-  const onAttributeSelectionChange = (
+  const onResourceSelectionChange = (
     resourceType: ResourceType,
     isAdd: boolean,
-    attributeFilter: string[] | undefined
+    identifiers?: string[],
+    attributeFilter?: string[]
   ): void => {
     setIsUpdated(true)
     computeResourceMapOnChange(
@@ -179,7 +175,7 @@ const ResourceGroupDetails: React.FC = () => {
       selectedResourcesMap,
       resourceType,
       isAdd,
-      undefined,
+      identifiers,
       attributeFilter
     )
   }
@@ -333,7 +329,6 @@ const ResourceGroupDetails: React.FC = () => {
                 resourceCategoryMap={resourceCategoryMap}
                 onResourceSelectionChange={onResourceSelectionChange}
                 onResourceCategorySelect={onResourceCategorySelect}
-                onAttributeSelectionChange={onAttributeSelectionChange}
                 disableAddingResources={isHarnessManaged}
                 disableSelection={
                   selectionType === SelectionType.ALL ||
