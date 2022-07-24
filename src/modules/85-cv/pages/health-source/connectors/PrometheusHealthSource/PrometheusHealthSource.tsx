@@ -47,6 +47,8 @@ import { updateMultiSelectOption } from './components/PrometheusQueryBuilder/com
 import { PrometheusQueryViewer } from './components/PrometheusQueryViewer/PrometheusQueryViewer'
 import SelectHealthSourceServices from '../../common/SelectHealthSourceServices/SelectHealthSourceServices'
 import css from './PrometheusHealthSource.module.scss'
+import PrometheusMetricThreshold from './components/MetricThreshold/PrometheusMetricThreshold'
+import { MetricCriteriaValues } from '../../common/MetricThresholds/MetricThresholds.constants'
 
 export interface PrometheusHealthSourceProps {
   data: any
@@ -64,6 +66,10 @@ export function PrometheusHealthSource(props: PrometheusHealthSourceProps): JSX.
     onPrevious,
     sourceData: { existingMetricDetails }
   } = useContext(SetupSourceTabsContext)
+
+  // FEATURE FOR METRIC THRESHOLD
+  // const isMetricThresholdEnabled = useFeatureFlag(FeatureFlag.CVNG_METRIC_THRESHOLD)
+  const isMetricThresholdEnabled = true
 
   const metricDefinitions = existingMetricDetails?.spec?.metricDefinitions
 
@@ -114,12 +120,45 @@ export function PrometheusHealthSource(props: PrometheusHealthSourceProps): JSX.
     initializeGroupNames(mappedMetrics, getString)
   )
 
+  const [metricThresholds, setMetricThresholds] = useState({
+    ignoreThresholds: [
+      {
+        metricType: 'Custom',
+        metricName: null,
+        type: 'IgnoreThreshold',
+        spec: {
+          action: 'Ignore'
+        },
+        criteria: {
+          type: MetricCriteriaValues.Absolute,
+          spec: {}
+        }
+      }
+    ],
+    failFastThresholds: [
+      {
+        metricType: 'Custom',
+        groupName: null,
+        metricName: null,
+        type: 'FailImmediately',
+        spec: {
+          action: 'FailImmediately',
+          spec: {}
+        },
+        criteria: {
+          type: MetricCriteriaValues.Absolute,
+          spec: {}
+        }
+      }
+    ]
+  })
+
   const initialFormValues = mappedMetrics.get(selectedMetric || '') as MapPrometheusQueryToService
 
   return (
     <Formik<MapPrometheusQueryToService>
       formName="mapPrometheus"
-      initialValues={initialFormValues}
+      initialValues={{ ...initialFormValues, ...metricThresholds }}
       isInitialValid={(args: any) =>
         Object.keys(
           validateMappings(
@@ -132,7 +171,7 @@ export function PrometheusHealthSource(props: PrometheusHealthSourceProps): JSX.
         ).length === 0
       }
       onSubmit={noop}
-      enableReinitialize={true}
+      enableReinitialize
       validate={values => {
         return validateMappings(
           getString,
@@ -300,6 +339,14 @@ export function PrometheusHealthSource(props: PrometheusHealthSourceProps): JSX.
                 </Layout.Horizontal>
               </Container>
             </CustomMetric>
+            {isMetricThresholdEnabled && (
+              <PrometheusMetricThreshold
+                formikValues={formikProps.values}
+                groupedCreatedMetrics={groupedCreatedMetrics}
+                setMetricThresholds={setMetricThresholds}
+              />
+            )}
+
             <DrawerFooter
               isSubmit
               onPrevious={onPrevious}

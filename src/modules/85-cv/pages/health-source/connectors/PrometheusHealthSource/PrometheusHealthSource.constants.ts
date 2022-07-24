@@ -56,6 +56,8 @@ export type MapPrometheusQueryToService = {
   sli?: boolean
   continuousVerification?: boolean
   healthScore?: boolean
+  ignoreThresholds: Array<any>
+  failFastThresholds: Array<any>
 }
 
 export type RiskProfileCatgory = 'Performance' | 'Errors' | 'Infrastructure'

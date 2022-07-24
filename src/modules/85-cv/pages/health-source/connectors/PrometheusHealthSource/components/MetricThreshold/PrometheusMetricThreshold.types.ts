@@ -1,18 +1,16 @@
 import type { SelectOption, SelectProps } from '@harness/uicore'
 import type { GroupedCreatedMetrics } from '@cv/pages/health-source/common/CustomMetric/CustomMetric.types'
-import type { MetricPackDTO } from 'services/cv'
-import type { AppDynamicsFomikFormInterface } from '../../AppDHealthSource.types'
+import type { MapPrometheusQueryToService } from '../../PrometheusHealthSource.constants'
 
 export interface SelectItem {
   label: string
   value: string
 }
 
-export interface AppDMetricThresholdPropsType {
-  formikValues: AppDynamicsFomikFormInterface
-  metricPacks: MetricPackDTO[]
+export interface PrometheusMetricThresholdPropsType {
+  formikValues: MapPrometheusQueryToService
   groupedCreatedMetrics: GroupedCreatedMetrics
-  setNonCustomFeilds: React.Dispatch<React.SetStateAction<any>>
+  setMetricThresholds: React.Dispatch<React.SetStateAction<any>>
 }
 
 export type ThresholdSelectProps = {
@@ -33,4 +31,4 @@ export interface ThresholdCriteriaPropsType {
   criteriaPercentageType?: string
 }
 
-export type AppDMetricThresholdContextType = AppDMetricThresholdPropsType
+export type PrometheusMetricThresholdContextType = PrometheusMetricThresholdPropsType

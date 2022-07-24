@@ -587,6 +587,8 @@ export const createAppDFormData = (
     metricData: {
       [key: string]: boolean
     }
+    ignoreThresholds: any[]
+    failFastThresholds: any[]
   },
   showCustomMetric: boolean,
   isTemplate = false
@@ -624,8 +626,8 @@ export const createAppDFormData = (
     metricName: selectedMetric,
     showCustomMetric,
     metricIdentifier,
-    ignoreThresholds: getFilteredMetricThresholdValues(ThresholdTypes.IgnoreThreshold, temproaryMetricPacksData),
-    failFastThresholds: getFilteredMetricThresholdValues(ThresholdTypes.FailImmediately, temproaryMetricPacksData)
+    ignoreThresholds: nonCustomFeilds.ignoreThresholds,
+    failFastThresholds: nonCustomFeilds.failFastThresholds
   }
 }
 
@@ -634,7 +636,9 @@ export const initializeNonCustomFields = (appDynamicsData: AppDynamicsData) => {
     appdApplication: appDynamicsData.applicationName || '',
     appDTier: appDynamicsData.tierName || '',
     metricPacks: appDynamicsData.metricPacks || undefined,
-    metricData: convertMetricPackToMetricData(appDynamicsData?.metricPacks)
+    metricData: convertMetricPackToMetricData(appDynamicsData?.metricPacks),
+    ignoreThresholds: getFilteredMetricThresholdValues(ThresholdTypes.IgnoreThreshold, temproaryMetricPacksData),
+    failFastThresholds: getFilteredMetricThresholdValues(ThresholdTypes.FailImmediately, temproaryMetricPacksData)
   }
 }
 

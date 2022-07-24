@@ -1,33 +1,24 @@
 import React, { useContext, useEffect } from 'react'
-import { Container, Text, FormInput, Layout, Button, ButtonVariation } from '@harness/uicore'
+import { Container, Text, Layout, Button, ButtonVariation } from '@harness/uicore'
 import { Color } from '@harness/design-system'
 import { cloneDeep } from 'lodash-es'
 import { useFormikContext, FieldArray } from 'formik'
 import { useStrings } from 'framework/strings'
 import { AppDynamicsMonitoringSourceFieldNames as FieldName } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.constants'
 import type { AppDynamicsFomikFormInterface } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.types'
-import { AppDMetricThresholdContext } from '../../AppDMetricThreshold'
-import {
-  getDefaultMetricTypeValue,
-  getGroupDropdownOptions,
-  getMetricItems,
-  getMetricTypeItems
-} from './Components/AppDThresholdSelectUtils'
-import {
-  MetricTypesForTransactionTextField,
-  MetricTypeValues,
-  NewDefaultVauesForIgnoreThreshold
-} from '../../AppDMetricThresholdConstants'
+import { PrometheusMetricThresholdContext } from '../../PrometheusMetricThreshold'
+import { getMetricItems, getMetricTypeItems } from './Components/AppDThresholdSelectUtils'
+import { NewDefaultVauesForIgnoreThreshold } from '../../PrometheusMetricThresholdConstants'
 import ThresholdSelect from './Components/ThresholdSelect'
 import ThresholdCriteria from './Components/ThresholdCriteria'
-import css from '../AppDMetricThresholdContent.module.scss'
+import css from '../PrometheusMetricThresholdContent.module.scss'
 
-export default function AppDIgnoreThresholdTabContent(): JSX.Element {
+export default function PrometheusDIgnoreThresholdTabContent(): JSX.Element {
   const { getString } = useStrings()
 
   const { values: formValues } = useFormikContext<AppDynamicsFomikFormInterface>()
 
-  const { metricPacks, groupedCreatedMetrics, setNonCustomFeilds } = useContext(AppDMetricThresholdContext)
+  const { groupedCreatedMetrics, setMetricThresholds } = useContext(PrometheusMetricThresholdContext)
 
   const handleMetricUpdate = (index: number, selectedValue: string, replaceFn: (value: any) => void): void => {
     const clonedIgnoreThreshold = [...formValues.ignoreThresholds]
@@ -44,34 +35,15 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
   }
 
   useEffect(() => {
-    setNonCustomFeilds((prv: any) => ({
-      ...prv,
+    setMetricThresholds((previousValues: any) => ({
+      ...previousValues,
       ignoreThresholds: formValues.ignoreThresholds
     }))
-  }, [formValues.ignoreThresholds, setNonCustomFeilds])
-
-  const handleTransactionUpdate = (index: number, selectedValue: string, replaceFn: (value: any) => void): void => {
-    const clonedIgnoreThreshold = [...formValues.ignoreThresholds]
-
-    const updatedIgnoreThreshold = { ...clonedIgnoreThreshold[index] }
-
-    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_METRIC_NAME] = null
-    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_GROUP_NAME] = selectedValue
-
-    clonedIgnoreThreshold[index] = updatedIgnoreThreshold
-
-    replaceFn(updatedIgnoreThreshold)
-  }
-
-  const isGroupTransationTextField = (selectedMetricType: string | null): boolean =>
-    MetricTypesForTransactionTextField.some(field => field === selectedMetricType)
+  }, [formValues.ignoreThresholds, setMetricThresholds])
 
   // TODO: Update the type from Swagger
   const handleAddThreshold = (addFn: (newValue: any) => void): void => {
-    const clonedDefaultValue = cloneDeep(NewDefaultVauesForIgnoreThreshold)
-    const defaultValueForMetricType = getDefaultMetricTypeValue(formValues.metricData, metricPacks)
-    const newIgnoreThresholdRow = { ...clonedDefaultValue, metricType: defaultValueForMetricType }
-    addFn(newIgnoreThresholdRow)
+    addFn(cloneDeep(NewDefaultVauesForIgnoreThreshold))
   }
 
   return (
@@ -85,7 +57,6 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
               <Container style={{ minHeight: 300 }}>
                 <Container className={css.appDMetricThresholdContentIgnoreTableHeader}>
                   <Text>{getString('cv.monitoringSources.appD.metricType')}</Text>
-                  <Text>{getString('cv.monitoringSources.appD.groupTransaction')}</Text>
                   <Text>{getString('cv.monitoringSources.metricLabel')}</Text>
                   <Layout.Horizontal style={{ justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text className={css.criteriaHeader}>{getString('cf.segmentDetail.criteria')}</Text>
@@ -105,7 +76,8 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
                     <Container key={index} className={css.appDMetricThresholdContentIgnoreTableRow}>
                       {/* ==== ⭐️ Metric Type ==== */}
                       <ThresholdSelect
-                        items={getMetricTypeItems(metricPacks, formValues.metricData, groupedCreatedMetrics)}
+                        items={getMetricTypeItems(groupedCreatedMetrics)}
+                        disabled
                         key={`${data?.metricType}`}
                         name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_METRIC_TYPE}`}
                         onChange={({ value }) => {
@@ -113,31 +85,10 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
                         }}
                       />
 
-                      {/* ==== ⭐️ Group ==== */}
-                      {isGroupTransationTextField(data.metricType) ? (
-                        <FormInput.Text
-                          placeholder={getString('cv.monitoringSources.appD.groupTransaction')}
-                          style={{ marginTop: 'medium' }}
-                          name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_GROUP_NAME}`}
-                          disabled={!data.metricType}
-                        />
-                      ) : (
-                        <ThresholdSelect
-                          items={getGroupDropdownOptions(groupedCreatedMetrics)}
-                          name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_GROUP_NAME}`}
-                          onChange={({ value }) => {
-                            if (data.metricType === MetricTypeValues.Custom) {
-                              handleTransactionUpdate(index, value as string, props.replace.bind(null, index))
-                            }
-                          }}
-                          disabled={!data.metricType}
-                        />
-                      )}
-
                       {/* ==== ⭐️ Metric ==== */}
                       <ThresholdSelect
                         disabled={!data?.metricType}
-                        items={getMetricItems(metricPacks, data.metricType, data.groupName, groupedCreatedMetrics)}
+                        items={getMetricItems(groupedCreatedMetrics)}
                         key={`${data?.metricType}-${data.groupName}`}
                         name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_METRIC_NAME}`}
                       />

@@ -425,6 +425,7 @@ export default function AppDMonitoredSource({
                 formikValues={formik.values}
                 groupedCreatedMetrics={groupedCreatedMetrics}
                 metricPacks={selectedMetricPacks}
+                setNonCustomFeilds={setNonCustomFeilds}
               />
             )}
 
