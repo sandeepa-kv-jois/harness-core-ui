@@ -118,6 +118,7 @@ export default function AppDFailFastThresholdTabContent(): JSX.Element {
                       variation={ButtonVariation.LINK}
                       onClick={() => handleAddThreshold(props.unshift)}
                       style={{ justifySelf: 'start' }}
+                      data-testid="AddThresholdButton"
                     >
                       {getString('cv.monitoringSources.appD.addThreshold')}
                     </Button>
@@ -132,6 +133,7 @@ export default function AppDFailFastThresholdTabContent(): JSX.Element {
                         css.appDMetricThresholdContentIgnoreTableRow,
                         css.appDMetricThresholdContentFailFastTableRow
                       )}
+                      data-testid="ThresholdRow"
                     >
                       {/* ==== ⭐️ Metric Type ==== */}
                       <ThresholdSelect
