@@ -590,7 +590,7 @@ export function InputSetForm(props: InputSetFormProps): React.ReactElement {
   return executionView ? (
     child()
   ) : isGitSimplificationEnabled && !loadingInputSet && inputSetError ? (
-    <NoEntityFound identifier={inputSetIdentifier} entityType={'inputSet'} />
+    <NoEntityFound identifier={inputSetIdentifier} entityType={'inputSet'} errorObj={inputSetError.data as Error} />
   ) : (
     <InputSetFormWrapper
       loading={
