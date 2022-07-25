@@ -20,7 +20,6 @@ import {
 import { Color, FontVariation } from '@harness/design-system'
 import { Spinner } from '@blueprintjs/core'
 import { useHistory, useParams } from 'react-router-dom'
-import type { CellProps, Column, Renderer } from 'react-table'
 import { debounce } from 'lodash-es'
 import ReactTimeago from 'react-timeago'
 
@@ -34,13 +33,14 @@ import {
 } from 'services/cd-ng'
 import { CcmMetaData, useFetchCcmMetaDataQuery } from 'services/ce/services'
 import { getIconByType } from '@connectors/pages/connectors/utils/ConnectorUtils'
+import RbacButton from '@rbac/components/Button/Button'
+import { PermissionIdentifier } from '@rbac/interfaces/PermissionIdentifier'
+import { ResourceType } from '@rbac/interfaces/ResourceType'
+import { CustomCloudCell, CustomCloudColumn, getCloudViewCostsLink } from '@ce/utils/cloudIntegrationUtils'
 
 import css from './CloudIntegrationTabs.module.scss'
 
-type CustomColumn = Column<ConnectorResponse>[]
-type CustomCell = Renderer<CellProps<ConnectorResponse>>
-
-const ConnectorNameCell: CustomCell = cell => {
+const ConnectorNameCell: CustomCloudCell = cell => {
   const name = cell.row.original?.connector?.name
   const connectorType = cell.row.original.connector?.type
 
@@ -57,7 +57,7 @@ const ConnectorNameCell: CustomCell = cell => {
   )
 }
 
-const ConnectorStatusCell: CustomCell = cell => {
+const ConnectorStatusCell: CustomCloudCell = cell => {
   const { getString } = useStrings()
   const { accountId } = useParams<{ accountId: string }>()
 
@@ -119,7 +119,7 @@ const ConnectorStatusCell: CustomCell = cell => {
   )
 }
 
-const LastUpdatedCell: CustomCell = cell => {
+const LastUpdatedCell: CustomCloudCell = cell => {
   const lastModifiedAt = cell.row.original.lastModifiedAt
 
   return (
@@ -129,10 +129,31 @@ const LastUpdatedCell: CustomCell = cell => {
   )
 }
 
-const defaultPerspectiveIdMap: Record<string, keyof CcmMetaData> = {
-  CEAzure: 'defaultAzurePerspectiveId',
-  CEAws: 'defaultAwsPerspectiveId',
-  GcpCloudCost: 'defaultGcpPerspectiveId'
+const ViewCostsCell: React.FC<{
+  data: ConnectorResponse
+  ccmMetadata?: CcmMetaData | null
+}> = ({ data, ccmMetadata }) => {
+  const { getString } = useStrings()
+  const { accountId } = useParams<{ accountId: string }>()
+
+  const connector = data.connector
+  const isReportingEnabled = connector?.spec?.featuresEnabled?.includes('VISIBILITY')
+
+  const route = getCloudViewCostsLink({ accountId, connector, ccmMetadata })
+
+  return isReportingEnabled ? (
+    <Button
+      variation={ButtonVariation.LINK}
+      rightIcon="launch"
+      iconProps={{ size: 12, color: Color.PRIMARY_7 }}
+      text={getString('ce.cloudIntegration.viewCosts')}
+      onClick={e => {
+        e.stopPropagation()
+        const baseUrl = window.location.href.split('#')[0]
+        window.open(`${baseUrl}#${route}`)
+      }}
+    />
+  ) : null
 }
 
 const CloudAccountsTab: React.FC = () => {
@@ -156,7 +177,7 @@ const CloudAccountsTab: React.FC = () => {
     }
   })
 
-  const getCloudAccounts = async () => {
+  const getCloudAccounts = async (): Promise<void> => {
     const { data: connectorResponse } = await fetchConnectors({
       filterType: 'Connector',
       types: ['CEAws', 'GcpCloudCost', 'CEAzure']
@@ -170,34 +191,6 @@ const CloudAccountsTab: React.FC = () => {
   }, [page, searchTerm])
 
   const ccmMetaData = ccmMetaDataRes?.ccmMetaData
-
-  const ViewCostsCell: CustomCell = cell => {
-    const connector = cell.row.original.connector
-    const connectorType = connector?.type || ''
-    const isReportingEnabled = connector?.spec?.featuresEnabled?.includes('VISIBILITY')
-    const defaultPerspectiveIdString = defaultPerspectiveIdMap[connectorType]
-    const defaultPerspectiveId = ccmMetaData?.[defaultPerspectiveIdString] as string
-
-    const route = routes.toPerspectiveDetails({
-      accountId: accountId,
-      perspectiveId: defaultPerspectiveId,
-      perspectiveName: defaultPerspectiveId
-    })
-
-    return isReportingEnabled ? (
-      <Button
-        variation={ButtonVariation.LINK}
-        rightIcon="launch"
-        iconProps={{ size: 12, color: Color.PRIMARY_7 }}
-        text={getString('ce.cloudIntegration.viewCosts')}
-        onClick={e => {
-          e.stopPropagation()
-          const baseUrl = window.location.href.split('#')[0]
-          window.open(`${baseUrl}#${route}`)
-        }}
-      />
-    ) : null
-  }
 
   const columns = useMemo(
     () => [
@@ -222,7 +215,7 @@ const CloudAccountsTab: React.FC = () => {
       {
         accessor: 'viewCosts',
         Header: '',
-        Cell: ViewCostsCell,
+        Cell: ({ row }) => <ViewCostsCell data={row.original} ccmMetadata={ccmMetaData} />,
         width: '15%'
       }
     ],
@@ -239,6 +232,22 @@ const CloudAccountsTab: React.FC = () => {
   return (
     <Container className={css.main}>
       <Layout.Horizontal margin={{ bottom: 'small' }}>
+        <RbacButton
+          variation={ButtonVariation.PRIMARY}
+          text={getString('newConnector')}
+          icon="plus"
+          permission={{
+            permission: PermissionIdentifier.UPDATE_CONNECTOR,
+            resource: {
+              resourceType: ResourceType.CONNECTOR
+            }
+          }}
+          onClick={() => {
+            history.push(routes.toConnectors({ accountId }))
+          }}
+          id="newConnectorBtn"
+          data-test="newConnectorButton"
+        />
         <FlexExpander />
         <ExpandingSearchInput
           placeholder={getString('search')}
@@ -249,7 +258,7 @@ const CloudAccountsTab: React.FC = () => {
       {!isLoading ? (
         <TableV2<ConnectorResponse>
           data={cloudAccounts?.content || []}
-          columns={columns as CustomColumn}
+          columns={columns as CustomCloudColumn}
           className={css.table}
           onRowClick={({ connector }) =>
             history.push(routes.toConnectorDetails({ accountId, connectorId: connector?.identifier }))
