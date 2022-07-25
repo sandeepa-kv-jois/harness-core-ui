@@ -5,9 +5,10 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import { isEmpty } from 'lodash-es'
+import { defaultTo, isEmpty } from 'lodash-es'
 import type { UseStringsReturn } from 'framework/strings'
 import type { TemplateSummaryResponse } from 'services/template-ng'
+import { FeatureFlag } from '@common/featureFlags'
 
 export enum TemplateType {
   Step = 'Step',
@@ -23,8 +24,7 @@ export enum TemplateType {
 
 export const getAllowedTemplateTypes = (
   getString: UseStringsReturn['getString'],
-  module?: string,
-  scriptTemplateEnabled?: boolean
+  featureFlagBasedTemplates?: { [key: string]: boolean }
 ): { label: string; value: string; disabled?: boolean }[] => {
   const AllowedTemplateTypes = [
     {
@@ -61,26 +61,31 @@ export const getAllowedTemplateTypes = (
       label: getString('executionText'),
       value: TemplateType.Execution,
       disabled: true
-    },
-    ...(scriptTemplateEnabled
-      ? [
-          {
-            label: getString('script'),
-            value: TemplateType.SecretManager,
-            disabled: !scriptTemplateEnabled
-          }
-        ]
-      : [])
+    }
   ]
-  if (module === 'cv') {
-    return [
-      {
-        label: getString('connectors.cdng.monitoredService.label'),
-        value: TemplateType.MonitoredService,
-        disabled: false
-      }
-    ]
-  }
+
+  Object.entries(defaultTo(featureFlagBasedTemplates, {})).forEach(flag => {
+    const [flagName, flagEnabled] = flag
+    switch (flagName) {
+      case FeatureFlag.CUSTOM_SECRET_MANAGER_NG:
+        AllowedTemplateTypes.push({
+          label: getString('script'),
+          value: TemplateType.SecretManager,
+          disabled: !flagEnabled
+        })
+        break
+      case FeatureFlag.CVNG_TEMPLATE_MONITORED_SERVICE:
+        AllowedTemplateTypes.push({
+          label: getString('connectors.cdng.monitoredService.label'),
+          value: TemplateType.MonitoredService,
+          disabled: !flagEnabled
+        })
+        break
+      default:
+        break
+    }
+  })
+
   return AllowedTemplateTypes
 }
 

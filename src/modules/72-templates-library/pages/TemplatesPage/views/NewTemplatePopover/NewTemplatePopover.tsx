@@ -9,7 +9,7 @@ import React from 'react'
 import { Position } from '@blueprintjs/core'
 import { Button, ButtonVariation } from '@wings-software/uicore'
 import { useHistory, useParams } from 'react-router-dom'
-import { merge, noop } from 'lodash-es'
+import { defaultTo, merge, noop } from 'lodash-es'
 import { useStrings } from 'framework/strings'
 import { getAllowedTemplateTypes, TemplateType } from '@templates-library/utils/templatesUtils'
 import routes from '@common/RouteDefinitions'
@@ -26,15 +26,18 @@ import RBACTooltip from '@rbac/components/RBACTooltip/RBACTooltip'
 import { FeatureIdentifier } from 'framework/featureStore/FeatureIdentifier'
 import { useFeature } from '@common/hooks/useFeatures'
 import { FeatureWarningTooltip } from '@common/components/FeatureWarning/FeatureWarningWithTooltip'
-import { useFeatureFlag } from '@common/hooks/useFeatureFlag'
-import { FeatureFlag } from '@common/featureFlags'
+import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
 
 function NewTemplatePopoverWrapper(): React.ReactElement {
   const { getString } = useStrings()
   const history = useHistory()
   const { projectIdentifier, orgIdentifier, accountId, module } = useParams<ProjectPathProps & ModulePathParams>()
-  const scriptTemplateEnabled = useFeatureFlag(FeatureFlag.CUSTOM_SECRET_MANAGER_NG)
-  const allowedTemplateTypes = getAllowedTemplateTypes(getString, module, scriptTemplateEnabled)
+  const { CVNG_TEMPLATE_MONITORED_SERVICE, CUSTOM_SECRET_MANAGER_NG } = useFeatureFlags()
+  const allowedTemplateTypes = getAllowedTemplateTypes(getString, {
+    CUSTOM_SECRET_MANAGER_NG: defaultTo(CUSTOM_SECRET_MANAGER_NG, false),
+    CVNG_TEMPLATE_MONITORED_SERVICE: defaultTo(CVNG_TEMPLATE_MONITORED_SERVICE, false)
+  }).filter(item => !item.disabled)
+
   const [menuOpen, setMenuOpen] = React.useState(false)
   const { enabled: templatesEnabled } = useFeature({
     featureRequest: {

@@ -9,6 +9,7 @@ import { unset } from 'lodash-es'
 import type { StringKeys } from 'framework/strings'
 import { stageTemplateMock } from '@templates-library/components/TemplateStudio/__tests__/stateMock'
 import { getAllowedTemplateTypes, getVersionLabelText } from '@templates-library/utils/templatesUtils'
+import { FeatureFlag } from '@common/featureFlags'
 
 function getString(key: StringKeys): StringKeys {
   return key
@@ -25,7 +26,7 @@ describe('templatesUtils tests', () => {
   })
 
   test('Test getAllowedTemplateTypes method', () => {
-    expect(getAllowedTemplateTypes(getString, 'cd')).toEqual([
+    expect(getAllowedTemplateTypes(getString)).toEqual([
       { disabled: false, label: 'step', value: 'Step' },
       { disabled: false, label: 'common.stage', value: 'Stage' },
       { disabled: false, label: 'common.pipeline', value: 'Pipeline' },
@@ -34,7 +35,7 @@ describe('templatesUtils tests', () => {
       { disabled: true, label: 'stepGroup', value: 'StepGroup' },
       { disabled: true, label: 'executionText', value: 'Execution' }
     ])
-    expect(getAllowedTemplateTypes(getString, 'cv')).toEqual(
+    expect(getAllowedTemplateTypes(getString, { [FeatureFlag.CVNG_TEMPLATE_MONITORED_SERVICE]: true })).toEqual(
       expect.arrayContaining([
         {
           disabled: false,

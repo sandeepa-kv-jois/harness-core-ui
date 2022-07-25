@@ -16,6 +16,7 @@ import {
   Layout,
   Views
 } from '@wings-software/uicore'
+import { defaultTo } from 'lodash-es'
 import { useModalHook } from '@harness/use-modal'
 import { useHistory, useParams } from 'react-router-dom'
 import { Dialog } from '@blueprintjs/core'
@@ -41,8 +42,7 @@ import { getScopeFromDTO } from '@common/components/EntityReference/EntityRefere
 import { getAllowedTemplateTypes, TemplateType } from '@templates-library/utils/templatesUtils'
 import { getLinkForAccountResources } from '@common/utils/BreadcrumbUtils'
 import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
-import { useFeatureFlag } from '@common/hooks/useFeatureFlag'
-import { FeatureFlag } from '@common/featureFlags'
+import { useFeatureFlags } from '@common/hooks/useFeatureFlag'
 import css from './TemplatesPage.module.scss'
 
 export default function TemplatesPage(): React.ReactElement {
@@ -63,10 +63,11 @@ export default function TemplatesPage(): React.ReactElement {
   const { isGitSyncEnabled } = useAppStore()
   const scope = getScopeFromDTO({ projectIdentifier, orgIdentifier, accountIdentifier: accountId })
 
-  const scriptTemplateEnabled = useFeatureFlag(FeatureFlag.CUSTOM_SECRET_MANAGER_NG)
-  const allowedTemplateTypes = getAllowedTemplateTypes(getString, module, scriptTemplateEnabled).filter(
-    item => !item.disabled
-  )
+  const { CVNG_TEMPLATE_MONITORED_SERVICE, CUSTOM_SECRET_MANAGER_NG } = useFeatureFlags()
+  const allowedTemplateTypes = getAllowedTemplateTypes(getString, {
+    CUSTOM_SECRET_MANAGER_NG: defaultTo(CUSTOM_SECRET_MANAGER_NG, false),
+    CVNG_TEMPLATE_MONITORED_SERVICE: defaultTo(CVNG_TEMPLATE_MONITORED_SERVICE, false)
+  }).filter(item => !item.disabled)
 
   useDocumentTitle([getString('common.templates')])
 
