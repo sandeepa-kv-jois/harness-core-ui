@@ -89,7 +89,7 @@ const DashboardViewPage: React.FC = () => {
       window.removeEventListener('message', lookerEventHandler)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewId])
+  }, [history, viewId])
 
   const { data: folderDetail, refetch: fetchFolderDetail } = useGetFolderDetail({
     lazy: true,
