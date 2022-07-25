@@ -144,7 +144,7 @@ const DashboardViewPage: React.FC = () => {
           height="100%"
           width="100%"
           frameBorder="0"
-          id="looker"
+          id="looker-dashboard"
           data-testid="dashboard-iframe"
         />
       </Layout.Vertical>
