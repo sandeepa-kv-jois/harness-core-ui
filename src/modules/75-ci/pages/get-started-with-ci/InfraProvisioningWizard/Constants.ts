@@ -13,6 +13,7 @@ import { Connectors } from '@connectors/constants'
 import type { SelectBuildLocationForwardRef } from './SelectBuildLocation'
 
 export interface InfraProvisioningWizardProps {
+  preSelectedConnector?: ConnectorInfoDTO
   lastConfiguredWizardStepId?: InfraProvisiongWizardStepId
 }
 

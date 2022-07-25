@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import cx from 'classnames'
+import { get } from 'lodash-es'
 import {
   Text,
   FontVariation,
@@ -63,7 +64,9 @@ export default function GetStartedWithCI(): React.ReactElement {
         const { status, data } = response
         if (status === Status.SUCCESS && Array.isArray(data?.content) && data?.content && data.content.length > 0) {
           const selectedConnector = data.content
-            .filter((item: ConnectorResponse) => item.status?.status === Status.SUCCESS)
+            .filter((item: ConnectorResponse) => {
+              return get(item, 'connector.spec.apiAccess.spec.tokenRef') && item.status?.status === Status.SUCCESS
+            })
             ?.slice(-1)
             .pop()
           if (selectedConnector) {
@@ -167,6 +170,7 @@ export default function GetStartedWithCI(): React.ReactElement {
       {fetchingGitConnectors ? <PageSpinner /> : <></>}
       {!fetchingGitConnectors && showWizard ? (
         <InfraProvisioningWizard
+          preSelectedConnector={preSelectedGitConnector}
           lastConfiguredWizardStepId={
             preSelectedGitConnector
               ? InfraProvisiongWizardStepId.SelectRepository
