@@ -248,7 +248,7 @@ function FormContent({
 }
 
 export function CustomArtifact(
-  props: StepProps<ConnectorConfigDTO> & ImagePathProps<ImagePathTypes>
+  props: StepProps<ConnectorConfigDTO> & ImagePathProps<CustomArtifactSource>
 ): React.ReactElement {
   const { context, initialValues, artifactIdentifiers, selectedArtifact, nextStep } = props
   const { getString } = useStrings()
@@ -268,12 +268,9 @@ export function CustomArtifact(
     )
   })
   const getInitialValues = (): CustomArtifactSource => {
-    return getCustomArtifactFormData(
-      initialValues,
-      selectedArtifact as ArtifactType,
-      context === ModalViewFor.SIDECAR
-    ) as CustomArtifactSource
+    return getCustomArtifactFormData(initialValues, selectedArtifact as ArtifactType, context === ModalViewFor.SIDECAR)
   }
+  console.log('getInitialValues custom artifact ', getInitialValues(), initialValues)
   return (
     <Layout.Vertical spacing="medium" className={css.firstep}>
       <Text font={{ variation: FontVariation.H3 }} margin={{ bottom: 'medium' }}>
@@ -294,7 +291,7 @@ export function CustomArtifact(
 }
 
 export function CustomArtifactOptionalConfiguration(
-  props: StepProps<CustomArtifactSource> & ImagePathProps<ImagePathTypes>
+  props: StepProps<CustomArtifactSource> & ImagePathProps<CustomArtifactSource>
 ): React.ReactElement {
   const { context, handleSubmit, prevStepData, initialValues, selectedArtifact } = props
 
@@ -361,7 +358,8 @@ export function CustomArtifactOptionalConfiguration(
 }
 
 function OptionalConfigurationFormContent(
-  props: StepProps<ConnectorConfigDTO> & ImagePathProps<ImagePathTypes> & { formik: FormikProps<CustomArtifactSource> }
+  props: StepProps<ConnectorConfigDTO> &
+    ImagePathProps<CustomArtifactSource> & { formik: FormikProps<CustomArtifactSource> }
 ): React.ReactElement {
   const { formik, allowableTypes, isReadonly, expressions, previousStep, prevStepData } = props
   const { accountId, projectIdentifier, orgIdentifier } =

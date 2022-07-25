@@ -22,6 +22,7 @@ const props = {
     MultiTypeInputType.EXPRESSION
   ] as AllowedTypesWithRunTime[],
   context: 2,
+  nextStep: jest.fn(),
   handleSubmit: jest.fn(),
   artifactIdentifiers: [],
   selectedArtifact: 'CustomArtifact' as ArtifactType,
@@ -30,11 +31,44 @@ const props = {
 
 const initialValues = {
   identifier: '',
-  version: RUNTIME_INPUT_VALUE
+  spec: {
+    version: '123',
+    delegateSelectors: '<+input>',
+    inputs: [
+      {
+        name: 'variable1',
+        type: 'String',
+        value: '<+input>'
+      }
+    ],
+    scripts: {
+      fetchAllArtifacts: {
+        artifactsArrayPath: '<+input>',
+        attributes: [
+          {
+            name: 'variable',
+            type: 'String',
+            value: '<+input>'
+          }
+        ],
+        versionPath: '<+input>',
+        spec: {
+          shell: 'BASH',
+          source: {
+            spec: {
+              script: '<+input>'
+            },
+            type: '<+input>',
+            timeout: '<+input>'
+          }
+        }
+      }
+    }
+  }
 }
 
-describe('Nexus Artifact tests', () => {
-  test(`renders without crashing`, () => {
+describe('Custom Artifact tests', () => {
+  test.only(`renders without crashing`, () => {
     const { container } = render(
       <TestWrapper>
         <CustomArtifact key={'key'} initialValues={initialValues as CustomArtifactSource} {...props} />
@@ -48,9 +82,9 @@ describe('Nexus Artifact tests', () => {
         <CustomArtifact key={'key'} initialValues={initialValues as CustomArtifactSource} {...props} />
       </TestWrapper>
     )
-    const versionField = queryByNameAttribute('version', container) as HTMLInputElement
+    const versionField = queryByNameAttribute('spec.version', container) as HTMLInputElement
     expect(versionField).toBeTruthy()
-    expect(versionField.value).toEqual(RUNTIME_INPUT_VALUE)
+    expect(versionField.value).toEqual('123')
 
     const submitBtn = container.querySelector('button[type="submit"]')!
     fireEvent.click(submitBtn)
@@ -71,12 +105,10 @@ describe('Nexus Artifact tests', () => {
     fireEvent.click(submitBtn)
 
     await waitFor(() => {
-      expect(props.handleSubmit).toBeCalled()
-      expect(props.handleSubmit).toHaveBeenCalledWith({
-        identifier: 'testidentifier',
-        spec: {
-          version: '<+input>'
-        }
+      expect(props.nextStep).toBeCalled()
+      expect(props.nextStep).toHaveBeenCalledWith({
+        ...initialValues,
+        identifier: 'testidentifier'
       })
     })
   })
@@ -91,7 +123,7 @@ describe('Nexus Artifact tests', () => {
         <CustomArtifact key={'key'} initialValues={filledInValues as CustomArtifactSource} {...props} />
       </TestWrapper>
     )
-    const versionField = container.querySelector('input[name="version"]')
+    const versionField = container.querySelector('input[name="spec.version"]')
     expect(versionField).not.toBeNull()
 
     expect(container).toMatchSnapshot()

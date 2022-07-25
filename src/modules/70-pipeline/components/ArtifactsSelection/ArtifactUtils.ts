@@ -238,7 +238,7 @@ export const getCustomArtifactFormData = (
   isSideCar: boolean
 ): CustomArtifactSource => {
   const specValues = get(initialValues, 'spec', null)
-
+  console.log('getInitialValues', specValues, initialValues)
   if (selectedArtifact !== (initialValues as any)?.type || !specValues) {
     return defaultArtifactInitialValues(selectedArtifact)
   }

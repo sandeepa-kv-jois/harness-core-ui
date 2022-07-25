@@ -44,7 +44,6 @@ const Content = (props: CustomArtifactRenderContent): React.ReactElement => {
     path,
     readonly,
     stageIdentifier,
-    isTagsSelectionDisabled,
     allowableTypes,
     fromTrigger,
     artifact,
@@ -57,7 +56,7 @@ const Content = (props: CustomArtifactRenderContent): React.ReactElement => {
   const scriptType: ScriptType = get(template, `artifacts.${artifactPath}.spec.source.spec.script`) || 'Bash'
   const { projectIdentifier, orgIdentifier } = useParams<PipelineType<PipelinePathProps & AccountPathProps>>()
   const scope = { projectIdentifier, orgIdentifier }
-  const isFieldDisabled = (fieldName: string, isTag = false): boolean => {
+  const isFieldDisabled = (fieldName: string): boolean => {
     /* instanbul ignore else */
     if (
       readonly ||
@@ -70,9 +69,6 @@ const Content = (props: CustomArtifactRenderContent): React.ReactElement => {
       )
     ) {
       return true
-    }
-    if (isTag) {
-      return isTagsSelectionDisabled(props)
     }
     return false
   }
