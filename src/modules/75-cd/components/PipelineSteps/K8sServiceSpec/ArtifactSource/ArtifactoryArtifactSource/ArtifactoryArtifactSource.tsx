@@ -9,6 +9,7 @@ import React, { useState, useMemo } from 'react'
 import { defaultTo, get } from 'lodash-es'
 import type { GetDataError } from 'restful-react'
 
+import { parse } from 'yaml'
 import { AllowedTypes, FormInput, Layout, MultiTypeInputType } from '@wings-software/uicore'
 import { ArtifactSourceBase, ArtifactSourceRenderProps } from '@cd/factory/ArtifactSourceFactory/ArtifactSourceBase'
 import { yamlStringify } from '@common/utils/YamlHelperMethods'
@@ -21,7 +22,8 @@ import {
   ResponseArtifactoryResponseDTO,
   ServiceSpec,
   SidecarArtifact,
-  useGetBuildDetailsForArtifactoryArtifactWithYaml
+  useGetBuildDetailsForArtifactoryArtifactWithYaml,
+  useGetService
 } from 'services/cd-ng'
 
 import { ArtifactToConnectorMap, ENABLED_ARTIFACT_TYPES } from '@pipeline/components/ArtifactsSelection/ArtifactHelper'
@@ -29,7 +31,11 @@ import { repositoryFormat } from '@pipeline/components/ArtifactsSelection/Artifa
 import { TriggerDefaultFieldList } from '@triggers/pages/triggers/utils/TriggersWizardPageUtils'
 import { useStrings } from 'framework/strings'
 import { useVariablesExpression } from '@pipeline/components/PipelineStudio/PiplineHooks/useVariablesExpression'
-import { isServerlessDeploymentType, ServiceDeploymentType } from '@pipeline/utils/stageHelpers'
+import {
+  isAzureWebAppGenericDeploymentType,
+  isServerlessDeploymentType,
+  ServiceDeploymentType
+} from '@pipeline/utils/stageHelpers'
 import ServerlessArtifactoryRepository from '@pipeline/components/ArtifactsSelection/ArtifactRepository/ArtifactLastSteps/Artifactory/ServerlessArtifactoryRepository'
 import type { StageElementWrapper } from '@pipeline/utils/pipelineTypes'
 import { getStageFromPipeline } from '@pipeline/components/PipelineStudio/PipelineContext/helpers'
@@ -49,7 +55,11 @@ import ArtifactTagRuntimeField from '../ArtifactSourceRuntimeFields/ArtifactTagR
 import css from '../../K8sServiceSpec.module.scss'
 
 interface ArtifactoryRenderContent extends ArtifactSourceRenderProps {
-  isTagsSelectionDisabled: (data: ArtifactSourceRenderProps, isServerlessDeploymentTypeSelected: boolean) => boolean
+  isTagsSelectionDisabled: (
+    data: ArtifactSourceRenderProps,
+    isServerlessDeploymentTypeSelected: boolean,
+    isAzureWebAppGenericSelected?: boolean
+  ) => boolean
 }
 
 interface TagFieldsProps extends ArtifactoryRenderContent {
@@ -62,14 +72,18 @@ interface TagFieldsProps extends ArtifactoryRenderContent {
   selectedDeploymentType: ServiceDeploymentType
   isSidecar?: boolean
   artifactPath?: string
-  isTagsSelectionDisabled: (data: ArtifactSourceRenderProps, isServerlessDeploymentTypeSelected: boolean) => boolean
+  isTagsSelectionDisabled: (
+    data: ArtifactSourceRenderProps,
+    isServerlessDeploymentTypeSelected: boolean,
+    isAzureWebAppGenericSelected?: boolean
+  ) => boolean
   fetchingTags: boolean
   artifactoryTagsData: ResponseArtifactoryResponseDTO | null
   fetchTagsError: GetDataError<Failure | Error> | null
   fetchTags: () => void
   isFieldDisabled: (fieldName: string, isTag?: boolean) => boolean
 }
-const TagFields = (props: TagFieldsProps): JSX.Element => {
+const TagFields = (props: TagFieldsProps & { isAzureWebAppGenericSelected?: boolean }): JSX.Element => {
   const {
     template,
     path,
@@ -82,7 +96,8 @@ const TagFields = (props: TagFieldsProps): JSX.Element => {
     artifactoryTagsData,
     fetchTagsError,
     fetchTags,
-    isFieldDisabled
+    isFieldDisabled,
+    isAzureWebAppGenericSelected
   } = props
 
   const { getString } = useStrings()
@@ -90,14 +105,14 @@ const TagFields = (props: TagFieldsProps): JSX.Element => {
   const isServerlessDeploymentTypeSelected = isServerlessDeploymentType(selectedDeploymentType)
 
   const getTagsFieldName = (): string => {
-    if (isServerlessDeploymentTypeSelected) {
+    if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected) {
       return `artifacts.${artifactPath}.spec.artifactPath`
     }
     return `artifacts.${artifactPath}.spec.tag`
   }
 
   const getTagRegexFieldName = (): string => {
-    if (isServerlessDeploymentTypeSelected) {
+    if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected) {
       return `artifacts.${artifactPath}.spec.artifactPathFilter`
     }
     return `artifacts.${artifactPath}.spec.tagRegex`
@@ -107,7 +122,11 @@ const TagFields = (props: TagFieldsProps): JSX.Element => {
     <>
       {!!fromTrigger && isFieldRuntime(getTagsFieldName(), template) && (
         <FormInput.MultiTextInput
-          label={isServerlessDeploymentTypeSelected ? getString('pipeline.artifactPathLabel') : getString('tagLabel')}
+          label={
+            isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected
+              ? getString('pipeline.artifactPathLabel')
+              : getString('tagLabel')
+          }
           multiTextInputProps={{
             expressions,
             value: TriggerDefaultFieldList.build,
@@ -115,9 +134,10 @@ const TagFields = (props: TagFieldsProps): JSX.Element => {
           }}
           disabled={true}
           tooltipProps={{
-            dataTooltipId: isServerlessDeploymentTypeSelected
-              ? `wizardForm_artifacts_${path}.artifacts.${artifactPath}.spec.artifactPath`
-              : `wizardForm_artifacts_${path}.artifacts.${artifactPath}.spec.tag`
+            dataTooltipId:
+              isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected
+                ? `wizardForm_artifacts_${path}.artifacts.${artifactPath}.spec.artifactPath`
+                : `wizardForm_artifacts_${path}.artifacts.${artifactPath}.spec.tag`
           }}
           name={`${path}.artifacts.${artifactPath}.spec.tag`}
         />
@@ -134,6 +154,7 @@ const TagFields = (props: TagFieldsProps): JSX.Element => {
           expressions={expressions}
           stageIdentifier={stageIdentifier}
           isServerlessDeploymentTypeSelected={isServerlessDeploymentTypeSelected}
+          isAzureWebAppGenericSelected={isAzureWebAppGenericSelected}
         />
       )}
       {isFieldRuntime(getTagRegexFieldName(), template) && (
@@ -144,10 +165,12 @@ const TagFields = (props: TagFieldsProps): JSX.Element => {
             allowableTypes
           }}
           label={
-            isServerlessDeploymentTypeSelected ? getString('pipeline.artifactPathFilterLabel') : getString('tagRegex')
+            isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected
+              ? getString('pipeline.artifactPathFilterLabel')
+              : getString('tagRegex')
           }
           name={
-            isServerlessDeploymentTypeSelected
+            isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected
               ? `${path}.artifacts.${artifactPath}.spec.artifactPathFilter`
               : `${path}.artifacts.${artifactPath}.spec.tagRegex`
           }
@@ -186,6 +209,15 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
   const { expressions } = useVariablesExpression()
   const isPropagatedStage = path?.includes('serviceConfig.stageOverrides')
 
+  const { data: service } = useGetService({
+    queryParams: {
+      accountId,
+      orgIdentifier,
+      projectIdentifier
+    },
+    serviceIdentifier: serviceIdentifier as string
+  })
+
   const selectedDeploymentType: ServiceDeploymentType = useMemo(() => {
     let selectedStageSpec: DeploymentStageConfig = getStageFromPipeline(
       props.stageIdentifier,
@@ -205,13 +237,29 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
 
   const isServerlessDeploymentTypeSelected = isServerlessDeploymentType(selectedDeploymentType)
 
-  // Initial values
-  const artifactPathValue = isServerlessDeploymentTypeSelected
-    ? getDefaultQueryParam(
-        artifact?.spec?.artifactDirectory,
-        get(initialValues?.artifacts, `${artifactPath}.spec.artifactDirectory`, '')
+  const isAzureWebAppGenericSelected = useMemo(() => {
+    if (service) {
+      const parsedService = service?.data?.yaml && parse(service?.data?.yaml)
+      return isAzureWebAppGenericDeploymentType(
+        selectedDeploymentType,
+        get(parsedService, `service.serviceDefinition.spec.artifacts.${artifactPath}.spec.repositoryFormat`)
       )
-    : getImagePath(artifact?.spec?.artifactPath, get(initialValues, `artifacts.${artifactPath}.spec.artifactPath`, ''))
+    }
+
+    return false
+  }, [service, artifactPath, selectedDeploymentType])
+
+  // Initial values
+  const artifactPathValue =
+    isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected
+      ? getDefaultQueryParam(
+          artifact?.spec?.artifactDirectory,
+          get(initialValues?.artifacts, `${artifactPath}.spec.artifactDirectory`, '')
+        )
+      : getImagePath(
+          artifact?.spec?.artifactPath,
+          get(initialValues, `artifacts.${artifactPath}.spec.artifactPath`, '')
+        )
   const connectorRefValue = getDefaultQueryParam(
     artifact?.spec?.connectorRef,
     get(initialValues?.artifacts, `${artifactPath}.spec.connectorRef`, '')
@@ -222,7 +270,7 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
   )
 
   const artifactoryTagsDataCallMetadataQueryParams = React.useMemo(() => {
-    if (isServerlessDeploymentTypeSelected) {
+    if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected) {
       return {
         artifactPath: getFinalQueryParamValue(
           getDefaultQueryParam(
@@ -252,6 +300,7 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
       fqnPath: getFqnPath(path as string, !!isPropagatedStage, stageIdentifier, defaultTo(artifactPath, ''))
     }
   }, [
+    isAzureWebAppGenericSelected,
     isServerlessDeploymentTypeSelected,
     artifact?.spec?.artifactPath,
     artifact?.spec?.artifactDirectory,
@@ -326,7 +375,7 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
       return true
     }
     if (isTag) {
-      return isTagsSelectionDisabled(props, isServerlessDeploymentTypeSelected)
+      return isTagsSelectionDisabled(props, isServerlessDeploymentTypeSelected, isAzureWebAppGenericSelected)
     }
     return false
   }
@@ -377,7 +426,8 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
           )}
 
           {isFieldRuntime(`artifacts.${artifactPath}.spec.repository`, template) &&
-          !isServerlessDeploymentTypeSelected ? (
+          !isServerlessDeploymentTypeSelected &&
+          !isAzureWebAppGenericSelected ? (
             <FormInput.MultiTextInput
               label={getString('repository')}
               disabled={isFieldDisabled(`artifacts.${artifactPath}.spec.repository`)}
@@ -403,7 +453,7 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
           )}
 
           {isFieldRuntime(`artifacts.${artifactPath}.spec.artifactDirectory`, template) &&
-            isServerlessDeploymentTypeSelected && (
+            (isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected) && (
               <FormInput.MultiTextInput
                 label={getString('pipeline.artifactsSelection.artifactDirectory')}
                 disabled={isFieldDisabled(`artifacts.${artifactPath}.spec.artifactDirectory`)}
@@ -417,7 +467,8 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
             )}
 
           {isFieldRuntime(`artifacts.${artifactPath}.spec.artifactPath`, template) &&
-            !isServerlessDeploymentTypeSelected && (
+            !isServerlessDeploymentTypeSelected &&
+            !isAzureWebAppGenericSelected && (
               <FormInput.MultiTextInput
                 label={getString('pipeline.artifactPathLabel')}
                 disabled={isFieldDisabled(`artifacts.${artifactPath}.spec.artifactPath`)}
@@ -438,6 +489,7 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
             artifactoryTagsData={artifactoryTagsData}
             isFieldDisabled={isFieldDisabled}
             selectedDeploymentType={selectedDeploymentType}
+            isAzureWebAppGenericSelected={isAzureWebAppGenericSelected}
           />
         </Layout.Vertical>
       )}
@@ -449,10 +501,14 @@ export class ArtifactoryArtifactSource extends ArtifactSourceBase<ArtifactSource
   protected artifactType = ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry
   protected isSidecar = false
 
-  isTagsSelectionDisabled(props: ArtifactSourceRenderProps, isServerlessDeploymentTypeSelected = false): boolean {
+  isTagsSelectionDisabled(
+    props: ArtifactSourceRenderProps,
+    isServerlessDeploymentTypeSelected = false,
+    isAzureWebAppDeploymentTypeSelected = false
+  ): boolean {
     const { initialValues, artifactPath, artifact } = props
 
-    if (isServerlessDeploymentTypeSelected) {
+    if (isServerlessDeploymentTypeSelected || isAzureWebAppDeploymentTypeSelected) {
       const isArtifactDirectoryPresent = getDefaultQueryParam(
         artifact?.spec?.artifactDirectory,
         get(initialValues, `artifacts.${artifactPath}.spec.artifactDirectory`, '')

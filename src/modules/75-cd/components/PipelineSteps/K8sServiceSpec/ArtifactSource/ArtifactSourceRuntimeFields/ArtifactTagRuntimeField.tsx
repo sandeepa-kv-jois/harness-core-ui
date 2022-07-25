@@ -21,7 +21,11 @@ import { BuildDetailsDTO, getTagError } from '../artifactSourceUtils'
 import css from '../../K8sServiceSpec.module.scss'
 
 interface TagsRenderContent extends ArtifactSourceRenderProps {
-  isTagsSelectionDisabled: (data: ArtifactSourceRenderProps, isServerlessDeploymentTypeSelected: boolean) => boolean
+  isTagsSelectionDisabled: (
+    data: ArtifactSourceRenderProps,
+    isServerlessDeploymentTypeSelected: boolean,
+    isAzureWebAppGenericSelected?: boolean
+  ) => boolean
   buildDetailsList?: BuildDetailsDTO
   isFieldDisabled: () => boolean
   fetchingTags: boolean
@@ -29,6 +33,7 @@ interface TagsRenderContent extends ArtifactSourceRenderProps {
   fetchTagsError: GetDataError<Failure | Error> | null
   expressions: string[]
   isServerlessDeploymentTypeSelected?: boolean
+  isAzureWebAppGenericSelected?: boolean
   isArtifactPath?: boolean
 }
 const ArtifactTagRuntimeField = (props: TagsRenderContent): JSX.Element => {
@@ -46,19 +51,21 @@ const ArtifactTagRuntimeField = (props: TagsRenderContent): JSX.Element => {
     fetchTags,
     fetchTagsError,
     stageIdentifier,
-    isServerlessDeploymentTypeSelected = false
+    isServerlessDeploymentTypeSelected = false,
+    isAzureWebAppGenericSelected = false
   } = props
 
   const { getString } = useStrings()
-  const loadingPlaceholderText = isServerlessDeploymentTypeSelected
-    ? getString('pipeline.artifactsSelection.loadingArtifactPaths')
-    : getString('pipeline.artifactsSelection.loadingTags')
+  const loadingPlaceholderText =
+    isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected
+      ? getString('pipeline.artifactsSelection.loadingArtifactPaths')
+      : getString('pipeline.artifactsSelection.loadingTags')
   const { showError } = useToaster()
 
   const [tagsList, setTagsList] = useState<SelectOption[]>([])
 
   const tagsListOptions = React.useMemo((): SelectOption[] | undefined => {
-    if (isServerlessDeploymentTypeSelected) {
+    if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected) {
       return buildDetailsList?.map((tag: ArtifactoryBuildDetailsDTO) => ({
         label: defaultTo(tag.artifactPath, ''),
         value: defaultTo(tag.artifactPath, '')
@@ -68,7 +75,7 @@ const ArtifactTagRuntimeField = (props: TagsRenderContent): JSX.Element => {
       label: defaultTo(tag, ''),
       value: defaultTo(tag, '')
     }))
-  }, [isServerlessDeploymentTypeSelected, buildDetailsList])
+  }, [isServerlessDeploymentTypeSelected, isAzureWebAppGenericSelected, buildDetailsList])
 
   useEffect(() => {
     if (Array.isArray(buildDetailsList)) {
@@ -122,7 +129,7 @@ const ArtifactTagRuntimeField = (props: TagsRenderContent): JSX.Element => {
             return
           }
 
-          if (!isTagsSelectionDisabled(props, isServerlessDeploymentTypeSelected)) {
+          if (!isTagsSelectionDisabled(props, isServerlessDeploymentTypeSelected, isAzureWebAppGenericSelected)) {
             fetchTags()
           }
         },
@@ -136,7 +143,9 @@ const ArtifactTagRuntimeField = (props: TagsRenderContent): JSX.Element => {
               ]
             : tagsList,
           usePortal: true,
-          addClearBtn: !(readonly || isTagsSelectionDisabled(props, isServerlessDeploymentTypeSelected)),
+          addClearBtn: !(
+            readonly || isTagsSelectionDisabled(props, isServerlessDeploymentTypeSelected, isAzureWebAppGenericSelected)
+          ),
           noResults: (
             <Text lineClamp={1}>{getTagError(fetchTagsError) || getString('pipelineSteps.deploy.errors.notags')}</Text>
           ),
@@ -147,9 +156,13 @@ const ArtifactTagRuntimeField = (props: TagsRenderContent): JSX.Element => {
         expressions,
         allowableTypes
       }}
-      label={isServerlessDeploymentTypeSelected ? getString('pipeline.artifactPathLabel') : getString('tagLabel')}
+      label={
+        isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected
+          ? getString('pipeline.artifactPathLabel')
+          : getString('tagLabel')
+      }
       name={
-        isServerlessDeploymentTypeSelected
+        isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected
           ? `${path}.artifacts.${artifactPath}.spec.artifactPath`
           : `${path}.artifacts.${artifactPath}.spec.tag`
       }

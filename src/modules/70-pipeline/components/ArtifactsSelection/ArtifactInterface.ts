@@ -83,6 +83,7 @@ export interface ImagePathTypes {
   repositoryUrl?: string
   repositoryPortorRepositoryURL?: string
   artifactDirectory?: string
+  repositoryFormat?: string
 }
 
 export interface CustomArtifactSource extends ImagePathTypes {
@@ -193,6 +194,7 @@ export interface ArtifactImagePathTagViewProps {
   tagDisabled: boolean
   isArtifactPath?: boolean
   isServerlessDeploymentTypeSelected?: boolean
+  isAzureWebAppGenericTypeSelected?: boolean
 }
 
 export interface ACRArtifactType {

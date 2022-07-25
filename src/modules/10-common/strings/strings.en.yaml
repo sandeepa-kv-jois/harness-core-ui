@@ -918,6 +918,7 @@ import: Import
 importEntityFromGit: Import {{resourceType}} From Git
 serviceOverrides: Service Overrides
 invalidIdentifiers: 'Identifier must not be one of the following values: {{identifiers}}'
+repositoryFormat: Repository Format
 
 # Chaos Module
 chaosText: Chaos

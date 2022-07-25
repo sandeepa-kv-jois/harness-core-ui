@@ -66,6 +66,16 @@ export enum ServiceDeploymentType {
   AzureWebApp = 'AzureWebApp'
 }
 
+export enum RepositoryFormatTypes {
+  Generic = 'generic',
+  Docker = 'docker'
+}
+
+export const repositoryFormats = [
+  { label: 'Generic', value: RepositoryFormatTypes.Generic },
+  { label: 'Docker', value: RepositoryFormatTypes.Docker }
+]
+
 export type ServerlessGCPInfrastructure = Infrastructure & {
   connectorRef: string
   metadata?: string
@@ -130,12 +140,13 @@ export function hasSTOStage(pipelineExecution?: PipelineExecutionSummary): boole
 export const getHelperTextString = (
   invalidFields: string[],
   getString: (key: StringKeys) => string,
-  isServerlessDeploymentTypeSelected = false
+  isServerlessDeploymentTypeSelected = false,
+  isAzureWebAppGenericTypeSelected = false
 ): string => {
   return `${invalidFields.length > 1 ? invalidFields.join(', ') : invalidFields[0]} ${
     invalidFields.length > 1 ? ' are ' : ' is '
   } ${
-    isServerlessDeploymentTypeSelected
+    isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected
       ? getString('pipeline.artifactPathDependencyRequired')
       : getString('pipeline.tagDependencyRequired')
   }`
@@ -155,7 +166,8 @@ export const getHelpeTextForTags = (
     subscriptionId?: string
   },
   getString: (key: StringKeys) => string,
-  isServerlessDeploymentTypeSelected = false
+  isServerlessDeploymentTypeSelected = false,
+  isAzureWebAppGenericTypeSelected = false
 ): string => {
   const {
     connectorRef,
@@ -184,12 +196,14 @@ export const getHelpeTextForTags = (
   }
   if (
     !isServerlessDeploymentTypeSelected &&
+    !isAzureWebAppGenericTypeSelected &&
     (imagePath === '' || getMultiTypeFromValue(imagePath) === MultiTypeInputType.RUNTIME)
   ) {
     invalidFields.push(getString('pipeline.imagePathLabel'))
   }
   if (
     !isServerlessDeploymentTypeSelected &&
+    !isAzureWebAppGenericTypeSelected &&
     (artifactPath === '' || getMultiTypeFromValue(artifactPath) === MultiTypeInputType.RUNTIME)
   ) {
     invalidFields.push(getString('pipeline.artifactPathLabel'))
@@ -204,7 +218,7 @@ export const getHelpeTextForTags = (
     invalidFields.push(getString('pipeline.artifactsSelection.repositoryPort'))
   }
   if (
-    isServerlessDeploymentTypeSelected &&
+    (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) &&
     (!artifactDirectory || getMultiTypeFromValue(artifactDirectory) === MultiTypeInputType.RUNTIME)
   ) {
     invalidFields.push(getString('pipeline.artifactsSelection.artifactDirectory'))
@@ -221,7 +235,12 @@ export const getHelpeTextForTags = (
     invalidFields.push(getString('pipeline.ACR.subscription'))
   }
 
-  const helpText = getHelperTextString(invalidFields, getString, isServerlessDeploymentTypeSelected)
+  const helpText = getHelperTextString(
+    invalidFields,
+    getString,
+    isServerlessDeploymentTypeSelected,
+    isAzureWebAppGenericTypeSelected
+  )
 
   return invalidFields.length > 0 ? helpText : ''
 }
@@ -242,6 +261,15 @@ export const isSSHWinRMDeploymentType = (deploymentType: string): boolean => {
 
 export const isAzureWebAppDeploymentType = (deploymentType: string): boolean => {
   return deploymentType === ServiceDeploymentType.AzureWebApp
+}
+
+export const isAzureWebAppGenericDeploymentType = (deploymentType: string, repo: string): boolean => {
+  if (deploymentType === ServiceDeploymentType.AzureWebApp) {
+    // default repository format should be Generic if none is previously selected
+    return repo ? repo === RepositoryFormatTypes.Generic : true
+  }
+
+  return false
 }
 
 export const detailsHeaderName: Record<string, string> = {

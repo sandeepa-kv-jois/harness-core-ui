@@ -31,19 +31,21 @@ import css from '../../ArtifactConnector.module.scss'
 
 export function NoTagResults({
   tagError,
-  isServerlessDeploymentTypeSelected
+  isServerlessDeploymentTypeSelected,
+  isAzureWebAppGenericTypeSelected
 }: {
   tagError: GetDataError<Failure | Error> | null
   isServerlessDeploymentTypeSelected?: boolean
+  isAzureWebAppGenericTypeSelected?: boolean
 }): JSX.Element {
   const { getString } = useStrings()
 
   const getErrorText = useCallback(() => {
-    if (isServerlessDeploymentTypeSelected) {
+    if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
       return getString('pipeline.noArtifactPaths')
     }
     return getString('pipelineSteps.deploy.errors.notags')
-  }, [isServerlessDeploymentTypeSelected, getString])
+  }, [isServerlessDeploymentTypeSelected, getString, isAzureWebAppGenericTypeSelected])
 
   return (
     <span className={css.padSmall}>
@@ -57,19 +59,28 @@ const onTagInputFocus = (
   formik: FormikValues,
   fetchTags: (val: string) => void,
   isArtifactPath = false,
-  isServerlessDeploymentTypeSelected = false
+  isServerlessDeploymentTypeSelected = false,
+  isAzureWebAppGenericTypeSelected = false
 ): void => {
   if (e?.target?.type !== 'text' || (e?.target?.type === 'text' && e?.target?.placeholder === EXPRESSION_STRING)) {
     return
   }
-  fetchTags(getArtifactPathToFetchTags(formik, isArtifactPath, isServerlessDeploymentTypeSelected))
+  fetchTags(
+    getArtifactPathToFetchTags(
+      formik,
+      isArtifactPath,
+      isServerlessDeploymentTypeSelected,
+      isAzureWebAppGenericTypeSelected
+    )
+  )
 }
 
 export const selectItemsMapper = (
   tagList: DockerBuildDetailsDTO[] | undefined,
-  isServerlessDeploymentTypeSelected = false
+  isServerlessDeploymentTypeSelected = false,
+  isAzureWebAppGenericTypeSelected = false
 ): SelectOption[] => {
-  if (isServerlessDeploymentTypeSelected) {
+  if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
     return tagList?.map((tag: ArtifactoryBuildDetailsDTO) => ({
       label: tag.artifactPath,
       value: tag.artifactPath
@@ -92,18 +103,19 @@ function ArtifactImagePathTagView({
   tagError,
   tagDisabled,
   isArtifactPath,
-  isServerlessDeploymentTypeSelected
+  isServerlessDeploymentTypeSelected,
+  isAzureWebAppGenericTypeSelected
 }: ArtifactImagePathTagViewProps): React.ReactElement {
   const { getString } = useStrings()
+  const getSelectItems = useCallback(
+    selectItemsMapper.bind(null, tagList, isServerlessDeploymentTypeSelected, isAzureWebAppGenericTypeSelected),
+    [tagList, isServerlessDeploymentTypeSelected, isAzureWebAppGenericTypeSelected]
+  )
 
-  const getSelectItems = useCallback(selectItemsMapper.bind(null, tagList, isServerlessDeploymentTypeSelected), [
-    tagList,
-    isServerlessDeploymentTypeSelected
-  ])
-
-  const loadingPlaceholderText = isServerlessDeploymentTypeSelected
-    ? getString('pipeline.artifactsSelection.loadingArtifactPaths')
-    : getString('pipeline.artifactsSelection.loadingTags')
+  const loadingPlaceholderText =
+    isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected
+      ? getString('pipeline.artifactsSelection.loadingArtifactPaths')
+      : getString('pipeline.artifactsSelection.loadingTags')
 
   const tags = buildDetailsLoading
     ? [{ label: loadingPlaceholderText, value: loadingPlaceholderText }]
@@ -112,7 +124,7 @@ function ArtifactImagePathTagView({
   useEffect(() => {
     if (!isNil(formik.values?.tag)) {
       if (getMultiTypeFromValue(formik.values?.tag) !== MultiTypeInputType.FIXED) {
-        formik.setFieldValue('tagRegex', formik.values.tag)
+        formik.setFieldValue('tagRegex', formik.values?.tag)
       } else {
         formik.setFieldValue('tagRegex', '')
       }
@@ -140,7 +152,7 @@ function ArtifactImagePathTagView({
 
   return (
     <>
-      {isServerlessDeploymentTypeSelected ? null : isArtifactPath ? (
+      {isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected ? null : isArtifactPath ? (
         <div className={css.imagePathContainer}>
           <FormInput.MultiTextInput
             label={getString('pipeline.artifactPathLabel')}
@@ -152,7 +164,7 @@ function ArtifactImagePathTagView({
           {getMultiTypeFromValue(formik.values?.artifactPath) === MultiTypeInputType.RUNTIME && (
             <div className={css.configureOptions}>
               <ConfigureOptions
-                value={formik.values.artifactPath}
+                value={formik.values?.artifactPath}
                 type="String"
                 variableName="artifactPath"
                 showRequiredField={false}
@@ -178,7 +190,7 @@ function ArtifactImagePathTagView({
           {getMultiTypeFromValue(formik.values?.imagePath) === MultiTypeInputType.RUNTIME && (
             <div className={css.configureOptions}>
               <ConfigureOptions
-                value={formik.values.imagePath}
+                value={formik.values?.imagePath}
                 type="String"
                 variableName="imagePath"
                 showRequiredField={false}
@@ -197,7 +209,9 @@ function ArtifactImagePathTagView({
       <div className={css.tagGroup}>
         <FormInput.RadioGroup
           label={
-            isServerlessDeploymentTypeSelected ? getString('pipeline.artifactsSelection.artifactDetails') : undefined
+            isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected
+              ? getString('pipeline.artifactsSelection.artifactDetails')
+              : undefined
           }
           name="tagType"
           radioGroup={{ inline: true }}
@@ -215,7 +229,8 @@ function ArtifactImagePathTagView({
               getHelpeTextForTags(
                 helperTextData(selectedArtifact, formik, connectorIdValue),
                 getString,
-                isServerlessDeploymentTypeSelected
+                isServerlessDeploymentTypeSelected,
+                isAzureWebAppGenericTypeSelected
               )
             }
             multiTypeInputProps={{
@@ -227,6 +242,7 @@ function ArtifactImagePathTagView({
                   <NoTagResults
                     tagError={tagError}
                     isServerlessDeploymentTypeSelected={isServerlessDeploymentTypeSelected}
+                    isAzureWebAppGenericTypeSelected={isAzureWebAppGenericTypeSelected}
                   />
                 ),
                 items: tags,
@@ -236,17 +252,28 @@ function ArtifactImagePathTagView({
                 addTooltip: true
               },
               onFocus: (e: React.FocusEvent<HTMLInputElement>) =>
-                onTagInputFocus(e, formik, fetchTags, isArtifactPath, isServerlessDeploymentTypeSelected)
+                onTagInputFocus(
+                  e,
+                  formik,
+                  fetchTags,
+                  isArtifactPath,
+                  isServerlessDeploymentTypeSelected,
+                  isAzureWebAppGenericTypeSelected
+                )
             }}
-            label={isServerlessDeploymentTypeSelected ? getString('pipeline.artifactPathLabel') : getString('tagLabel')}
+            label={
+              isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected
+                ? getString('pipeline.artifactPathLabel')
+                : getString('tagLabel')
+            }
             name="tag"
             className={css.tagInputButton}
           />
 
-          {getMultiTypeFromValue(formik.values.tag) === MultiTypeInputType.RUNTIME && (
+          {getMultiTypeFromValue(formik.values?.tag) === MultiTypeInputType.RUNTIME && (
             <div className={css.configureOptions}>
               <ConfigureOptions
-                value={formik.values.tag}
+                value={formik.values?.tag}
                 type="String"
                 variableName="tag"
                 showRequiredField={false}
@@ -266,16 +293,18 @@ function ArtifactImagePathTagView({
         <div className={css.imagePathContainer}>
           <FormInput.MultiTextInput
             label={
-              isServerlessDeploymentTypeSelected ? getString('pipeline.artifactPathFilterLabel') : getString('tagRegex')
+              isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected
+                ? getString('pipeline.artifactPathFilterLabel')
+                : getString('tagRegex')
             }
             name="tagRegex"
             placeholder={getString('pipeline.artifactsSelection.existingDocker.enterTagRegex')}
             multiTextInputProps={{ expressions, allowableTypes }}
           />
-          {getMultiTypeFromValue(formik.values.tagRegex) === MultiTypeInputType.RUNTIME && (
+          {getMultiTypeFromValue(formik.values?.tagRegex) === MultiTypeInputType.RUNTIME && (
             <div className={css.configureOptions}>
               <ConfigureOptions
-                value={formik.values.tagRegex}
+                value={formik.values?.tagRegex}
                 type="String"
                 variableName="tagRegex"
                 showRequiredField={false}

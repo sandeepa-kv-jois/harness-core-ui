@@ -464,6 +464,7 @@ export class AzureWebAppServiceSpec extends Step<ServiceSpec> {
   renderStep(props: StepProps<AzureWebAppServiceStep>): JSX.Element {
     const { initialValues, onUpdate, stepViewType, inputSetData, factory, customStepProps, readonly, allowableTypes } =
       props
+
     if (stepViewType === StepViewType.InputVariable) {
       return (
         <AzureWebAppServiceSpecVariablesForm

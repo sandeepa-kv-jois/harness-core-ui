@@ -5,7 +5,7 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import {
   Formik,
   FormInput,
@@ -33,11 +33,17 @@ import {
   getArtifactFormData,
   getConnectorIdValue,
   getFinalArtifactFormObj,
-  repositoryFormat,
   resetTag,
   shouldFetchTags
 } from '@pipeline/components/ArtifactsSelection/ArtifactUtils'
-import { isServerlessDeploymentType, isSshOrWinrmDeploymentType } from '@pipeline/utils/stageHelpers'
+import {
+  isAzureWebAppDeploymentType,
+  isAzureWebAppGenericDeploymentType,
+  isServerlessDeploymentType,
+  isSshOrWinrmDeploymentType,
+  repositoryFormats,
+  RepositoryFormatTypes
+} from '@pipeline/utils/stageHelpers'
 import { ConfigureOptions } from '@common/components/ConfigureOptions/ConfigureOptions'
 import type {
   ArtifactType,
@@ -52,9 +58,10 @@ import css from '../../ArtifactConnector.module.scss'
 
 const getRepositoryValue = (
   formData: ImagePathTypes & { connectorId?: string },
-  isServerlessDeploymentTypeSelected = false
+  isServerlessDeploymentTypeSelected = false,
+  isAzureWebAppGenericTypeSelected = false
 ): string => {
-  if (isServerlessDeploymentTypeSelected) {
+  if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
     if ((formData?.repository as SelectOption)?.value) {
       return (formData?.repository as SelectOption)?.value as string
     }
@@ -79,10 +86,34 @@ function Artifactory({
   const [lastQueryData, setLastQueryData] = useState({ artifactPath: '', repository: '' })
 
   const [tagList, setTagList] = useState<DockerBuildDetailsDTO[] | undefined>([])
+  const [repositoryFormat, setRepositoryFormat] = useState<string | undefined>(undefined)
   const { accountId, projectIdentifier, orgIdentifier } = useParams<ProjectPathProps>()
   const { repoIdentifier, branch } = useQueryParams<GitQueryParams>()
   const isServerlessDeploymentTypeSelected = isServerlessDeploymentType(selectedDeploymentType)
   const isSSHWinRmDeploymentType = isSshOrWinrmDeploymentType(selectedDeploymentType)
+  const isAzureWebAppDeploymentTypeSelected = isAzureWebAppDeploymentType(selectedDeploymentType)
+  const isAzureWebAppGenericTypeSelected = isAzureWebAppGenericDeploymentType(
+    selectedDeploymentType,
+    defaultTo((initialValues as any)?.spec?.repositoryFormat, initialValues?.repositoryFormat)
+  )
+  const [isAzureWebAppGeneric, setIsAzureWebAppGeneric] = useState<boolean>(isAzureWebAppGenericTypeSelected)
+
+  useLayoutEffect(() => {
+    let repoFormat = RepositoryFormatTypes.Docker
+    if (isServerlessDeploymentTypeSelected || isSSHWinRmDeploymentType) repoFormat = RepositoryFormatTypes.Generic
+    if (isAzureWebAppDeploymentTypeSelected) {
+      repoFormat = (initialValues as any)?.spec?.repositoryFormat
+        ? ((initialValues as any)?.spec?.repositoryFormat as RepositoryFormatTypes)
+        : RepositoryFormatTypes.Generic
+    }
+
+    setRepositoryFormat(repoFormat)
+  }, [])
+
+  // const isAzureWebAppGeneric = useMemo(() => {
+  //   return isAzureWebAppDeploymentTypeSelected && repositoryFormat === RepositoryFormatTypes.Generic
+  // }, [isAzureWebAppDeploymentTypeSelected, repositoryFormat])
+
   const schemaObject = {
     artifactPath: Yup.string().trim().required(getString('pipeline.artifactsSelection.validation.artifactPath')),
     repository: Yup.string().trim().required(getString('common.git.validation.repoRequired')),
@@ -148,7 +179,7 @@ function Artifactory({
     queryParams: {
       artifactPath: lastQueryData.artifactPath,
       repository: lastQueryData.repository,
-      repositoryFormat: isServerlessDeploymentTypeSelected || isSSHWinRmDeploymentType ? 'generic' : repositoryFormat,
+      repositoryFormat,
       connectorRef: getConnectorRefQueryData(),
       accountIdentifier: accountId,
       orgIdentifier,
@@ -204,26 +235,33 @@ function Artifactory({
       initialValues,
       selectedArtifact as ArtifactType,
       context === ModalViewFor.SIDECAR,
-      isServerlessDeploymentTypeSelected
+      isServerlessDeploymentTypeSelected,
+      isAzureWebAppGeneric
     )
-  }, [context, initialValues, selectedArtifact])
+  }, [context, initialValues, selectedArtifact, isAzureWebAppGeneric])
 
   const submitFormData = (formData: ImagePathTypes & { connectorId?: string }): void => {
     const artifactObj = getFinalArtifactFormObj(
       formData,
       context === ModalViewFor.SIDECAR,
-      isServerlessDeploymentTypeSelected
+      isServerlessDeploymentTypeSelected,
+      isAzureWebAppGeneric
     )
     merge(artifactObj.spec, {
-      repository: getRepositoryValue(formData, isServerlessDeploymentTypeSelected),
+      repository: getRepositoryValue(formData, isServerlessDeploymentTypeSelected, isAzureWebAppGeneric),
       repositoryUrl: formData?.repositoryUrl,
-      repositoryFormat: isServerlessDeploymentTypeSelected || isSSHWinRmDeploymentType ? 'generic' : repositoryFormat
+      repositoryFormat
     })
+
+    if (isAzureWebAppGeneric) {
+      delete artifactObj?.spec?.repositoryUrl
+    }
+
     handleSubmit(artifactObj)
   }
 
   const getValidationSchema = useCallback(() => {
-    if (isServerlessDeploymentTypeSelected) {
+    if (isServerlessDeploymentTypeSelected || isAzureWebAppGeneric) {
       if (context === ModalViewFor.SIDECAR) {
         return serverlessSidecarSchema
       }
@@ -257,7 +295,24 @@ function Artifactory({
           <Form>
             <div className={css.connectorForm}>
               {context === ModalViewFor.SIDECAR && <SideCarArtifactIdentifier />}
-              {!isServerlessDeploymentTypeSelected && (
+              {isAzureWebAppDeploymentTypeSelected && (
+                <div className={css.imagePathContainer}>
+                  <FormInput.Select
+                    name="repositoryFormat"
+                    label={getString('common.repositoryFormat')}
+                    items={repositoryFormats}
+                    onChange={value => {
+                      if (isAzureWebAppDeploymentTypeSelected) {
+                        setRepositoryFormat(value?.value as string)
+                        setIsAzureWebAppGeneric(
+                          isAzureWebAppDeploymentTypeSelected && value?.value === RepositoryFormatTypes.Generic
+                        )
+                      }
+                    }}
+                  />
+                </div>
+              )}
+              {!isServerlessDeploymentTypeSelected && !isAzureWebAppGeneric && (
                 <div className={css.imagePathContainer}>
                   <FormInput.MultiTextInput
                     label={getString('repositoryUrlLabel')}
@@ -269,7 +324,6 @@ function Artifactory({
                       allowableTypes
                     }}
                   />
-
                   {getMultiTypeFromValue(formik.values.repositoryUrl) === MultiTypeInputType.RUNTIME && (
                     <div className={css.configureOptions}>
                       <ConfigureOptions
@@ -290,7 +344,7 @@ function Artifactory({
                 </div>
               )}
 
-              {isServerlessDeploymentTypeSelected ? (
+              {isServerlessDeploymentTypeSelected || isAzureWebAppGeneric ? (
                 <ServerlessArtifactoryRepository
                   connectorRef={
                     getMultiTypeFromValue(prevStepData?.connectorId) === MultiTypeInputType.RUNTIME
@@ -341,7 +395,7 @@ function Artifactory({
                 </div>
               )}
 
-              {isServerlessDeploymentTypeSelected && (
+              {(isServerlessDeploymentTypeSelected || isAzureWebAppGeneric) && (
                 <div className={css.imagePathContainer}>
                   <FormInput.MultiTextInput
                     label={getString('pipeline.artifactsSelection.artifactDirectory')}
@@ -356,11 +410,11 @@ function Artifactory({
                     }}
                   />
 
-                  {getMultiTypeFromValue(formik.values.repository) === MultiTypeInputType.RUNTIME && (
+                  {getMultiTypeFromValue(formik.values.artifactDirectory) === MultiTypeInputType.RUNTIME && (
                     <div className={css.configureOptions}>
                       <ConfigureOptions
                         style={{ alignSelf: 'center' }}
-                        value={formik.values?.repository as string}
+                        value={formik.values?.artifactDirectory as string}
                         type={getString('string')}
                         variableName="artifactDirectory"
                         showRequiredField={false}
@@ -391,12 +445,13 @@ function Artifactory({
                 tagList={tagList}
                 setTagList={setTagList}
                 tagDisabled={
-                  isServerlessDeploymentTypeSelected
+                  isServerlessDeploymentTypeSelected || isAzureWebAppGeneric
                     ? isArtifactPathDisabled(formik?.values)
                     : isTagDisabled(formik?.values)
                 }
                 isArtifactPath={true}
                 isServerlessDeploymentTypeSelected={isServerlessDeploymentTypeSelected}
+                isAzureWebAppGenericTypeSelected={isAzureWebAppGeneric}
               />
             </div>
             <Layout.Horizontal spacing="medium">

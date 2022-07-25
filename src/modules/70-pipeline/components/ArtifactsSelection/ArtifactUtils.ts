@@ -158,11 +158,12 @@ const getServerlessArtifactFromObj = (formData: ImagePathTypes & { connectorId?:
 export const getFinalArtifactFormObj = (
   formData: ImagePathTypes & { connectorId?: string },
   isSideCar: boolean,
-  isServerlessDeploymentTypeSelected = false
+  isServerlessDeploymentTypeSelected = false,
+  isAzureWebAppGenericTypeSelected = false
 ): ArtifactConfig => {
   let artifactObj: ArtifactConfig = {}
 
-  if (isServerlessDeploymentTypeSelected) {
+  if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
     artifactObj = getServerlessArtifactFromObj(formData)
   } else {
     const tagData =
@@ -185,8 +186,12 @@ export const getFinalArtifactFormObj = (
   return artifactObj
 }
 
-const getTagValues = (specValues: any, isServerlessDeploymentTypeSelected = false): ImagePathTypes => {
-  if (isServerlessDeploymentTypeSelected) {
+const getTagValues = (
+  specValues: any,
+  isServerlessDeploymentTypeSelected = false,
+  isAzureWebAppGenericTypeSelected = false
+): ImagePathTypes => {
+  if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
     // In serverless, we do not have concept of tag / tagRegex,
     // rather we have artifactPath and artifactPathFilter and hence below name for overall object
     // Inside object we have fields tag / tagRegex because we want to reuse exisint code which is there for Kubernetes
@@ -215,18 +220,20 @@ export const getArtifactFormData = (
   initialValues: ImagePathTypes,
   selectedArtifact: ArtifactType,
   isSideCar: boolean,
-  isServerlessDeploymentTypeSelected = false
+  isServerlessDeploymentTypeSelected = false,
+  isAzureWebAppGenericTypeSelected = false
 ): ImagePathTypes => {
   const specValues = get(initialValues, 'spec', null)
 
   if (selectedArtifact !== (initialValues as any)?.type || !specValues) {
     return defaultArtifactInitialValues(selectedArtifact)
   }
-  const values = getTagValues(specValues, isServerlessDeploymentTypeSelected)
+  const values = getTagValues(specValues, isServerlessDeploymentTypeSelected, isAzureWebAppGenericTypeSelected)
 
   if (isSideCar && initialValues?.identifier) {
     merge(values, { identifier: initialValues?.identifier })
   }
+
   return values
 }
 
@@ -278,11 +285,19 @@ export const defaultArtifactInitialValues = (selectedArtifact: ArtifactType): an
         tagType: TagTypes.Value,
         filePath: ''
       }
+    case ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry:
+      return {
+        repositoryFormat: 'generic',
+        identifier: '',
+        tag: RUNTIME_INPUT_VALUE,
+        tagType: TagTypes.Value,
+        tagRegex: RUNTIME_INPUT_VALUE
+      }
+
     case ENABLED_ARTIFACT_TYPES.Acr:
     case ENABLED_ARTIFACT_TYPES.DockerRegistry:
     case ENABLED_ARTIFACT_TYPES.Gcr:
     case ENABLED_ARTIFACT_TYPES.Ecr:
-    case ENABLED_ARTIFACT_TYPES.ArtifactoryRegistry:
     default:
       return {
         identifier: '',
@@ -296,9 +311,10 @@ export const defaultArtifactInitialValues = (selectedArtifact: ArtifactType): an
 export const getArtifactPathToFetchTags = (
   formik: FormikValues,
   isArtifactPath = false,
-  isServerlessDeploymentTypeSelected = false
+  isServerlessDeploymentTypeSelected = false,
+  isAzureWebAppGenericTypeSelected = false
 ): string => {
-  if (isServerlessDeploymentTypeSelected) {
+  if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
     return formik.values.artifactDirectory
   }
   if (isArtifactPath) {
