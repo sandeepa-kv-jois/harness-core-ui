@@ -158,7 +158,7 @@ const GRID_EFFICIENCY_SCORE = {
 }
 
 // Cell Renderers
-const RenderNameCell = ({ row }: CellProps<GridData>): ReactNode => {
+export const RenderNameCell = ({ row }: CellProps<GridData>): ReactNode => {
   const { legendColor, name } = row.original
   const columns = row.cells.length
 

@@ -10,6 +10,7 @@ import cx from 'classnames'
 import { Container, FontVariation, Layout, Text } from '@harness/uicore'
 import ComputeCoverage from './ComputeCoverage'
 import css from '../CommitmentOrchestrationBody.module.scss'
+import Utilisation from './Utilisation'
 
 interface DataVisualisationContainerProps {
   data?: any
@@ -32,22 +33,22 @@ const DataVisualisationContainer: React.FC<DataVisualisationContainerProps> = ()
     return [
       {
         title: 'Compute coverage',
-        component: <ComputeCoverage />
+        component: <Container />
       },
       {
         title: 'Savings',
-        component: <Container></Container>
+        component: <ComputeCoverage />
       },
       {
         title: 'Commitment Utilisation',
-        component: <Container></Container>
+        component: <Utilisation />
       }
     ]
   }, [])
 
   return (
     <Container className={cx(css.bodyWidgetsContainer, css.dataVisualisationContainer)}>
-      <TabNavigation tabs={tabsData} className={css.tabsContainer} />
+      <TabNavigation tabs={tabsData} className={css.tabsContainer} defaultTab={1} />
     </Container>
   )
 }

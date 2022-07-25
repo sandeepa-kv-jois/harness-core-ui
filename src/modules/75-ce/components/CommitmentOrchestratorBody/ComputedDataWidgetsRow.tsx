@@ -5,8 +5,9 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import cx from 'classnames'
+import { defaultTo, get } from 'lodash-es'
 import { Color, Container, FontVariation, Layout, Text, Utils } from '@harness/uicore'
 import formatCost from '@ce/utils/formatCost'
 import SimpleBar from '@ce/common/SimpleBar/SimpleBar'
@@ -34,6 +35,25 @@ const computeCoverageItems = [
 ]
 
 const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
+  const [summaryData, setSummaryData] = useState()
+
+  useEffect(() => {
+    fetch(
+      'http://34.72.252.106:9090/accounts/kmpySmUISimoRrJL6NL73w/co/v1/summary?start_date=2022-07-08&end_date=2022-07-15',
+      {
+        method: 'POST',
+        body: JSON.stringify({})
+      }
+    )
+      .then(res => res.json())
+      .then(res => {
+        setSummaryData(res.response)
+      })
+  }, [])
+
+  const savingsPlanPercentage = get(summaryData, 'coverage_percentage.savings_plan', 60)
+  const reservedInstancesPercentage = get(summaryData, 'coverage_percentage.reserved_instances', 18.5)
+
   return (
     <Container className={css.bodyWidgetsContainer}>
       <Layout.Horizontal flex={{ alignItems: 'stretch' }}>
@@ -41,19 +61,31 @@ const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
           <Text font={{ variation: FontVariation.BODY2 }} color={Color.GREY_600}>
             {'Compute spend'}
           </Text>
-          <Text font={{ variation: FontVariation.H3 }}>{formatCost(22135.13, { decimalPoints: 2 })}</Text>
+          <Text font={{ variation: FontVariation.H3 }}>
+            {formatCost(defaultTo(get(summaryData, 'compute_spend', 22135.13), 0), { decimalPoints: 2 })}
+          </Text>
           <Text font={{ variation: FontVariation.SMALL }}>{'month-to-date'}</Text>
         </Layout.Vertical>
-        <Layout.Horizontal className={cx(css.infoContainer, css.largeContainer)} flex={{ alignItems: 'center' }}>
+        <Layout.Horizontal
+          className={cx(css.infoContainer, css.largeContainer)}
+          flex={{ alignItems: 'center', justifyContent: 'flex-start' }}
+        >
           <Container>
             <CEChart
               options={{
                 ...getRadialChartOptions(
                   [
-                    { name: 'savingsPlans', value: 60 },
-                    { name: 'reservedInstances', value: 18.5 }
+                    { name: 'savingsPlans', value: savingsPlanPercentage },
+                    {
+                      name: 'reservedInstances',
+                      value: reservedInstancesPercentage
+                    },
+                    {
+                      name: 'onDemandInstances',
+                      value: get(summaryData, 'coverage_percentage.ondemand', 18.5)
+                    }
                   ],
-                  ['#03C0CD', '#6938C0'],
+                  ['#03C0CD', '#6938C0', '#D9DAE6'],
                   {
                     chart: { height: 100, width: 100 },
                     plotOptions: {
@@ -62,7 +94,7 @@ const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
                   }
                 ),
                 title: {
-                  text: `${70}%`,
+                  text: `${(savingsPlanPercentage + reservedInstancesPercentage).toFixed(2)}%`,
                   align: 'center',
                   verticalAlign: 'middle',
                   style: { fontSize: '15px', fontWeight: '700' }
@@ -75,8 +107,8 @@ const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
               {'Compute coverage'}
             </Text>
             {computeCoverageItems.map(item => (
-              <Layout.Horizontal flex key={item.label}>
-                <div style={{ backgroundColor: item.color, height: 10, width: 10 }} />
+              <Layout.Horizontal flex={{ justifyContent: 'flex-start' }} key={item.label}>
+                <div style={{ backgroundColor: item.color, height: 10, width: 10, marginRight: 10 }} />
                 <Text font={{ variation: FontVariation.BODY }}>{item.label}</Text>
               </Layout.Horizontal>
             ))}
@@ -87,20 +119,23 @@ const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
             {'Commitment Utilisation'}
           </Text>
           <SimpleBar
-            widthInPercentage={43.1}
+            widthInPercentage={Number(get(summaryData, 'utilization_percentage.savings_plan', 43.1).toFixed(2))}
             primaryColor={Color.TEAL_600}
             secondaryColor={Color.TEAL_50}
             description={'Savings Plans'}
           />
           <SimpleBar
-            widthInPercentage={79.4}
+            widthInPercentage={Number(get(summaryData, 'utilization_percentage.reserved_instances', 79.4).toFixed(2))}
             primaryColor={Color.PURPLE_600}
             secondaryColor={Color.PURPLE_50}
             description={'Reserved Instances'}
             descriptionDirection="bottom"
           />
         </Layout.Vertical>
-        <Layout.Horizontal className={cx(css.infoContainer, css.largeContainer)} flex={{ alignItems: 'center' }}>
+        <Layout.Horizontal
+          className={cx(css.infoContainer, css.largeContainer)}
+          flex={{ alignItems: 'center', justifyContent: 'flex-start' }}
+        >
           <Container>
             <CEChart
               options={{
@@ -130,7 +165,9 @@ const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
             <Text font={{ variation: FontVariation.BODY2 }} color={Color.GREY_600}>
               {'Savings till date'}
             </Text>
-            <Text font={{ variation: FontVariation.H3 }}>{formatCost(22135.22, { decimalPoints: 2 })}</Text>
+            <Text font={{ variation: FontVariation.H3 }}>
+              {formatCost(get(summaryData, 'savings.total', 22135.22), { decimalPoints: 2 })}
+            </Text>
           </Layout.Vertical>
         </Layout.Horizontal>
       </Layout.Horizontal>
