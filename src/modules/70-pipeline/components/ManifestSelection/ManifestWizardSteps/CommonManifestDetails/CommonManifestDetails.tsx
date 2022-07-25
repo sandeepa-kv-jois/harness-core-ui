@@ -59,6 +59,24 @@ const showAdvancedSection = (selectedManifest: ManifestTypes | null): boolean =>
   return selectedManifest === ManifestDataType.K8sManifest
 }
 
+const getAccountUrl = (prevStepData?: ConnectorConfigDTO): string => {
+  return prevStepData?.connectorRef ? prevStepData?.connectorRef?.connector?.spec?.url : prevStepData?.url
+}
+
+const getConnectorRef = (prevStepData: ConnectorConfigDTO): string => {
+  return getMultiTypeFromValue(prevStepData.connectorRef) !== MultiTypeInputType.FIXED
+    ? prevStepData.connectorRef
+    : prevStepData.connectorRef?.value
+}
+
+const getConnectorId = (prevStepData?: ConnectorConfigDTO): string => {
+  return prevStepData?.identifier ? prevStepData?.identifier : ''
+}
+
+const getConnectorRefOrConnectorId = (prevStepData?: ConnectorConfigDTO): string => {
+  return prevStepData?.connectorRef ? getConnectorRef(prevStepData) : getConnectorId(prevStepData)
+}
+
 function CommonManifestDetails({
   stepName,
   selectedManifest,
@@ -81,12 +99,7 @@ function CommonManifestDetails({
       ? GitRepoName.Repo
       : GitRepoName.Account
 
-  const accountUrl =
-    connectionType === GitRepoName.Account
-      ? prevStepData?.connectorRef
-        ? prevStepData?.connectorRef?.connector?.spec?.url
-        : prevStepData?.url
-      : null
+  const accountUrl = connectionType === GitRepoName.Account ? getAccountUrl(prevStepData) : null
 
   const getInitialValues = (): K8sValuesManifestDataType => {
     const specValues = get(initialValues, 'spec.store.spec', null)
@@ -195,13 +208,7 @@ function CommonManifestDetails({
           submitFormData({
             ...prevStepData,
             ...formData,
-            connectorRef: prevStepData?.connectorRef
-              ? getMultiTypeFromValue(prevStepData?.connectorRef) !== MultiTypeInputType.FIXED
-                ? prevStepData?.connectorRef
-                : prevStepData?.connectorRef?.value
-              : prevStepData?.identifier
-              ? prevStepData?.identifier
-              : ''
+            connectorRef: getConnectorRefOrConnectorId(prevStepData)
           })
         }}
       >

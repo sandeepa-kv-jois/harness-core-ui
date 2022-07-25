@@ -553,7 +553,7 @@ exports[`Service Configuration renders correctly 1`] = `
                       <input
                         disabled=""
                         type="checkbox"
-                        value="amazonEcs"
+                        value="ECS"
                       />
                     </label>
                   </div>

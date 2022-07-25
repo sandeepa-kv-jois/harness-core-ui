@@ -195,110 +195,123 @@ export const getInfraGroups = (
 ): InfrastructureGroup[] => {
   const { NG_AZURE } = featureFlags
 
-  return isServerlessDeploymentType(deploymentType)
-    ? [
+  const serverlessInfraGroups: InfrastructureGroup[] = [
+    {
+      groupLabel: '',
+      items: [
         {
-          groupLabel: '',
-          items: [
-            {
-              label: getString('common.aws'),
-              icon: 'service-aws',
-              value: InfraDeploymentType.ServerlessAwsLambda
-            },
-            {
-              label: getString('common.gcp'),
-              icon: 'gcp',
-              value: InfraDeploymentType.ServerlessGoogleFunctions,
-              disabled: true
-            },
-            {
-              label: getString('common.azure'),
-              icon: 'service-azure',
-              value: InfraDeploymentType.ServerlessAzureFunctions,
-              disabled: true
-            }
-          ]
-        }
-      ]
-    : isAzureWebAppDeploymentType(deploymentType)
-    ? [
-        {
-          groupLabel: '',
-          items: NG_AZURE
-            ? [
-                {
-                  label: 'Azure Web App',
-                  icon: 'azurewebapp',
-                  value: InfraDeploymentType.AzureWebApp
-                }
-              ]
-            : []
-        }
-      ]
-    : isSSHWinRMDeploymentType(deploymentType)
-    ? [
-        {
-          groupLabel: '',
-          items: [
-            {
-              label: getString('connectors.title.pdcConnector'),
-              icon: 'pdc',
-              value: InfraDeploymentType.PDC
-            },
-            {
-              label: getString('common.azure'),
-              icon: 'service-azure',
-              value: InfraDeploymentType.SshWinRmAzure
-            }
-          ]
-        }
-      ]
-    : deploymentType === ServiceDeploymentType.ECS
-    ? [
-        {
-          groupLabel: getString('pipelineSteps.deploy.infrastructure.directConnection'),
-          items: [
-            {
-              label: getString('common.aws'),
-              icon: 'service-aws',
-              value: InfraDeploymentType.ECS
-            }
-          ]
-        }
-      ]
-    : [
-        {
-          groupLabel: getString('pipelineSteps.deploy.infrastructure.directConnection'),
-          items: [
-            {
-              label: getString('pipelineSteps.deploymentTypes.kubernetes'),
-              icon: 'service-kubernetes',
-              value: InfraDeploymentType.KubernetesDirect
-            }
-          ]
+          label: getString('common.aws'),
+          icon: 'service-aws',
+          value: InfraDeploymentType.ServerlessAwsLambda
         },
         {
-          groupLabel: getString('pipelineSteps.deploy.infrastructure.viaCloudProvider'),
-          items: NG_AZURE
-            ? [
-                {
-                  label: getString('pipelineSteps.deploymentTypes.gk8engine'),
-                  icon: 'google-kubernetes-engine',
-                  value: InfraDeploymentType.KubernetesGcp
-                },
-                {
-                  label: getString('cd.steps.azureInfraStep.azure'),
-                  icon: 'microsoft-azure',
-                  value: InfraDeploymentType.KubernetesAzure
-                }
-              ]
-            : [
-                {
-                  label: getString('pipelineSteps.deploymentTypes.gk8engine'),
-                  icon: 'google-kubernetes-engine',
-                  value: InfraDeploymentType.KubernetesGcp
-                }
-              ]
+          label: getString('common.gcp'),
+          icon: 'gcp',
+          value: InfraDeploymentType.ServerlessGoogleFunctions,
+          disabled: true
+        },
+        {
+          label: getString('common.azure'),
+          icon: 'service-azure',
+          value: InfraDeploymentType.ServerlessAzureFunctions,
+          disabled: true
         }
       ]
+    }
+  ]
+
+  const azureWebAppInfraGroups: InfrastructureGroup[] = [
+    {
+      groupLabel: '',
+      items: NG_AZURE
+        ? [
+            {
+              label: 'Azure Web App',
+              icon: 'azurewebapp',
+              value: InfraDeploymentType.AzureWebApp
+            }
+          ]
+        : []
+    }
+  ]
+
+  const sshWinRMInfraGroups: InfrastructureGroup[] = [
+    {
+      groupLabel: '',
+      items: [
+        {
+          label: getString('connectors.title.pdcConnector'),
+          icon: 'pdc',
+          value: InfraDeploymentType.PDC
+        },
+        {
+          label: getString('common.azure'),
+          icon: 'service-azure',
+          value: InfraDeploymentType.SshWinRmAzure
+        }
+      ]
+    }
+  ]
+
+  const ecsInfraGroups: InfrastructureGroup[] = [
+    {
+      groupLabel: getString('pipelineSteps.deploy.infrastructure.directConnection'),
+      items: [
+        {
+          label: getString('common.aws'),
+          icon: 'service-aws',
+          value: InfraDeploymentType.ECS
+        }
+      ]
+    }
+  ]
+
+  const kuberntesInfraGroups: InfrastructureGroup[] = [
+    {
+      groupLabel: getString('pipelineSteps.deploy.infrastructure.directConnection'),
+      items: [
+        {
+          label: getString('pipelineSteps.deploymentTypes.kubernetes'),
+          icon: 'service-kubernetes',
+          value: InfraDeploymentType.KubernetesDirect
+        }
+      ]
+    },
+    {
+      groupLabel: getString('pipelineSteps.deploy.infrastructure.viaCloudProvider'),
+      items: NG_AZURE
+        ? [
+            {
+              label: getString('pipelineSteps.deploymentTypes.gk8engine'),
+              icon: 'google-kubernetes-engine',
+              value: InfraDeploymentType.KubernetesGcp
+            },
+            {
+              label: getString('cd.steps.azureInfraStep.azure'),
+              icon: 'microsoft-azure',
+              value: InfraDeploymentType.KubernetesAzure
+            }
+          ]
+        : [
+            {
+              label: getString('pipelineSteps.deploymentTypes.gk8engine'),
+              icon: 'google-kubernetes-engine',
+              value: InfraDeploymentType.KubernetesGcp
+            }
+          ]
+    }
+  ]
+
+  switch (true) {
+    case isServerlessDeploymentType(deploymentType):
+      return serverlessInfraGroups
+    case isAzureWebAppDeploymentType(deploymentType):
+      return azureWebAppInfraGroups
+    case isSSHWinRMDeploymentType(deploymentType):
+      return sshWinRMInfraGroups
+    case deploymentType === ServiceDeploymentType.ECS:
+      return ecsInfraGroups
+    default:
+      return kuberntesInfraGroups
+  }
 }

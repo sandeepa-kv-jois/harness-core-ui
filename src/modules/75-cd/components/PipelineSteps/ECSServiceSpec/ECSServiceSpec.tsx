@@ -23,8 +23,10 @@ import {
   ConnectorResponse,
   getBuildDetailsForDockerPromise,
   getBuildDetailsForEcrPromise,
-  getBuildDetailsForNexusArtifactPromise
+  getBuildDetailsForNexusArtifactPromise,
+  ResponseArtifactoryResponseDTO
 } from 'services/cd-ng'
+import type { StringsMap } from 'framework/strings/StringsContext'
 import { yamlStringify } from '@common/utils/YamlHelperMethods'
 import {
   ArtifactToConnectorMap,
@@ -42,6 +44,14 @@ import {
 } from '../K8sServiceSpec/K8sServiceSpecVariablesForm'
 import { KubernetesServiceSpecInputSetMode } from '../K8sServiceSpec/KubernetesServiceSpecInputSetMode'
 import KubernetesServiceSpecEditable from '../K8sServiceSpec/K8sServiceSpecForms/KubernetesServiceSpecEditable'
+
+interface ValidateInputSetField {
+  data: K8SDirectServiceStep
+  template?: K8SDirectServiceStep
+  isRequired: boolean
+  errors: FormikErrors<K8SDirectServiceStep>
+  getString: ((key: keyof StringsMap, vars?: Record<string, any> | undefined) => string) | undefined
+}
 
 const logger = loggerFor(ModuleName.CD)
 const tagExists = (value: unknown): boolean => typeof value === 'number' || !isEmpty(value)
@@ -161,6 +171,15 @@ export class ECSServiceSpec extends Step<ServiceSpec> {
     return Promise.resolve([])
   }
 
+  trasformTagData(response: ResponseArtifactoryResponseDTO) {
+    const data = response?.data?.buildDetailsList?.map(buildDetails => ({
+      label: defaultTo(buildDetails.tag, ''),
+      insertText: defaultTo(buildDetails.tag, ''),
+      kind: CompletionItemKind.Field
+    }))
+    return defaultTo(data, [])
+  }
+
   protected getArtifactsTagsListForYaml(
     path: string,
     yaml: string,
@@ -197,15 +216,7 @@ export class ECSServiceSpec extends Step<ServiceSpec> {
                 fqnPath: path
               },
               body: yamlStringify(pipelineObj)
-            }).then(response => {
-              return (
-                response?.data?.buildDetailsList?.map(buildDetails => ({
-                  label: defaultTo(buildDetails.tag, ''),
-                  insertText: defaultTo(buildDetails.tag, ''),
-                  kind: CompletionItemKind.Field
-                })) || []
-              )
-            })
+            }).then(response => this.trasformTagData(response))
           }
           case ENABLED_ARTIFACT_TYPES.DockerRegistry: {
             return getBuildDetailsForDockerPromise({
@@ -216,15 +227,7 @@ export class ECSServiceSpec extends Step<ServiceSpec> {
                 orgIdentifier,
                 projectIdentifier
               }
-            }).then(response => {
-              const data =
-                response?.data?.buildDetailsList?.map(buildDetails => ({
-                  label: buildDetails.tag || '',
-                  insertText: buildDetails.tag || '',
-                  kind: CompletionItemKind.Field
-                })) || []
-              return data
-            })
+            }).then(response => this.trasformTagData(response))
           }
           case ENABLED_ARTIFACT_TYPES.Ecr: {
             return getBuildDetailsForEcrPromise({
@@ -236,15 +239,7 @@ export class ECSServiceSpec extends Step<ServiceSpec> {
                 orgIdentifier,
                 projectIdentifier
               }
-            }).then(response => {
-              const data =
-                response?.data?.buildDetailsList?.map(buildDetails => ({
-                  label: buildDetails.tag || '',
-                  insertText: buildDetails.tag || '',
-                  kind: CompletionItemKind.Field
-                })) || []
-              return data
-            })
+            }).then(response => this.trasformTagData(response))
           }
           case ENABLED_ARTIFACT_TYPES.Nexus3Registry: {
             return getBuildDetailsForNexusArtifactPromise({
@@ -257,15 +252,7 @@ export class ECSServiceSpec extends Step<ServiceSpec> {
                 orgIdentifier,
                 projectIdentifier
               }
-            }).then(response => {
-              const data =
-                response?.data?.buildDetailsList?.map(buildDetails => ({
-                  label: buildDetails.tag || '',
-                  insertText: buildDetails.tag || '',
-                  kind: CompletionItemKind.Field
-                })) || []
-              return data
-            })
+            }).then(response => this.trasformTagData(response))
           }
         }
       }
@@ -274,43 +261,7 @@ export class ECSServiceSpec extends Step<ServiceSpec> {
     return Promise.resolve([])
   }
 
-  validateInputSet({
-    data,
-    template,
-    getString,
-    viewType
-  }: ValidateInputSetProps<K8SDirectServiceStep>): FormikErrors<K8SDirectServiceStep> {
-    const errors: FormikErrors<K8SDirectServiceStep> = {}
-    const isRequired = viewType === StepViewType.DeploymentForm || viewType === StepViewType.TriggerForm
-    if (
-      isEmpty(data?.artifacts?.primary?.spec?.connectorRef) &&
-      isRequired &&
-      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.connectorRef) === MultiTypeInputType.RUNTIME
-    ) {
-      set(errors, 'artifacts.primary.spec.connectorRef', getString?.('fieldRequired', { field: 'ConnectorRef' }))
-    }
-    if (
-      isEmpty(data?.artifacts?.primary?.spec?.imagePath) &&
-      isRequired &&
-      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.imagePath) === MultiTypeInputType.RUNTIME
-    ) {
-      set(errors, 'artifacts.primary.spec.imagePath', getString?.('fieldRequired', { field: 'Image Path' }))
-    }
-
-    if (
-      !tagExists(data?.artifacts?.primary?.spec?.tag) &&
-      isRequired &&
-      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.tag) === MultiTypeInputType.RUNTIME
-    ) {
-      set(errors, 'artifacts.primary.spec.tag', getString?.('fieldRequired', { field: 'Tag' }))
-    }
-    if (
-      isEmpty(data?.artifacts?.primary?.spec?.tagRegex) &&
-      isRequired &&
-      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.tagRegex) === MultiTypeInputType.RUNTIME
-    ) {
-      set(errors, 'artifacts.primary.spec.tagRegex', getString?.('fieldRequired', { field: 'Tag Regex' }))
-    }
+  validateSidecarInputSetFields({ data, template, isRequired, errors, getString }: ValidateInputSetField) {
     data?.artifacts?.sidecars?.forEach((sidecar, index) => {
       const currentSidecarTemplate = get(template, `artifacts.sidecars[${index}].sidecar.spec`, '')
       if (
@@ -335,7 +286,6 @@ export class ECSServiceSpec extends Step<ServiceSpec> {
           getString?.('fieldRequired', { field: 'Image Path' })
         )
       }
-
       if (
         !tagExists(sidecar?.sidecar?.spec?.tag) &&
         isRequired &&
@@ -366,7 +316,9 @@ export class ECSServiceSpec extends Step<ServiceSpec> {
         )
       }
     })
+  }
 
+  validateManifestInputSetFields({ data, template, isRequired, errors, getString }: ValidateInputSetField) {
     data?.manifests?.forEach((manifest, index) => {
       const currentManifestTemplate = get(template, `manifests[${index}].manifest.spec.store.spec`, '')
       if (
@@ -415,6 +367,62 @@ export class ECSServiceSpec extends Step<ServiceSpec> {
         )
       }
     })
+  }
+
+  validateInputSet({
+    data,
+    template,
+    getString,
+    viewType
+  }: ValidateInputSetProps<K8SDirectServiceStep>): FormikErrors<K8SDirectServiceStep> {
+    const errors: FormikErrors<K8SDirectServiceStep> = {}
+    const isRequired = viewType === StepViewType.DeploymentForm || viewType === StepViewType.TriggerForm
+    if (
+      isEmpty(data?.artifacts?.primary?.spec?.connectorRef) &&
+      isRequired &&
+      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.connectorRef) === MultiTypeInputType.RUNTIME
+    ) {
+      set(errors, 'artifacts.primary.spec.connectorRef', getString?.('fieldRequired', { field: 'ConnectorRef' }))
+    }
+    if (
+      isEmpty(data?.artifacts?.primary?.spec?.imagePath) &&
+      isRequired &&
+      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.imagePath) === MultiTypeInputType.RUNTIME
+    ) {
+      set(errors, 'artifacts.primary.spec.imagePath', getString?.('fieldRequired', { field: 'Image Path' }))
+    }
+
+    if (
+      !tagExists(data?.artifacts?.primary?.spec?.tag) &&
+      isRequired &&
+      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.tag) === MultiTypeInputType.RUNTIME
+    ) {
+      set(errors, 'artifacts.primary.spec.tag', getString?.('fieldRequired', { field: 'Tag' }))
+    }
+    if (
+      isEmpty(data?.artifacts?.primary?.spec?.tagRegex) &&
+      isRequired &&
+      getMultiTypeFromValue(template?.artifacts?.primary?.spec?.tagRegex) === MultiTypeInputType.RUNTIME
+    ) {
+      set(errors, 'artifacts.primary.spec.tagRegex', getString?.('fieldRequired', { field: 'Tag Regex' }))
+    }
+
+    this.validateSidecarInputSetFields({
+      data,
+      template,
+      isRequired,
+      getString,
+      errors
+    })
+
+    this.validateManifestInputSetFields({
+      data,
+      template,
+      isRequired,
+      getString,
+      errors
+    })
+
     return errors
   }
 

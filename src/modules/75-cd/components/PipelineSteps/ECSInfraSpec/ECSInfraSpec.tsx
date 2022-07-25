@@ -16,6 +16,7 @@ import { IconName, getMultiTypeFromValue, MultiTypeInputType } from '@wings-soft
 import { EcsInfrastructure, getConnectorListV2Promise } from 'services/cd-ng'
 import { loggerFor } from 'framework/logging/logging'
 import { ModuleName } from 'framework/types/ModuleName'
+import type { StringsMap } from 'framework/strings/StringsContext'
 import type { CompletionItemInterface } from '@common/interfaces/YAMLBuilderProps'
 import { StepViewType, StepProps, ValidateInputSetProps } from '@pipeline/components/AbstractSteps/Step'
 import { StepType } from '@pipeline/components/PipelineSteps/PipelineStepInterface'
@@ -33,6 +34,13 @@ interface EcsInfrastructureStep extends EcsInfrastructure {
   name?: string
   identifier?: string
 }
+interface ValidateFieldArg {
+  data: EcsInfrastructure
+  template?: EcsInfrastructure
+  getString: ((key: keyof StringsMap, vars?: Record<string, any> | undefined) => string) | undefined
+  errors: Partial<EcsInfrastructureTemplate>
+}
+
 const AwsConnectorRegex = /^.+stage\.spec\.infrastructure\.infrastructureDefinition\.spec\.connectorRef$/
 
 export class ECSInfraSpec extends PipelineStep<EcsInfrastructureStep> {
@@ -97,21 +105,7 @@ export class ECSInfraSpec extends PipelineStep<EcsInfrastructureStep> {
     return Promise.resolve([])
   }
 
-  validateInputSet({
-    data,
-    template,
-    getString,
-    viewType
-  }: ValidateInputSetProps<EcsInfrastructure>): FormikErrors<EcsInfrastructure> {
-    const errors: Partial<EcsInfrastructureTemplate> = {}
-    const isRequired = viewType === StepViewType.DeploymentForm || viewType === StepViewType.TriggerForm
-    if (
-      isEmpty(data.connectorRef) &&
-      isRequired &&
-      getMultiTypeFromValue(template?.connectorRef) === MultiTypeInputType.RUNTIME
-    ) {
-      errors.connectorRef = getString?.('fieldRequired', { field: getString('connector') })
-    }
+  validateRegionField({ data, template, getString, errors }: ValidateFieldArg) {
     if (getString && getMultiTypeFromValue(template?.region) === MultiTypeInputType.RUNTIME) {
       const region = Yup.object().shape({
         region: Yup.lazy((): Yup.Schema<unknown> => {
@@ -130,6 +124,9 @@ export class ECSInfraSpec extends PipelineStep<EcsInfrastructureStep> {
         }
       }
     }
+  }
+
+  validateClusterField({ data, template, getString, errors }: ValidateFieldArg) {
     if (getString && getMultiTypeFromValue(template?.cluster) === MultiTypeInputType.RUNTIME) {
       const cluster = Yup.object().shape({
         cluster: Yup.lazy((): Yup.Schema<unknown> => {
@@ -138,7 +135,6 @@ export class ECSInfraSpec extends PipelineStep<EcsInfrastructureStep> {
           )
         })
       })
-
       try {
         cluster.validateSync(data)
       } catch (e) {
@@ -148,6 +144,26 @@ export class ECSInfraSpec extends PipelineStep<EcsInfrastructureStep> {
         }
       }
     }
+  }
+
+  validateInputSet({
+    data,
+    template,
+    getString,
+    viewType
+  }: ValidateInputSetProps<EcsInfrastructure>): FormikErrors<EcsInfrastructure> {
+    const errors: Partial<EcsInfrastructureTemplate> = {}
+    const isRequired = viewType === StepViewType.DeploymentForm || viewType === StepViewType.TriggerForm
+    if (
+      isEmpty(data.connectorRef) &&
+      isRequired &&
+      getMultiTypeFromValue(template?.connectorRef) === MultiTypeInputType.RUNTIME
+    ) {
+      errors.connectorRef = getString?.('fieldRequired', { field: getString('connector') })
+    }
+    this.validateRegionField({ data, template, getString, errors })
+    this.validateClusterField({ data, template, getString, errors })
+
     return errors
   }
 

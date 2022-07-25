@@ -15,7 +15,7 @@ import {
   getFailureStrategiesValidationSchema,
   getVariablesValidationField
 } from '@pipeline/components/PipelineSteps/AdvancedSteps/FailureStrategyPanel/validation'
-import { isServerlessDeploymentType, ServiceDeploymentType } from '@pipeline/utils/stageHelpers'
+import { ServiceDeploymentType } from '@pipeline/utils/stageHelpers'
 import type { DeployStageConfig } from '@pipeline/utils/DeployStageInterface'
 import type { GetExecutionStrategyYamlQueryParams } from 'services/cd-ng'
 
@@ -186,40 +186,36 @@ export const getInfrastructureDefinitionValidationSchema = (
   deploymentType: GetExecutionStrategyYamlQueryParams['serviceDefinitionType'],
   getString: UseStringsReturn['getString']
 ) => {
-  if (isServerlessDeploymentType(deploymentType)) {
-    if (deploymentType === ServiceDeploymentType.ServerlessAwsLambda) {
+  switch (deploymentType) {
+    case ServiceDeploymentType.ServerlessAwsLambda:
       return getValidationSchemaWithRegion(getString)
-    }
-    if (deploymentType === ServiceDeploymentType.Ssh) {
+    case ServiceDeploymentType.Ssh:
       return Yup.object().shape({
         credentialsRef: getSshKeyRefSchema(getString)
       })
-    }
-    if (deploymentType === ServiceDeploymentType.WinRm) {
+    case ServiceDeploymentType.WinRm:
       return Yup.object().shape({})
-    }
-    return getValidationSchema(getString)
-  } else if (deploymentType === ServiceDeploymentType.ECS) {
-    return getECSInfraValidationSchema(getString)
-  } else {
-    return Yup.object().shape({
-      connectorRef: getConnectorSchema(getString),
-      namespace: getNameSpaceSchema(getString),
-      releaseName: getReleaseNameSchema(getString),
-      cluster: Yup.mixed().test({
-        test(val): boolean | Yup.ValidationError {
-          const infraDeploymentType = get(this.options.context, 'spec.infrastructure.infrastructureDefinition.type')
-          if (infraDeploymentType === InfraDeploymentType.KubernetesGcp) {
-            if (isEmpty(val) || (typeof val === 'object' && isEmpty(val.value))) {
-              return this.createError({
-                message: getString('fieldRequired', { field: getString('common.cluster') })
-              })
+    case ServiceDeploymentType.ECS:
+      return getECSInfraValidationSchema(getString)
+    default:
+      return Yup.object().shape({
+        connectorRef: getConnectorSchema(getString),
+        namespace: getNameSpaceSchema(getString),
+        releaseName: getReleaseNameSchema(getString),
+        cluster: Yup.mixed().test({
+          test(val): boolean | Yup.ValidationError {
+            const infraDeploymentType = get(this.options.context, 'spec.infrastructure.infrastructureDefinition.type')
+            if (infraDeploymentType === InfraDeploymentType.KubernetesGcp) {
+              if (isEmpty(val) || (typeof val === 'object' && isEmpty(val.value))) {
+                return this.createError({
+                  message: getString('fieldRequired', { field: getString('common.cluster') })
+                })
+              }
             }
+            return true
           }
-          return true
-        }
+        })
       })
-    })
   }
 }
 
