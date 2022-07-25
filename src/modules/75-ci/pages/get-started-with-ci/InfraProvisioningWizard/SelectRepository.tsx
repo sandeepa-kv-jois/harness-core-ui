@@ -204,7 +204,7 @@ const SelectRepositoryRef = (
   }, [showError, repository?.name, fetchingRepositories])
 
   return (
-    <Layout.Vertical spacing="small">
+    <Layout.Vertical spacing="xsmall">
       <Text font={{ variation: FontVariation.H4 }}>{getString('ci.getStartedWithCI.selectYourRepo')}</Text>
       <Text font={{ variation: FontVariation.BODY2 }}>{getString('ci.getStartedWithCI.codebaseHelptext')}</Text>
       <Container padding={{ top: 'small' }} width="65%">
@@ -228,7 +228,9 @@ const SelectRepositoryRef = (
           />
         </Layout.Horizontal>
       </Container>
-      <Container className={cx(css.repositories)}>
+      <Container
+        className={cx(css.repositories, { [css.repositoriesWithError]: showValidationErrorForRepositoryNotSelected })}
+      >
         {renderView()}
         {showValidationErrorForRepositoryNotSelected ? (
           <Container padding={{ top: 'xsmall' }}>
