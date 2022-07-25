@@ -180,10 +180,10 @@ const SelectRepositoryRef = (
     }
   }, [repository])
 
-  const renderView = React.useCallback((): JSX.Element => {
+  const renderRepositories = React.useCallback((): JSX.Element => {
     if (fetchingRepositories) {
       return (
-        <Layout.Horizontal flex={{ justifyContent: 'flex-start' }} spacing="small" padding={{ top: 'large' }}>
+        <Layout.Horizontal flex={{ justifyContent: 'flex-start' }} spacing="small" padding={{ top: 'xsmall' }}>
           <Icon name="steps-spinner" color="primary7" size={25} />
           <Text font={{ variation: FontVariation.H6 }}>{getString('ci.getStartedWithCI.fetchingRepos')}</Text>
         </Layout.Horizontal>
@@ -231,7 +231,7 @@ const SelectRepositoryRef = (
       <Container
         className={cx(css.repositories, { [css.repositoriesWithError]: showValidationErrorForRepositoryNotSelected })}
       >
-        {renderView()}
+        {renderRepositories()}
         {showValidationErrorForRepositoryNotSelected ? (
           <Container padding={{ top: 'xsmall' }}>
             <FormError
