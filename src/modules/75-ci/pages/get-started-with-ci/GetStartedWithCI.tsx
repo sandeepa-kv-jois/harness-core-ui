@@ -52,10 +52,12 @@ export default function GetStartedWithCI(): React.ReactElement {
   const [showProvisioningCarousel, setShowProvisioningCarousel] = useState<boolean>(false)
   const { initiateProvisioning, delegateProvisioningStatus } = useProvisionDelegateForHostedBuilds()
   const [preSelectedGitConnector, setPreselectedGitConnector] = useState<ConnectorInfoDTO>()
+  const [connectorsEligibleForPreSelection, setConnectorsEligibleForPreSelection] = useState<ConnectorInfoDTO[]>()
   const [secretForPreSelectedConnector, setSecretForPreSelectedConnector] = useState<SecretDTOV2>()
   const { mutate: fetchGitConnectors, loading: fetchingGitConnectors } = useGetConnectorListV2({
     queryParams: {
-      accountIdentifier: accountId
+      accountIdentifier: accountId,
+      pageSize: 100
     }
   })
   const [isFetchingSecret, setIsFetchingSecret] = useState<boolean>()
@@ -69,6 +71,9 @@ export default function GetStartedWithCI(): React.ReactElement {
       } as ConnectorFilterProperties).then((response: ResponsePageConnectorResponse) => {
         const { status, data } = response
         if (status === Status.SUCCESS && Array.isArray(data?.content) && data?.content && data.content.length > 0) {
+          setConnectorsEligibleForPreSelection(
+            data.content.map((item: ConnectorResponse) => item.connector) as ConnectorInfoDTO[]
+          )
           const selectedConnector = data.content
             .filter((item: ConnectorResponse) => {
               return get(item, 'connector.spec.apiAccess.spec.tokenRef') && item.status?.status === Status.SUCCESS
@@ -207,6 +212,7 @@ export default function GetStartedWithCI(): React.ReactElement {
       {!showPageLoader && showWizard ? (
         <InfraProvisioningWizard
           preSelectedConnector={preSelectedGitConnector}
+          connectorsEligibleForPreSelection={connectorsEligibleForPreSelection}
           secretForPreSelectedConnector={secretForPreSelectedConnector}
           lastConfiguredWizardStepId={
             preSelectedGitConnector

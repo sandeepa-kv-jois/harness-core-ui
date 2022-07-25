@@ -5,7 +5,7 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import cx from 'classnames'
 import { debounce } from 'lodash-es'
@@ -20,10 +20,15 @@ import {
   Color,
   TextInput,
   FormError,
-  Icon
+  Icon,
+  Select,
+  SelectOption,
+  IconProps,
+  IconName
 } from '@harness/uicore'
-import { useGetListOfAllReposByRefConnector, UserRepoResponse } from 'services/cd-ng'
+import { ConnectorInfoDTO, useGetListOfAllReposByRefConnector, UserRepoResponse } from 'services/cd-ng'
 import { useStrings } from 'framework/strings'
+import { Connectors } from '@connectors/constants'
 import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import { ACCOUNT_SCOPE_PREFIX, getFullRepoName } from './Constants'
 
@@ -42,6 +47,7 @@ interface SelectRepositoryProps {
   selectedRepository?: UserRepoResponse
   showError?: boolean
   validatedConnectorRef?: string
+  connectorsEligibleForPreSelection?: ConnectorInfoDTO[]
   disableNextBtn: () => void
   enableNextBtn: () => void
 }
@@ -50,7 +56,14 @@ const SelectRepositoryRef = (
   props: SelectRepositoryProps,
   forwardRef: SelectRepositoryForwardRef
 ): React.ReactElement => {
-  const { selectedRepository, showError, validatedConnectorRef, disableNextBtn, enableNextBtn } = props
+  const {
+    selectedRepository,
+    showError,
+    validatedConnectorRef,
+    disableNextBtn,
+    enableNextBtn,
+    connectorsEligibleForPreSelection
+  } = props
   const { getString } = useStrings()
   const [repository, setRepository] = useState<UserRepoResponse | undefined>(selectedRepository)
   const [query, setQuery] = useState<string>('')
@@ -59,7 +72,8 @@ const SelectRepositoryRef = (
   const {
     data: repoData,
     loading: fetchingRepositories,
-    refetch: fetchRepositories
+    refetch: fetchRepositories,
+    cancel: cancelRepositoriesFetch
   } = useGetListOfAllReposByRefConnector({
     queryParams: {
       accountIdentifier: accountId,
@@ -69,19 +83,52 @@ const SelectRepositoryRef = (
     },
     lazy: true
   })
+  const [selectedConnector, setSelectedConnector] = useState<SelectOption>()
+
+  const getIcon = React.useCallback((type: ConnectorInfoDTO['type']): IconName | undefined => {
+    switch (type) {
+      case Connectors.GITHUB:
+        return 'github'
+      case Connectors.GITLAB:
+        return 'gitlab'
+      case Connectors.BITBUCKET:
+        return 'bitbucket-blue'
+      default:
+        return
+    }
+  }, [])
+
+  const selectionItems = useMemo((): SelectOption[] => {
+    return connectorsEligibleForPreSelection?.map((item: ConnectorInfoDTO) => {
+      const { type, name, identifier } = item
+      return {
+        icon: { name: getIcon(type) } as IconProps,
+        label: name,
+        value: identifier
+      } as SelectOption
+    }) as SelectOption[]
+  }, [connectorsEligibleForPreSelection])
 
   useEffect(() => {
-    if (validatedConnectorRef) {
+    if (validatedConnectorRef && selectionItems.length > 0) {
+      setSelectedConnector(selectionItems.filter((item: SelectOption) => item.value === validatedConnectorRef)?.[0])
+    }
+  }, [selectionItems, validatedConnectorRef])
+
+  useEffect(() => {
+    const connectorRefForRepoFetch = validatedConnectorRef || (selectedConnector?.value as string)
+    if (connectorRefForRepoFetch) {
+      cancelRepositoriesFetch()
       fetchRepositories({
         queryParams: {
           accountIdentifier: accountId,
           projectIdentifier,
           orgIdentifier,
-          connectorRef: `${ACCOUNT_SCOPE_PREFIX}${validatedConnectorRef}`
+          connectorRef: `${ACCOUNT_SCOPE_PREFIX}${connectorRefForRepoFetch}`
         }
       })
     }
-  }, [validatedConnectorRef])
+  }, [validatedConnectorRef, selectedConnector])
 
   useEffect(() => {
     setRepositories(repoData?.data)
@@ -159,17 +206,39 @@ const SelectRepositoryRef = (
     <Layout.Vertical spacing="small">
       <Text font={{ variation: FontVariation.H4 }}>{getString('ci.getStartedWithCI.selectYourRepo')}</Text>
       <Text font={{ variation: FontVariation.BODY2 }}>{getString('ci.getStartedWithCI.codebaseHelptext')}</Text>
-      <Container padding={{ top: 'small' }} className={cx(css.repositories)}>
-        <TextInput
-          leftIcon="search"
-          placeholder={getString('ci.getStartedWithCI.searchRepo')}
-          className={css.repositorySearch}
-          leftIconProps={{ name: 'search', size: 18, padding: 'xsmall' }}
-          onChange={e => {
-            debouncedRepositorySearch((e.currentTarget as HTMLInputElement).value)
-          }}
-          disabled={fetchingRepositories}
-        />
+      <Container padding={{ top: 'small' }}>
+        <Layout.Horizontal>
+          <TextInput
+            leftIcon="search"
+            placeholder={getString('ci.getStartedWithCI.searchRepo')}
+            className={css.repositorySearch}
+            leftIconProps={{ name: 'search', size: 18, padding: 'xsmall' }}
+            onChange={e => {
+              debouncedRepositorySearch((e.currentTarget as HTMLInputElement).value)
+            }}
+            disabled={fetchingRepositories}
+          />
+          <Select
+            items={selectionItems}
+            value={selectedConnector}
+            // itemRenderer={(item: SelectOption): React.ReactElement => {
+            //   const { icon, label } = item
+            //   return (
+            //     <Layout.Horizontal
+            //       margin={{ left: 'medium', right: 'medium', top: 'small', bottom: 'small' }}
+            //       spacing="small"
+            //     >
+            //       {icon ? <Icon {...icon} /> : null}
+            //       <Text>{label}</Text>
+            //     </Layout.Horizontal>
+            //   )
+            // }}
+            onChange={(item: SelectOption) => setSelectedConnector(item)}
+            disabled={fetchingRepositories}
+          />
+        </Layout.Horizontal>
+      </Container>
+      <Container className={cx(css.repositories)}>
         {renderView()}
         {showValidationErrorForRepositoryNotSelected ? (
           <Container padding={{ top: 'xsmall' }}>

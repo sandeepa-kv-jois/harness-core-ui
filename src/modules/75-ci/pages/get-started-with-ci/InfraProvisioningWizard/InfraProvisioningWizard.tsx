@@ -69,6 +69,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
   const {
     lastConfiguredWizardStepId = InfraProvisiongWizardStepId.SelectGitProvider,
     preSelectedConnector,
+    connectorsEligibleForPreSelection,
     secretForPreSelectedConnector
   } = props
   const { getString } = useStrings()
@@ -359,6 +360,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
             ref={selectRepositoryRef}
             showError={showError}
             validatedConnectorRef={configuredGitConnector?.identifier}
+            connectorsEligibleForPreSelection={connectorsEligibleForPreSelection}
             disableNextBtn={() => setDisableBtn(true)}
             enableNextBtn={() => setDisableBtn(false)}
           />
