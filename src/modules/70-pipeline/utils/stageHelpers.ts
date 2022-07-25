@@ -264,7 +264,7 @@ export const isAzureWebAppDeploymentType = (deploymentType: string): boolean => 
 }
 
 export const isAzureWebAppGenericDeploymentType = (deploymentType: string, repo: string | undefined): boolean => {
-  if (deploymentType === ServiceDeploymentType.AzureWebApp) {
+  if (isAzureWebAppDeploymentType(deploymentType)) {
     // default repository format should be Generic if none is previously selected
     return repo ? repo === RepositoryFormatTypes.Generic : true
   }
@@ -341,6 +341,23 @@ export const getStageDeploymentType = (
     return get(parentStage, 'stage.stage.spec.serviceConfig.serviceDefinition.type', null)
   }
   return get(stage, 'stage.spec.serviceConfig.serviceDefinition.type', null)
+}
+
+export const getRepositoryFormat = (
+  pipeline: PipelineInfoConfig,
+  stage: StageElementWrapper<DeploymentStageElementConfig>,
+  isPropagating = false
+): ServiceDefinition['type'] => {
+  if (isPropagating) {
+    const parentStageId = get(stage, 'stage.spec.serviceConfig.useFromStage.stage', null)
+    const parentStage = getStageByPipeline<DeploymentStageElementConfig>(defaultTo(parentStageId, ''), pipeline)
+    return get(
+      parentStage,
+      'stage.stage.spec.serviceConfig.serviceDefinition.spec.artifacts.primary.spec.repositoryFormat',
+      null
+    )
+  }
+  return get(stage, 'stage.spec.serviceConfig.serviceDefinition.spec.artifacts.primary.spec.repositoryFormat', null)
 }
 
 export const getCustomStepProps = (type: string, getString: (key: StringKeys) => string) => {

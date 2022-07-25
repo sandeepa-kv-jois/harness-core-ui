@@ -238,16 +238,22 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
   const isServerlessDeploymentTypeSelected = isServerlessDeploymentType(selectedDeploymentType)
 
   const isAzureWebAppGenericSelected = useMemo(() => {
+    let repoFormat = defaultTo(
+      artifact?.spec?.repositoryFormat,
+      get(initialValues, `artifacts.${artifactPath}.spec.repositoryFormat`, '')
+    )
+
     if (service) {
       const parsedService = service?.data?.yaml && parse(service?.data?.yaml)
-      return isAzureWebAppGenericDeploymentType(
-        selectedDeploymentType,
-        get(parsedService, `service.serviceDefinition.spec.artifacts.${artifactPath}.spec.repositoryFormat`)
-      )
+      repoFormat = get(parsedService, `service.serviceDefinition.spec.artifacts.${artifactPath}.spec.repositoryFormat`)
+    }
+
+    if (repoFormat) {
+      return isAzureWebAppGenericDeploymentType(selectedDeploymentType, repoFormat)
     }
 
     return false
-  }, [service, artifactPath, selectedDeploymentType])
+  }, [service, artifactPath, selectedDeploymentType, initialValues, artifact])
 
   // Initial values
   const artifactPathValue =

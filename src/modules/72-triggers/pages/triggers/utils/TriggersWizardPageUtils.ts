@@ -17,7 +17,12 @@ import { illegalIdentifiers, regexIdentifier } from '@common/utils/StringUtils'
 import { ManifestStoreMap, ManifestDataType } from '@pipeline/components/ManifestSelection/Manifesthelper'
 import type { StringKeys, UseStringsReturn } from 'framework/strings'
 import { ENABLED_ARTIFACT_TYPES } from '@pipeline/components/ArtifactsSelection/ArtifactHelper'
-import { getStageDeploymentType, isServerlessDeploymentType } from '@pipeline/utils/stageHelpers'
+import {
+  getRepositoryFormat,
+  getStageDeploymentType,
+  isAzureWebAppGenericDeploymentType,
+  isServerlessDeploymentType
+} from '@pipeline/utils/stageHelpers'
 import { getStageFromPipeline } from '@pipeline/components/PipelineStudio/PipelineContext/helpers'
 import type { DeploymentStageElementConfig, StageElementWrapper } from '@pipeline/utils/pipelineTypes'
 import type { StringsMap } from 'framework/strings/StringsContext'
@@ -1272,7 +1277,8 @@ const getManifestTableItem = ({
   isStageOverrideManifest,
   getString,
   isManifest,
-  isServerlessDeploymentTypeSelected = false
+  isServerlessDeploymentTypeSelected = false,
+  isAzureWebAppGenericTypeSelected = false
 }: {
   stageId: string
   manifest: any
@@ -1284,6 +1290,7 @@ const getManifestTableItem = ({
   getString?: (key: StringKeys) => string
   isManifest?: boolean
   isServerlessDeploymentTypeSelected?: boolean
+  isAzureWebAppGenericTypeSelected?: boolean
 }): artifactTableItem => {
   const { identifier: artifactId } = manifest
   const manifestSpecObjectValues = Object.values(manifest?.spec || {})
@@ -1308,7 +1315,7 @@ const getManifestTableItem = ({
       if (manifest.type === 'AmazonS3') {
         return !manifest?.spec?.filePathRegex
       }
-      if (isServerlessDeploymentTypeSelected) {
+      if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
         return (
           !manifest?.spec?.artifactPath ||
           getRuntimeInputLabel({ str: manifest?.spec?.artifactPath, getString }) !==
@@ -1405,6 +1412,23 @@ const isServerlessDeploymentStage = (stageId: string, pipeline: PipelineInfoConf
     !!currentStage?.stage?.spec?.serviceConfig?.useFromStage?.stage
   )
   return isServerlessDeploymentType(selectedDeploymentType)
+}
+
+const isAzureWebAppGenericDeploymentStage = (stageId: string, pipeline: PipelineInfoConfig): boolean => {
+  const currentStage = getStageFromPipeline(stageId, pipeline)
+    .stage as StageElementWrapper<DeploymentStageElementConfig>
+  const selectedDeploymentType = getStageDeploymentType(
+    pipeline,
+    currentStage,
+    !!currentStage?.stage?.spec?.serviceConfig?.useFromStage?.stage
+  )
+
+  const repo = getRepositoryFormat(
+    pipeline,
+    currentStage,
+    !!currentStage?.stage?.spec?.serviceConfig?.useFromStage?.stage
+  )
+  return isAzureWebAppGenericDeploymentType(selectedDeploymentType, repo)
 }
 
 // data is already filtered w/ correct manifest
@@ -1509,7 +1533,9 @@ export const getArtifactTableDataFromData = ({
     // To decide whether stage is serverless or not serverless below function is called
     // If stage is serverless, there is not such field as "tag" instead simialr field name called "artifactPath" is present
     // Similarly, there is not such field as "tagRefex" instead simialr field name called "artifactPathFilter" is present
+    // Same applies to generic azure web app
     const isServerlessDeploymentTypeSelected = isServerlessDeploymentStage(stageId, pipeline)
+    const isAzureWebAppGenericTypeSelected = isAzureWebAppGenericDeploymentStage(stageId, pipeline)
     // End of code which figures out deployment type of the stage and decides if it is serverless / non-serverless deployment type
 
     if (appliedArtifact?.sidecar) {
@@ -1543,7 +1569,7 @@ export const getArtifactTableDataFromData = ({
         pipelineArtifacts?.primary?.type === appliedArtifact?.type ? pipelineArtifacts?.primary : null
       let location = primaryArtifact?.spec?.imagePath
       let tag = primaryArtifact?.spec?.tag
-      if (isServerlessDeploymentTypeSelected) {
+      if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
         location = primaryArtifact?.spec?.artifactDirectory
         tag = primaryArtifact?.spec?.artifactPath
       }
@@ -1565,7 +1591,7 @@ export const getArtifactTableDataFromData = ({
         stageOverrideArtifacts?.primary?.type === appliedArtifact?.type ? stageOverrideArtifacts?.primary : null
       let location = primaryArtifact?.spec?.imagePath
       let tag = stageOverrideArtifacts?.primary?.tag
-      if (isServerlessDeploymentTypeSelected) {
+      if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
         location = primaryArtifact?.spec?.artifactDirectory
         tag = primaryArtifact?.spec?.artifactPath
       }
@@ -1599,6 +1625,7 @@ export const getArtifactTableDataFromData = ({
       // If stage is serverless, there is not such field as "tag" instead simialr field name called "artifactPath" is present
       // Similarly, there is not such field as "tagRefex" instead simialr field name called "artifactPathFilter" is present
       const isServerlessDeploymentTypeSelected = isServerlessDeploymentStage(dataStageId, pipeline)
+      const isAzureWebAppGenericTypeSelected = isAzureWebAppGenericDeploymentStage(dataStageId, pipeline)
       // End of code which figures out deployment type of the stage and decides if it is serverless / non-serverless deployment type
 
       if (primaryArtifact) {
@@ -1606,7 +1633,7 @@ export const getArtifactTableDataFromData = ({
         let location = primaryArtifact?.spec?.imagePath
         let tag = primaryArtifact?.spec?.tag
         const artifactRepository = primaryArtifact?.spec?.connectorRef
-        if (isServerlessDeploymentTypeSelected) {
+        if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
           location = primaryArtifact?.spec?.artifactDirectory
           tag = primaryArtifact?.spec?.artifactPath
         }
@@ -1621,7 +1648,8 @@ export const getArtifactTableDataFromData = ({
             getString,
             isStageOverrideManifest: false,
             isManifest,
-            isServerlessDeploymentTypeSelected
+            isServerlessDeploymentTypeSelected,
+            isAzureWebAppGenericTypeSelected
           })
         )
       }
@@ -1630,7 +1658,7 @@ export const getArtifactTableDataFromData = ({
         let location = stageOverridePrimaryArtifact?.spec?.imagePath
         let tag = stageOverridePrimaryArtifact?.spec?.tag
         const artifactRepository = stageOverridePrimaryArtifact?.spec?.connectorRef
-        if (isServerlessDeploymentTypeSelected) {
+        if (isServerlessDeploymentTypeSelected || isAzureWebAppGenericTypeSelected) {
           location = stageOverridePrimaryArtifact?.spec?.artifactDirectory
           tag = stageOverridePrimaryArtifact?.spec?.artifactPath
         }
@@ -1644,7 +1672,8 @@ export const getArtifactTableDataFromData = ({
             getString,
             isStageOverrideManifest: false,
             isManifest,
-            isServerlessDeploymentTypeSelected
+            isServerlessDeploymentTypeSelected,
+            isAzureWebAppGenericTypeSelected
           })
         )
       }
