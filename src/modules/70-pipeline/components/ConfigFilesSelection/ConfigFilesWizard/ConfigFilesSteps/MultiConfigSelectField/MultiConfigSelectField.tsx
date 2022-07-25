@@ -24,12 +24,12 @@ import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautif
 import { FieldArray, connect, FormikContextType } from 'formik'
 import { defaultTo, get } from 'lodash-es'
 import { useStrings } from 'framework/strings'
-
 import { ConfigureOptions, ConfigureOptionsProps } from '@common/components/ConfigureOptions/ConfigureOptions'
 import type { MultiTypeFieldSelectorProps } from '@common/components/MultiTypeFieldSelector/MultiTypeFieldSelector'
 import { errorCheck } from '@common/utils/formikHelpers'
 
 import { FILE_TYPE_VALUES } from '@pipeline/components/ConfigFilesSelection/ConfigFilesHelper'
+import type { FileUsage } from '@filestore/interfaces/FileStore'
 import FileStoreSelectField from '@filestore/components/MultiTypeFileSelect/FileStoreSelect/FileStoreSelectField'
 import FileSelectField from '@filestore/components/MultiTypeFileSelect/EncryptedSelect/EncryptedFileSelectField'
 import MultiTypeConfigFileSelect from './MultiTypeConfigFileSelect'
@@ -61,6 +61,7 @@ export interface MultiTypeMapProps {
   expressions: string[]
   values: string | string[]
   allowableTypes?: AllowedTypes
+  fileUsage?: FileUsage
 }
 
 export function MultiConfigSelectField(props: MultiTypeMapProps): React.ReactElement {
@@ -80,6 +81,7 @@ export function MultiConfigSelectField(props: MultiTypeMapProps): React.ReactEle
     expressions,
     values,
     allowableTypes,
+    fileUsage,
     ...restProps
   } = props
 
@@ -179,8 +181,8 @@ export function MultiConfigSelectField(props: MultiTypeMapProps): React.ReactEle
                                                 true
                                               )}
                                               allowedTypes={defaultTo(allowableTypes, [
-                                                MultiTypeInputType.RUNTIME,
-                                                MultiTypeInputType.FIXED
+                                                MultiTypeInputType.FIXED,
+                                                MultiTypeInputType.EXPRESSION
                                               ])}
                                               expressionRender={() => {
                                                 return (
@@ -227,8 +229,8 @@ export function MultiConfigSelectField(props: MultiTypeMapProps): React.ReactEle
                                                 true
                                               )}
                                               allowedTypes={defaultTo(allowableTypes, [
-                                                MultiTypeInputType.RUNTIME,
-                                                MultiTypeInputType.FIXED
+                                                MultiTypeInputType.FIXED,
+                                                MultiTypeInputType.EXPRESSION
                                               ])}
                                               expressionRender={() => {
                                                 return (
@@ -249,7 +251,7 @@ export function MultiConfigSelectField(props: MultiTypeMapProps): React.ReactEle
                                               <div className={css.fieldWrapper}>
                                                 <FileStoreSelectField
                                                   name={`${name}[${index}]`}
-                                                  fileUsage="MANIFEST"
+                                                  fileUsage={fileUsage}
                                                   onChange={(newValue, i) => {
                                                     replace(i, {
                                                       ...restValue,

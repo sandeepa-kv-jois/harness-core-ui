@@ -8,8 +8,9 @@
 import React, { createContext, useState, useCallback } from 'react'
 import type { FileStoreNodeDTO as NodeDTO, FileDTO, NGTag } from 'services/cd-ng'
 import { useGetFolderNodes } from 'services/cd-ng'
-import { FILE_VIEW_TAB, FileStoreNodeTypes, FileUsage } from '@filestore/interfaces/FileStore'
+import { FILE_VIEW_TAB, FileStoreNodeTypes } from '@filestore/interfaces/FileStore'
 import { FILE_STORE_ROOT } from '@filestore/utils/constants'
+import type { FileUsage } from '@filestore/interfaces/FileStore'
 import { ScopedObjectDTO, useFileStoreScope } from '../../common/useFileStoreScope/useFileStoreScope'
 
 export interface FileContentDTO extends FileDTO {
@@ -54,7 +55,7 @@ export interface FileStoreContextState {
   isModalView: boolean
   scope: string
   queryParams: ScopedObjectDTO
-  fileUsage?: string
+  fileUsage?: FileUsage
 }
 
 export interface GetNodeConfig {
@@ -72,11 +73,11 @@ interface FileStoreContextProps {
   scope?: string
   isModalView?: boolean
   children?: any
-  fileUsage?: string
+  fileUsage?: FileUsage
 }
 
 export const FileStoreContextProvider: React.FC<FileStoreContextProps> = (props: FileStoreContextProps) => {
-  const { scope = '', isModalView = false, fileUsage = '' } = props
+  const { scope = '', isModalView = false, fileUsage } = props
   const queryParams = useFileStoreScope({
     scope,
     isModalView
@@ -95,7 +96,10 @@ export const FileStoreContextProvider: React.FC<FileStoreContextProps> = (props:
   const [fileStore, setFileStore] = useState<FileStoreNodeDTO[] | undefined>()
 
   const { mutate: getFolderNodes, loading: isGettingFolderNodes } = useGetFolderNodes({
-    queryParams
+    queryParams: {
+      ...queryParams,
+      fileUsage
+    }
   })
 
   const setCurrentNode = (node: FileStoreNodeDTO): void => {

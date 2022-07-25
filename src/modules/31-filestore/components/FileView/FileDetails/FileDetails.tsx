@@ -145,10 +145,6 @@ function FileDetails({ handleError }: FileDetailsProps): React.ReactElement {
   )
 
   const handleSubmit = async (values: any): Promise<void> => {
-    if (!currentNode.fileUsage) {
-      setErrorMessage(FSErrosType.FILE_USAGE)
-      return
-    }
     const formData = new FormData()
 
     const defaultMimeType = currentNode?.mimeType ? currentNode.mimeType : ExtensionType.TEXT
@@ -158,8 +154,10 @@ function FileDetails({ handleError }: FileDetailsProps): React.ReactElement {
     formData.append('mimeType', defaultMimeType)
     formData.append('name', currentNode.name)
     formData.append('identifier', currentNode.identifier)
-    formData.append('fileUsage', currentNode.fileUsage as string)
     formData.append('parentIdentifier', currentNode.parentIdentifier as string)
+    if (currentNode?.fileUsage) {
+      formData.append('fileUsage', currentNode.fileUsage as string)
+    }
     if (currentNode?.tags) {
       formData.append('tags', JSON.stringify(currentNode.tags))
     }
