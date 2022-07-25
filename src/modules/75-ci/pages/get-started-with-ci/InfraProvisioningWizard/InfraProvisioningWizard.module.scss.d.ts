@@ -12,6 +12,7 @@ declare const styles: {
   readonly borderBottom: string
   readonly card: string
   readonly comingSoonPill: string
+  readonly connectorSelect: string
   readonly footer: string
   readonly genericGitIcon: string
   readonly gitProviderCard: string
@@ -20,6 +21,7 @@ declare const styles: {
   readonly hostingToggle: string
   readonly icons: string
   readonly learnMore: string
+  readonly listIcon: string
   readonly main: string
   readonly provisioningFailed: string
   readonly provisioningSuccessful: string

@@ -102,7 +102,7 @@ const SelectRepositoryRef = (
     return connectorsEligibleForPreSelection?.map((item: ConnectorInfoDTO) => {
       const { type, name, identifier } = item
       return {
-        icon: { name: getIcon(type) } as IconProps,
+        icon: { name: getIcon(type), className: css.listIcon } as IconProps,
         label: name,
         value: identifier
       } as SelectOption
@@ -206,7 +206,7 @@ const SelectRepositoryRef = (
     <Layout.Vertical spacing="small">
       <Text font={{ variation: FontVariation.H4 }}>{getString('ci.getStartedWithCI.selectYourRepo')}</Text>
       <Text font={{ variation: FontVariation.BODY2 }}>{getString('ci.getStartedWithCI.codebaseHelptext')}</Text>
-      <Container padding={{ top: 'small' }}>
+      <Container padding={{ top: 'small' }} width="65%">
         <Layout.Horizontal>
           <TextInput
             leftIcon="search"
@@ -221,18 +221,7 @@ const SelectRepositoryRef = (
           <Select
             items={selectionItems}
             value={selectedConnector}
-            // itemRenderer={(item: SelectOption): React.ReactElement => {
-            //   const { icon, label } = item
-            //   return (
-            //     <Layout.Horizontal
-            //       margin={{ left: 'medium', right: 'medium', top: 'small', bottom: 'small' }}
-            //       spacing="small"
-            //     >
-            //       {icon ? <Icon {...icon} /> : null}
-            //       <Text>{label}</Text>
-            //     </Layout.Horizontal>
-            //   )
-            // }}
+            className={css.connectorSelect}
             onChange={(item: SelectOption) => setSelectedConnector(item)}
             disabled={fetchingRepositories}
           />
