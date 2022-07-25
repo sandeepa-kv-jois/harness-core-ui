@@ -5,7 +5,7 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import set from 'lodash-es/set'
 import get from 'lodash-es/get'
@@ -79,6 +79,10 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
   const selectRepositoryRef = React.useRef<SelectRepositoryRef | null>(null)
   const { setShowGetStartedTabInMainMenu } = useSideNavContext()
   const { showError: showErrorToaster } = useToaster()
+
+  useEffect(() => {
+    setCurrentWizardStepId(lastConfiguredWizardStepId)
+  }, [lastConfiguredWizardStepId])
 
   const { mutate: createTrigger } = useCreateTrigger({
     queryParams: {
