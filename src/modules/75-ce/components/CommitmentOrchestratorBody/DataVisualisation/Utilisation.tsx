@@ -45,7 +45,7 @@ const Utilisation: React.FC = () => {
   useEffect(() => {
     !loading && setLoading(true)
     fetch(
-      'http://34.72.252.106:9090/accounts/kmpySmUISimoRrJL6NL73w/co/v1/detail/commitment_utilisation?start_date=2022-07-08&end_date=2022-07-15',
+      'https://autocud.lightwingtest.com/accounts/kmpySmUISimoRrJL6NL73w/co/v1/detail/commitment_utilisation?start_date=2022-07-08&end_date=2022-07-15',
       {
         method: 'POST',
         body: JSON.stringify({})
@@ -58,11 +58,12 @@ const Utilisation: React.FC = () => {
         Object.entries(res.response).forEach(([key, value]) => {
           columnsData.push({
             name: key,
-            ...(value as any).table
+            ...(value as any).table,
+            percentage: (value as any).table.percentage.toFixed(2)
           })
           const colsData = (value as any).chart.map((col: any) => [
             getStaticSchedulePeriodTime(col.date),
-            col.utilization_percentage
+            Number(col.utilization_percentage?.toFixed(2))
           ])
           chartData.push({
             name: key,

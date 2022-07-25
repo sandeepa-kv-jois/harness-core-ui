@@ -48,7 +48,7 @@ const ComputeCoverage: React.FC = () => {
   useEffect(() => {
     !loading && setLoading(true)
     fetch(
-      'http://34.72.252.106:9090/accounts/kmpySmUISimoRrJL6NL73w/co/v1/detail/savings?start_date=2022-07-08&end_date=2022-07-15',
+      'https://autocud.lightwingtest.com/accounts/kmpySmUISimoRrJL6NL73w/co/v1/detail/savings?start_date=2022-07-08&end_date=2022-07-15',
       {
         method: 'POST',
         body: JSON.stringify({ group_by: groupBy })

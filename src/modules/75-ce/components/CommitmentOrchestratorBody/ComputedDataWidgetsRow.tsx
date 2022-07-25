@@ -39,7 +39,7 @@ const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
 
   useEffect(() => {
     fetch(
-      'http://34.72.252.106:9090/accounts/kmpySmUISimoRrJL6NL73w/co/v1/summary?start_date=2022-07-08&end_date=2022-07-15',
+      'https://autocud.lightwingtest.com/accounts/kmpySmUISimoRrJL6NL73w/co/v1/summary?start_date=2022-07-08&end_date=2022-07-15',
       {
         method: 'POST',
         body: JSON.stringify({})
