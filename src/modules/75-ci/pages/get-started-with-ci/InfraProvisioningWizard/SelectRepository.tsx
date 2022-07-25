@@ -116,6 +116,7 @@ const SelectRepositoryRef = (
   }, [selectionItems, validatedConnectorRef])
 
   useEffect(() => {
+    setRepository(undefined)
     const connectorRefForRepoFetch = validatedConnectorRef || (selectedConnector?.value as string)
     if (connectorRefForRepoFetch) {
       cancelRepositoriesFetch()
@@ -176,10 +177,10 @@ const SelectRepositoryRef = (
 
     if (repository) {
       forwardRef.current = {
-        repository: repository
+        repository
       }
     }
-  })
+  }, [repository])
 
   const renderView = React.useCallback((): JSX.Element => {
     if (fetchingRepositories) {
@@ -200,7 +201,9 @@ const SelectRepositoryRef = (
     )
   }, [fetchingRepositories, repositories, repoData?.data])
 
-  const showValidationErrorForRepositoryNotSelected = showError && !repository?.name
+  const showValidationErrorForRepositoryNotSelected = useMemo((): boolean => {
+    return (!fetchingRepositories && showError && !repository?.name) || false
+  }, [showError, repository?.name, fetchingRepositories])
 
   return (
     <Layout.Vertical spacing="small">
