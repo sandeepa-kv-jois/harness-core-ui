@@ -317,10 +317,9 @@ Cypress.Commands.add('apiMocksForVerifyStep', () => {
   cy.intercept('GET', strategiesYamlSnippets3, strategiesYAMLResponse).as('strategiesYaml')
   cy.intercept('GET', strategiesYamlSnippets2, strategiesYAMLResponse).as('strategiesYaml')
   cy.intercept('GET', monitoresServices, monitoresServicesResponse).as('monitoredServices')
-  cy.intercept('POST', variables, variablesV2PostResponse).as('variables')
+  // cy.intercept('POST', variables, variablesV2PostResponse).as('variables')
   cy.intercept('POST', pipelineSteps, pipelineStepsResponse).as('pipelineSteps')
   cy.intercept('GET', verifyStepServicesCall, { fixture: 'ng/api/servicesV2' }).as('service')
-
   cy.intercept('GET', stagesExecutionList, stagesExecutionListResponse).as('stagesExecutionList')
   cy.intercept('POST', inputSetsCall, inputSetsTemplateCallResponse).as('inputSetsTemplateCallResponse')
   cy.intercept('GET', '/ng/api/pipelines/configuration/cd-stage-yaml-snippet?routingId=accountId', {
@@ -410,11 +409,11 @@ const connectorsResponse = {
 }
 
 Cypress.Commands.add('verifyStepSelectConnector', () => {
-  cy.intercept('POST', applyTemplatesCall).as('applyTemplatesCall')
-  cy.intercept(
-    'GET',
-    '/ng/api/connectors?accountIdentifier=accountId&type=K8sCluster&searchTerm=&pageIndex=0&pageSize=10&projectIdentifier=project1&orgIdentifier=default'
-  ).as('connectors')
+  // cy.intercept('POST', applyTemplatesCall).as('applyTemplatesCall')
+  // cy.intercept(
+  //   'GET',
+  //   '/ng/api/connectors?accountIdentifier=accountId&type=K8sCluster&searchTerm=&pageIndex=0&pageSize=10&projectIdentifier=project1&orgIdentifier=default'
+  // ).as('connectors')
   cy.contains('p', /^Kubernetes$/).click()
 
   cy.contains('span', 'Select Connector').scrollIntoView()
@@ -423,15 +422,18 @@ Cypress.Commands.add('verifyStepSelectConnector', () => {
 
   // cy.wait('@connectors')
 
-  cy.contains('p', 'test111', { timeout: 5000 }).should('be.visible')
+  cy.wait(2000)
 
-  cy.contains('p', 'test111').click({ force: true })
+  cy.contains('p', 'dynatrace', { timeout: 5000 }).should('be.visible')
+  cy.contains('p', 'dynatrace').click({ force: true })
 
-  // cy.wait(500)
+  cy.wait(1000)
 
   cy.findByRole('button', { name: 'Apply Selected' }).should('be.visible')
 
   cy.findByRole('button', { name: 'Apply Selected' }).click({ force: true })
+
+  cy.wait(500)
 
   cy.get('[name="namespace"]').scrollIntoView()
 

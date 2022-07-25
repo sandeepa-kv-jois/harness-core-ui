@@ -56,7 +56,7 @@ describe.skip('Verify step add', () => {
       '/ng/api/environmentsV2?routingId=accountId&accountIdentifier=accountId&orgIdentifier=default&projectIdentifier=project1'
     ).as('environmentsV2')
 
-    cy.intercept('POST', '/authz/api/acl?routingId=accountId').as('aclCall')
+    // cy.intercept('POST', '/authz/api/acl?routingId=accountId').as('aclCall')
 
     // service definition
     cy.get('input[name="serviceRef"]').click({ force: true })
