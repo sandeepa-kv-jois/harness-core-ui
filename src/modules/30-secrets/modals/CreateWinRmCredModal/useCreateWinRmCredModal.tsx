@@ -32,7 +32,7 @@ export enum Views {
   EDIT
 }
 
-const useCreateWinRmCredModal = (props: UseCreateWinRmCredModalProps): UseCreateWinRmCredModalReturn => {
+export const useCreateWinRmCredModal = (props: UseCreateWinRmCredModalProps): UseCreateWinRmCredModalReturn => {
   const { accountId, orgIdentifier, projectIdentifier } = useParams<ProjectPathProps>()
   const [view, setView] = useState(Views.CREATE)
   const [winrmData, setwinrmData] = useState<WinRmCredSharedObj>()
@@ -93,10 +93,9 @@ const useCreateWinRmCredModal = (props: UseCreateWinRmCredModalProps): UseCreate
             realm: ((_winrmData.spec as WinRmCredentialsSpecDTO)?.auth.spec as KerberosConfigDTO)?.realm,
             keyPath: ((_winrmData.spec as WinRmCredentialsSpecDTO)?.auth.spec as KerberosConfigDTO)?.keyPath,
             port: (_winrmData.spec as WinRmCredentialsSpecDTO)?.port || 22,
-            password: response.passwordSecret
+            password: response?.passwordSecret
           }
         })
-        setView(Views.EDIT)
       } else setView(Views.CREATE)
       showModal()
     },
@@ -107,5 +106,3 @@ const useCreateWinRmCredModal = (props: UseCreateWinRmCredModalProps): UseCreate
     closeCreateWinRmCredModal: hideModal
   }
 }
-
-export default useCreateWinRmCredModal
