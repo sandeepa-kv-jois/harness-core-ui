@@ -189,7 +189,13 @@ export default function GetStartedWithCI(): React.ReactElement {
                   variation={ButtonVariation.PRIMARY}
                   size={ButtonSize.LARGE}
                   text={getString('getStarted')}
-                  onClick={() => initiateProvisioning()}
+                  onClick={() => {
+                    if (delegateProvisioningStatus === ProvisioningStatus.SUCCESS) {
+                      setShowWizard(true)
+                    } else {
+                      initiateProvisioning()
+                    }
+                  }}
                 />
               </Container>
             </Layout.Vertical>
