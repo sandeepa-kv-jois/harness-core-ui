@@ -317,7 +317,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
         setShowPageLoader(false)
       }
     }
-  }, [selectRepositoryRef.current?.repository])
+  }, [selectRepositoryRef.current?.repository, configuredGitConnector])
 
   const WizardSteps: Map<InfraProvisiongWizardStepId, WizardStep> = new Map([
     [
