@@ -5,7 +5,7 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import cx from 'classnames'
 import { get } from 'lodash-es'
@@ -26,13 +26,17 @@ import {
   ConnectorFilterProperties,
   ConnectorInfoDTO,
   ConnectorResponse,
+  getSecretV2Promise,
   ResponsePageConnectorResponse,
+  ResponseSecretResponseWrapper,
+  SecretDTOV2,
   useGetConnectorListV2
 } from 'services/cd-ng'
 import { useStrings } from 'framework/strings'
 import type { StringsMap } from 'stringTypes'
 import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import { Status } from '@common/utils/Constants'
+import { getIdentifierFromValue } from '@common/components/EntityReference/EntityReference'
 import { InfraProvisioningWizard } from './InfraProvisioningWizard/InfraProvisioningWizard'
 import { InfraProvisiongWizardStepId, ProvisioningStatus } from './InfraProvisioningWizard/Constants'
 import { InfraProvisioningCarousel } from './InfraProvisioningCarousel/InfraProvisioningCarousel'
@@ -48,11 +52,13 @@ export default function GetStartedWithCI(): React.ReactElement {
   const [showProvisioningCarousel, setShowProvisioningCarousel] = useState<boolean>(false)
   const { initiateProvisioning, delegateProvisioningStatus } = useProvisionDelegateForHostedBuilds()
   const [preSelectedGitConnector, setPreselectedGitConnector] = useState<ConnectorInfoDTO>()
+  const [secretForPreSelectedConnector, setSecretForPreSelectedConnector] = useState<SecretDTOV2>()
   const { mutate: fetchGitConnectors, loading: fetchingGitConnectors } = useGetConnectorListV2({
     queryParams: {
       accountIdentifier: accountId
     }
   })
+  const [isFetchingSecret, setIsFetchingSecret] = useState<boolean>()
 
   useEffect(() => {
     if (showWizard) {
@@ -71,6 +77,32 @@ export default function GetStartedWithCI(): React.ReactElement {
             .pop()
           if (selectedConnector) {
             setPreselectedGitConnector(selectedConnector?.connector)
+            const secretIdentidier = getIdentifierFromValue(
+              get(selectedConnector, 'connector.spec.apiAccess.spec.tokenRef')
+            )
+            if (secretIdentidier) {
+              setIsFetchingSecret(true)
+              try {
+                getSecretV2Promise({
+                  identifier: secretIdentidier,
+                  queryParams: {
+                    accountIdentifier: accountId
+                  }
+                })
+                  .then((secretResponse: ResponseSecretResponseWrapper) => {
+                    setIsFetchingSecret(false)
+                    const { status, data } = secretResponse
+                    if (status === Status.SUCCESS && data?.secret) {
+                      setSecretForPreSelectedConnector(data?.secret)
+                    }
+                  })
+                  .catch(_e => {
+                    setIsFetchingSecret(false)
+                  })
+              } catch (e) {
+                setIsFetchingSecret(false)
+              }
+            }
           }
         }
       })
@@ -165,12 +197,17 @@ export default function GetStartedWithCI(): React.ReactElement {
 
   const Divider = <div className={css.divider}></div>
 
+  const showPageLoader = useMemo(() => {
+    return fetchingGitConnectors || isFetchingSecret
+  }, [fetchingGitConnectors, isFetchingSecret])
+
   return (
     <>
-      {fetchingGitConnectors ? <PageSpinner /> : <></>}
-      {!fetchingGitConnectors && showWizard ? (
+      {showPageLoader ? <PageSpinner /> : <></>}
+      {!showPageLoader && showWizard ? (
         <InfraProvisioningWizard
           preSelectedConnector={preSelectedGitConnector}
+          secretForPreSelectedConnector={secretForPreSelectedConnector}
           lastConfiguredWizardStepId={
             preSelectedGitConnector
               ? InfraProvisiongWizardStepId.SelectRepository

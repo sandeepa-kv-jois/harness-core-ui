@@ -66,7 +66,11 @@ import { getPRTriggerActions } from '../../../utils/HostedBuildsUtils'
 import css from './InfraProvisioningWizard.module.scss'
 
 export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = props => {
-  const { lastConfiguredWizardStepId = InfraProvisiongWizardStepId.SelectGitProvider, preSelectedConnector } = props
+  const {
+    lastConfiguredWizardStepId = InfraProvisiongWizardStepId.SelectGitProvider,
+    preSelectedConnector,
+    secretForPreSelectedConnector
+  } = props
   const { getString } = useStrings()
   const [disableBtn, setDisableBtn] = useState<boolean>(false)
   const [currentWizardStepId, setCurrentWizardStepId] =
@@ -143,7 +147,8 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
       pipelineId: string
       eventType: string
     }): NGTriggerConfigV2 | TriggerConfigDTO | undefined => {
-      if (!selectGitProviderRef?.current?.values?.gitProvider?.type) {
+      const connectorType: ConnectorInfoDTO['type'] | undefined = configuredGitConnector?.type
+      if (!connectorType) {
         return
       }
       if (!pipelineId) {
@@ -175,7 +180,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
         source: {
           type: 'Webhook',
           spec: {
-            type: selectGitProviderRef.current.values.gitProvider.type,
+            type: connectorType,
             spec: {
               type: eventType,
               spec: {
@@ -185,7 +190,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
                   : '',
                 autoAbortPreviousExecutions: false,
                 actions: [eventTypes.PULL_REQUEST, eventTypes.MERGE_REQUEST].includes(eventType)
-                  ? getPRTriggerActions(selectGitProviderRef.current.values.gitProvider.type)
+                  ? getPRTriggerActions(connectorType)
                   : []
               }
             }
@@ -195,7 +200,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
       }
     },
     [
-      configuredGitConnector?.identifier,
+      configuredGitConnector,
       selectGitProviderRef?.current?.values?.gitProvider,
       selectRepositoryRef.current?.repository
     ]
@@ -246,10 +251,8 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
                     constructTriggerPayload({
                       pipelineId: createPipelineResponse?.data?.identifier,
                       eventType:
-                        selectGitProviderRef?.current?.values?.gitProvider?.type &&
-                        [Connectors.GITHUB, Connectors.BITBUCKET].includes(
-                          selectGitProviderRef?.current?.values?.gitProvider?.type
-                        )
+                        configuredGitConnector?.type &&
+                        [Connectors.GITHUB, Connectors.BITBUCKET].includes(configuredGitConnector?.type)
                           ? eventTypes.PULL_REQUEST
                           : eventTypes.MERGE_REQUEST
                     }) || {}
@@ -384,7 +387,9 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
                   'spec.authentication.spec.spec.username',
                   get(configuredGitConnector, 'spec.authentication.spec.spec.username') ?? OAUTH2_USER_NAME
                 ),
-                secret: selectGitProviderRef?.current?.validatedSecret
+                secret: preSelectedConnector
+                  ? secretForPreSelectedConnector
+                  : selectGitProviderRef?.current?.validatedSecret
               })
                 .then((scmConnectorResponse: ResponseScmConnectorResponse) => {
                   if (scmConnectorResponse.status === Status.SUCCESS) {
