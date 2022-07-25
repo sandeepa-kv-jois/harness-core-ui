@@ -65,7 +65,7 @@ diagram.registerNode(['Deployment', 'CI'], PipelineStageNode as unknown as React
 diagram.registerNode(DiagramNodeType.CreateNode, CreateNodeStage as unknown as React.FC<BaseReactComponentProps>)
 diagram.registerNode(DiagramNodeType.EndNode, EndNodeStage)
 diagram.registerNode(DiagramNodeType.StartNode, StartNodeStage)
-diagram.registerNode([DiagramNodeType.MatrixNode, DiagramNodeType.ForNode, DiagramNodeType.PARALLELISM], MatrixNode)
+diagram.registerNode([DiagramNodeType.MatrixNode, DiagramNodeType.LoopNode, DiagramNodeType.PARALLELISM], MatrixNode)
 diagram.registerNode(['Approval', 'JiraApproval', 'HarnessApproval', 'default-diamond'], DiamondNodeWidget)
 
 export const CDPipelineStudioNew = diagram.render()

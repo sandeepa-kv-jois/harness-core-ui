@@ -16,7 +16,8 @@ import {
   getServiceLevelObjectiveForNewerProject,
   getServiceLevelObjectiveResponseForNewerProject,
   getSLODetails,
-  responseSLODashboardDetail
+  responseSLODashboardDetail,
+  getSLORiskCountResponse
 } from '../../../support/85-cv/slos/constants'
 
 describe('Changing Project Page', () => {
@@ -36,8 +37,8 @@ describe('Changing Project Page', () => {
     cy.contains('p', 'Project 1').click()
   })
 
-  it('should be able to switch project without any errors while editing the SLOs', () => {
-    cy.intercept('GET', getSLORiskCount, listRiskCountDataEmptyResponse)
+  it.skip('should be able to switch project without any errors while editing the SLOs', () => {
+    cy.intercept('GET', getSLORiskCount, getSLORiskCountResponse)
     cy.intercept('GET', getUserJourneysCall, listUserJourneysCallResponse)
     cy.intercept('GET', getSLODetails, responseSLODashboardDetail)
     cy.intercept('GET', getServiceLevelObjective, getServiceLevelObjectiveResponse).as('getSLO')

@@ -38,7 +38,6 @@ import InputSetList from '@pipeline/pages/inputSet-list/InputSetList'
 import PipelineDetails from '@pipeline/pages/pipeline-details/PipelineDetails'
 import PipelinesPage from '@pipeline/pages/pipelines/PipelinesPage'
 import { PipelineListPage } from '@pipeline/pages/pipeline-list/PipelineListPage'
-import DeploymentsList from '@pipeline/pages/deployments-list/DeploymentsList'
 import type { LicenseRedirectProps } from 'framework/LicenseStore/LicenseStoreContext'
 import '@pipeline/components/CommonPipelineStages/ApprovalStage'
 import '@pipeline/components/CommonPipelineStages/CustomStage'
@@ -75,6 +74,7 @@ import { JiraCreateUpdateView } from './components/execution/StepDetails/views/J
 import ExecutionErrorTrackingView from './pages/execution/ExecutionErrorTrackingView/ExecutionErrorTrackingView'
 import EnvironmentResourceRenderer from './components/RbacResourceTables/EnvironmentAttributeRenderer/EnvironmentResourceRenderer'
 import EnvironmentAttributeRenderer from './components/RbacResourceTables/EnvironmentAttributeRenderer/EnvironmentAttributeRenderer'
+import { ExecutionListPage } from './pages/execution-list-page/ExecutionListPage'
 /**
  * Register RBAC resources
  */
@@ -128,7 +128,8 @@ RbacFactory.registerResourceTypeHandler(ResourceType.ENVIRONMENT_GROUP, {
   permissionLabels: {
     [PermissionIdentifier.VIEW_ENVIRONMENT_GROUP]: <String stringID="rbac.permissionLabels.view" />,
     [PermissionIdentifier.EDIT_ENVIRONMENT_GROUP]: <String stringID="rbac.permissionLabels.createEdit" />,
-    [PermissionIdentifier.DELETE_ENVIRONMENT_GROUP]: <String stringID="rbac.permissionLabels.delete" />
+    [PermissionIdentifier.DELETE_ENVIRONMENT_GROUP]: <String stringID="rbac.permissionLabels.delete" />,
+    [PermissionIdentifier.RUNTIMEACCESS_ENVIRONMENT_GROUP]: <String stringID="rbac.permissionLabels.access" />
   },
   addResourceModalBody: props => <EnvironmentGroupsResourceModal {...props} />
 })
@@ -326,7 +327,7 @@ export function PipelineRouteDestinations({
         sidebarProps={sidebarProps}
         path={routes.toDeployments({ ...accountPathProps, ...projectPathProps, ...moduleParams })}
       >
-        <DeploymentsList />
+        <ExecutionListPage />
       </RouteWithLayout>
       <RouteWithLayout
         exact

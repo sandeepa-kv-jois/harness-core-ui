@@ -128,7 +128,6 @@ export function ServiceCardPanel(props: ServiceCardPanelProps): React.ReactEleme
         </VariableAccordionSummary>
       }
       panelClassName={css.panel}
-      summaryClassName={css.accordianSummaryL1}
       details={<ServiceCard {...rest} onUpdateServiceConfig={onUpdateServiceConfig} path={`${props.path}.Service`} />}
       collapseProps={{
         keepChildrenMounted: true

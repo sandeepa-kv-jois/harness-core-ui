@@ -1126,7 +1126,7 @@ exports[`Test Azure Web App Rollback step should submit swap slot form 1`] = `
                   class="bp3-editable-text-content"
                   style="height: 1px; line-height: 1px; min-width: 0;"
                 >
-                  swap slot
+                  swap_slot
                 </span>
               </div>
             </span>

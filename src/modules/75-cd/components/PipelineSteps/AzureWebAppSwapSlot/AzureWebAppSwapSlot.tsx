@@ -130,6 +130,7 @@ export class AzureSwapSlot extends PipelineStep<AzureWebAppSwapSlotStepInfo> {
         isNewStep={isNewStep}
         ref={formikRef}
         readonly={readonly}
+        stepViewType={stepViewType}
       />
     )
   }

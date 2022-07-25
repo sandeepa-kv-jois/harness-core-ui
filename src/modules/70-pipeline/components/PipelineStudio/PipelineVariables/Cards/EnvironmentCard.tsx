@@ -102,7 +102,6 @@ export function EnvironmentCardPanel(props: EnvironmentCardProps) {
         </VariableAccordionSummary>
       }
       panelClassName={css.panel}
-      summaryClassName={css.accordianSummaryL1}
       details={<EnvironmentCard {...props} />}
       collapseProps={{
         keepChildrenMounted: true

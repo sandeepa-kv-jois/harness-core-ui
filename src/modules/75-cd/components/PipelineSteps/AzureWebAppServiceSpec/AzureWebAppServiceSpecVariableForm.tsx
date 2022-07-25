@@ -62,7 +62,7 @@ export function AzureWebAppServiceSpecVariablesForm(
               </Text>
             </VariableAccordionSummary>
           }
-          summaryClassName={cx(pipelineVariableCss.accordianSummaryL3)}
+          summaryClassName={cx(pipelineVariableCss.accordianSummaryL2)}
           details={
             variablesData?.artifacts && (
               <>
@@ -79,7 +79,7 @@ export function AzureWebAppServiceSpecVariablesForm(
                       </Text>
                     </VariableAccordionSummary>
                   }
-                  summaryClassName={cx(pipelineVariableCss.accordianSummaryL3)}
+                  summaryClassName={cx(pipelineVariableCss.accordianSummaryL2)}
                   details={
                     <VariablesListTable
                       className={pipelineVariableCss.variablePaddingL3}
@@ -107,7 +107,7 @@ export function AzureWebAppServiceSpecVariablesForm(
               </Text>
             </VariableAccordionSummary>
           }
-          summaryClassName={cx(pipelineVariableCss.accordianSummaryL3)}
+          summaryClassName={cx(pipelineVariableCss.accordianSummaryL2)}
           details={
             !!startupScriptVariables && (
               <>
@@ -137,7 +137,7 @@ export function AzureWebAppServiceSpecVariablesForm(
               </Text>
             </VariableAccordionSummary>
           }
-          summaryClassName={cx(pipelineVariableCss.accordianSummaryL3)}
+          summaryClassName={cx(pipelineVariableCss.accordianSummaryL2)}
           details={
             !!applicationSettingsVariables && (
               <>
@@ -167,7 +167,7 @@ export function AzureWebAppServiceSpecVariablesForm(
               </Text>
             </VariableAccordionSummary>
           }
-          summaryClassName={cx(pipelineVariableCss.accordianSummaryL3)}
+          summaryClassName={cx(pipelineVariableCss.accordianSummaryL2)}
           details={
             !!connectionStringsVariables && (
               <>
@@ -194,7 +194,7 @@ export function AzureWebAppServiceSpecVariablesForm(
             </Text>
           </VariableAccordionSummary>
         }
-        summaryClassName={cx(pipelineVariableCss.accordianSummaryL2)}
+        summaryClassName={cx(pipelineVariableCss.accordianSummaryL1)}
         details={
           <StepWidget<CustomVariablesData, CustomVariableEditableExtraProps>
             factory={stepsFactory}

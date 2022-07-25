@@ -122,6 +122,7 @@ queueStep:
   scope: Run next queued execution after completion of
   queuedExecutions: Queued Executions
   queuedByResourceKey: 'Queued by Resource Key:'
+  noQueuedExecutions: No queued executions
 jenkinsStep:
   addJobParameters: Add Job Parameter
   validations:
@@ -424,10 +425,15 @@ loopingStrategy:
   toggleTypeModal:
     title: Are you sure, you want to switch the looping strategy?
     content: '{{$.pipeline.loopingStrategy.warningText}}'
-  helperText:
-    matrix: Matrix gives the ability to execute the same set of tasks multiple times for a bunch of different configurations.
-    for: Placeholder for helper text of for loop.
-    parallelism: Placeholder for helper text of parallelism
+  matrix:
+    label: Matrix
+    helperText: Matrix gives the ability to execute the same set of tasks multiple times for a bunch of different configurations.
+  repeat:
+    label: Repeat
+    helperText: Repeat gives the ability to execute the same set of tasks multiple times.
+  parallelism:
+    label: Parallelism
+    helperText: If parallelism is set to N > 1, then N independent executors will be set up and each will run that stage/step in parallel.
 selectOrCreatePipeline:
   pipelineNameRequired: Please select a pipeline
   setupHeader: Create or Select a Pipeline
@@ -588,7 +594,7 @@ artifactTriggerConfigPanel:
   runtimeInput: 'Runtime Input'
   chartVersionRuntimeInput: 'Some {{artifact}} references may be unselectable because {{ runTimeStr }} must be a runtime input.'
   artifactReferenceUnique: 'Some {{artifact}} references may not be available for selection because they must be unique and not from a previous stage'
-  tagArtifactPath: Tag or Artifact Path
+  tagArtifactPathBuild: Tag or Artifact Path or Build
 dashboards:
   failedBuilds: Failed Builds
   activeBuilds: Active Builds
@@ -596,6 +602,8 @@ dashboards:
   failedDeployments: Failed Deployments
   activeDeployments: Active Deployments
   pendingDeployments: Pending Approval/Manual Intervention
+  baselineTargets: Targets Baselines
+  baselineActivityComingSoon: Baseline target activity coming soon!
   noRepositories: No Repositories found
   noFailedBuilds: No Failed Builds found
   noActiveBuilds: No Active Builds found
@@ -876,9 +884,11 @@ ciCodebase:
     optionalPrCloneStrategy: Value must be one of these values [{{values}}]. You may use the default value provided.
     optionalLimitMemory: Invalid Limit Memory. To learn more, hover over the Set Container Resources tooltip. You may use the default value provided.
     optionalLimitCPU: Invalid Limit CPU. To learn more, hover over the Set Container Resources tooltip. You may use the default value provided.
+    pullRequestNumber: Pull Request Number must be a positive integer.
 tagDependencyRequired: required to fetch the tags
 artifactPathDependencyRequired: required to fetch the artifact paths
 artifactRepositoryDependencyRequired: 'Artifactory Connector is required to fetch repositories. You can make this field Runtime input otherwise.'
+dependencyRequired: 'Connector is required to fetch buckets'
 myDeploymentsText: My Deployments
 myBuildsText: My Builds
 mySecurityTestsText: My Security Tests
@@ -1042,6 +1052,7 @@ executionList:
   servicesDeployedText: 'Services deployed ({{size}})'
   artifactDeployedText: 'Artifacts deployed ({{size}})'
   EnvironmentsText: 'Environments ({{size}})'
+
 replacedExpressions: Replaced Expressions
 expressionRequired: Expression value is required.
 nativeHelm: Native Helm
@@ -1197,16 +1208,14 @@ recentTenExecutions: 'Recent 10 Executions'
 lastExecution: 'Last Execution'
 lastModified: 'Last Modified'
 executionId: Execution Id
-lastExecutedBy: Last Executed By
 imageTag: 'image: {{image}}'
+fileSource: 'File Source'
+fileDetails: 'File Details'
 appServiceConfig:
   title: App Services Configuration
   applicationSettings:
     name: Application Settings
     file: '{{$.pipeline.appServiceConfig.applicationSettings.name}} File'
-    scriptFile: '{{$.pipeline.appServiceConfig.applicationSettings.name}} Script File'
-    scriptFileSource: '{{$.pipeline.appServiceConfig.applicationSettings.name}} Script File Source'
-    scriptFileDetails: '{{$.pipeline.appServiceConfig.applicationSettings.name}} Script File Details'
     fileDetails: '{{$.pipeline.appServiceConfig.applicationSettings.name}} File Details'
     fileSource: '{{$.pipeline.appServiceConfig.applicationSettings.name}} File Source'
     filePath: '{{$.pipeline.appServiceConfig.applicationSettings.name}} File Path'
@@ -1214,9 +1223,6 @@ appServiceConfig:
   connectionStrings:
     name: Connection Strings
     file: '{{$.pipeline.appServiceConfig.connectionStrings.name}} File'
-    scriptFile: '{{$.pipeline.appServiceConfig.connectionStrings.name}} Script File'
-    scriptFileSource: '{{$.pipeline.appServiceConfig.connectionStrings.name}} Script File Source'
-    scriptFileDetails: '{{$.pipeline.appServiceConfig.connectionStrings.name}} Script File Details'
     fileDetails: '{{$.pipeline.appServiceConfig.connectionStrings.name}} File Details'
     fileSource: '{{$.pipeline.appServiceConfig.connectionStrings.name}} File Source'
     filePath: '{{$.pipeline.appServiceConfig.connectionStrings.name}} File Path'
@@ -1224,7 +1230,8 @@ appServiceConfig:
 startupScript:
   name: Startup Script
   subtitle: 'Specify Azure Web App Startup Script Type'
-  file: '{{$.pipeline.startupScript.name}} File'
   fileDetails: '{{$.pipeline.startupScript.name}} File Details'
   fileSource: '{{$.pipeline.startupScript.name}} File Source'
   scriptFilePath: 'Script File Path'
+  fileValidation: 'file is required'
+  plainText: 'Plain Text'

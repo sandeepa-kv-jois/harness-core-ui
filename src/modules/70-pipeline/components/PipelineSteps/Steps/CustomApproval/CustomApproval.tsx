@@ -38,6 +38,7 @@ import { CustomApprovalVariablesView, CustomApprovalVariablesViewProps } from '.
 const logger = loggerFor(ModuleName.CD)
 const ConnectorRefRegex = /^.+step\.spec\.executionTarget\.connectorRef$/
 
+/* istanbul ignore next */
 const getConnectorValue = (connector?: SecretResponseWrapper): string =>
   `${
     connector?.secret?.orgIdentifier && connector?.secret?.projectIdentifier
@@ -47,6 +48,7 @@ const getConnectorValue = (connector?: SecretResponseWrapper): string =>
       : `${Scope.ACCOUNT}.${connector?.secret?.identifier}`
   }` || ''
 
+/* istanbul ignore next */
 const getConnectorName = (connector?: SecretResponseWrapper): string =>
   `${
     connector?.secret?.orgIdentifier && connector?.secret?.projectIdentifier
@@ -244,7 +246,7 @@ export class CustomApproval extends PipelineStep<CustomApprovalData> {
     },
     type: StepType.CustomApproval
   }
-
+  /* istanbul ignore next */
   protected async getSecretsListForYaml(
     path: string,
     yaml: string,

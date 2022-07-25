@@ -204,7 +204,6 @@ export function ExecutionCardPanel(props: ExecutionCardProps): React.ReactElemen
         </VariableAccordionSummary>
       }
       panelClassName={css.panel}
-      summaryClassName={css.accordianSummaryL1}
       details={<ExecutionCard {...props} />}
     />
   )

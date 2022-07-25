@@ -9,8 +9,6 @@ import React from 'react'
 import { getByTestId, render, RenderResult, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TestWrapper } from '@common/utils/testUtils'
-import mockImport from 'framework/utils/mockImport'
-import mockEnvironments from '@cf/pages/environments/__tests__/mockEnvironments'
 import mockFeatureFlags from '../../__tests__/mockFeatureFlags'
 import { FlagTableFilters, FlagTableFiltersProps } from '../FlagTableFilters'
 
@@ -41,25 +39,8 @@ const permanentFlagsFilter = {
 }
 
 describe('FlagTableFilters', () => {
-  beforeAll(() => {
-    mockImport('services/cf', {
-      useGetAllFeatures: () => ({ data: mockFeatureFlags, loading: false, refetch: jest.fn() })
-    })
-
-    mockImport('services/cd-ng', {
-      useGetEnvironmentListForProject: () => ({
-        data: mockEnvironments,
-        loading: false,
-        error: undefined,
-        refetch: jest.fn()
-      })
-    })
-  })
-
-  beforeEach(() => (flagEnabled = true))
-
-  afterAll(() => {
-    jest.resetAllMocks()
+  beforeEach(() => {
+    flagEnabled = true
   })
 
   test('FlagTableFilters should render correctly the filters for feature flags', async () => {

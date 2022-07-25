@@ -172,7 +172,9 @@ export const RenderColumnFlag: React.FC<RenderColumnFlagProps> = ({
         <Text font={{ weight: 'bold' }} color={Color.WHITE} padding={{ bottom: 'large' }}>
           {getString('cf.noEnvironment.title')}
         </Text>
-        <Text color={Color.GREY_200}>{getString('cf.noEnvironment.message')}</Text>
+        <Text color={Color.GREY_200}>
+          <String stringID={'cf.noEnvironment.message'} useRichText />
+        </Text>
       </Layout.Vertical>
     </Popover>
   )
@@ -588,6 +590,7 @@ const FeatureFlagsPage: React.FC = () => {
   const hasFeatureFlags = !!features?.featureCounts?.totalFeatures || !emptyFeatureFlags
   const title = getString('featureFlagsText')
   const FILTER_FEATURE_FLAGS = useFeatureFlag(FeatureFlag.STALE_FLAGS_FFM_1510)
+  const showFilterCards = FILTER_FEATURE_FLAGS && hasFeatureFlags && environmentIdentifier
 
   const onClearFilter = (): void => setFlagFilter({})
   const onClearSearch = (): void => searchRef.current.clear()
@@ -637,7 +640,7 @@ const FeatureFlagsPage: React.FC = () => {
       }}
     >
       <Container padding={{ top: 'medium', right: 'xlarge', left: 'xlarge' }}>
-        {FILTER_FEATURE_FLAGS && hasFeatureFlags && (
+        {showFilterCards && (
           <FlagTableFilters
             features={features}
             currentFilter={flagFilter}

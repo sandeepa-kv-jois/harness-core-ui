@@ -97,7 +97,7 @@ export function StepCardPanel(props: StepCardProps): React.ReactElement {
           </Text>
         </VariableAccordionSummary>
       }
-      summaryClassName={css.accordianSummaryL3}
+      summaryClassName={css.accordianSummaryL2}
       details={<StepCard {...props} />}
     />
   )
@@ -180,7 +180,7 @@ export function StepGroupCardPanel(props: StepGroupCardProps): React.ReactElemen
           </Text>
         </VariableAccordionSummary>
       }
-      summaryClassName={css.accordianSummaryL2}
+      summaryClassName={css.accordianSummaryL1}
       details={<StepGroupCard {...props} />}
     />
   )
