@@ -59,9 +59,9 @@ const ProjectSetupMenu: React.FC<ProjectSetupMenuProps> = ({ module }) => {
             to={routes.toTemplates({ ...params, templateType: 'MonitoredService' })}
           />
         )}
-        {OPA_PIPELINE_GOVERNANCE && isCIorCDorSTO && canUsePolicyEngine && (
+        
           <SidebarLink label={getString('common.governance')} to={routes.toGovernance(params as GovernancePathProps)} />
-        )}
+       
         {isCIorCD && NG_FILE_STORE && (
           <SidebarLink label={getString('resourcePage.fileStore')} to={routes.toFileStore(params)} />
         )}

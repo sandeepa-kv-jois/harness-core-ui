@@ -49,6 +49,7 @@ import CVSLODetailsPage from './pages/slos/CVSLODetailsPage/CVSLODetailsPage'
 import CVCreateSLO from './pages/slos/components/CVCreateSLO/CVCreateSLO'
 import { MonitoredServiceProvider } from './pages/monitored-service/MonitoredServiceContext'
 import MonitoredServiceInputSetsTemplate from './pages/monitored-service/MonitoredServiceInputSetsTemplate/MonitoredServiceInputSetsTemplate'
+import { GovernanceRouteDestinations } from '@governance/RouteDestinations'
 
 // PubSubPipelineActions.subscribe(
 //   PipelineActions.RunPipeline,
@@ -333,6 +334,13 @@ export default (
       AccessControlRouteDestinations({
         moduleParams: cvModuleParams,
         sidebarProps: CVSideNavProps
+      })?.props.children
+    }
+
+    {
+      GovernanceRouteDestinations({
+        sidebarProps: CVSideNavProps,
+        pathProps: { ...accountPathProps, ...projectPathProps, ...cvModuleParams }
       })?.props.children
     }
   </>
