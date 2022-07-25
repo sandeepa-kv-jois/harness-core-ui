@@ -57,7 +57,7 @@ export default function GetStartedWithCI(): React.ReactElement {
   const { mutate: fetchGitConnectors, loading: fetchingGitConnectors } = useGetConnectorListV2({
     queryParams: {
       accountIdentifier: accountId,
-      pageSize: 100
+      pageSize: 10
     }
   })
   const [isFetchingSecret, setIsFetchingSecret] = useState<boolean>()
