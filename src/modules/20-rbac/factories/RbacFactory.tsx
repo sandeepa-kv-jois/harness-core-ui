@@ -28,6 +28,8 @@ export interface RbacResourceRendererProps {
     attributeFilter?: string[]
   ) => void
   resourceType: ResourceType
+  /** If identifiers are to be classified as attributes or static resources */
+  isAtrributeFilterEnabled?: boolean
 }
 
 export interface RbacAttributeModalProps {

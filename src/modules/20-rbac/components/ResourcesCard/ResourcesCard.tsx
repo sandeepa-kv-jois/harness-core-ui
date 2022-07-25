@@ -139,13 +139,14 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({
                   identifiers: staticResourceValues,
                   resourceScope: { accountIdentifier: accountId, orgIdentifier, projectIdentifier },
                   onResourceSelectionChange,
-                  resourceType
+                  resourceType,
+                  isAtrributeFilterEnabled
                 })
               : staticResourceValues.map(resource => (
                   <Layout.Horizontal padding="large" className={css.staticResource} key={resource} flex>
                     <Text>{resource}</Text>
                     <Button
-                      icon="trash"
+                      icon="main-trash"
                       minimal
                       onClick={() => {
                         if (isAtrributeFilterEnabled) {

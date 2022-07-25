@@ -21,7 +21,7 @@ interface ConnectorTypeList {
 }
 
 // eslint-disable-next-line react/function-component-definition
-const RenderEnvType: Renderer<CellProps<ConnectorTypeList>> = ({ row }) => {
+const RenderConnectorType: Renderer<CellProps<ConnectorTypeList>> = ({ row }) => {
   const rowdata = row.original
 
   return (
@@ -75,8 +75,8 @@ function ConnectorAttributeModalBody({ onSelectChange, selectedData }: RbacAttri
           {
             id: 'label',
             accessor: 'label' as any,
-            Cell: RenderEnvType,
-            width: '60%',
+            Cell: RenderConnectorType,
+            width: '95%',
             disableSortBy: true
           }
         ]}
