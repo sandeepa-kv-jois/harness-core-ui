@@ -69,6 +69,10 @@ const getRepositoryValue = (
   return formData?.repository as string
 }
 
+const getRepositoryFormat = (values: ImagePathTypes & { spec?: any }): string | undefined => {
+  return defaultTo(values?.spec?.repositoryFormat, values?.repositoryFormat)
+}
+
 function Artifactory({
   context,
   handleSubmit,
@@ -94,7 +98,7 @@ function Artifactory({
   const isAzureWebAppDeploymentTypeSelected = isAzureWebAppDeploymentType(selectedDeploymentType)
   const isAzureWebAppGenericTypeSelected = isAzureWebAppGenericDeploymentType(
     selectedDeploymentType,
-    defaultTo((initialValues as any)?.spec?.repositoryFormat, initialValues?.repositoryFormat)
+    getRepositoryFormat(initialValues)
   )
   const [isAzureWebAppGeneric, setIsAzureWebAppGeneric] = useState<boolean>(isAzureWebAppGenericTypeSelected)
 
@@ -102,17 +106,13 @@ function Artifactory({
     let repoFormat = RepositoryFormatTypes.Docker
     if (isServerlessDeploymentTypeSelected || isSSHWinRmDeploymentType) repoFormat = RepositoryFormatTypes.Generic
     if (isAzureWebAppDeploymentTypeSelected) {
-      repoFormat = (initialValues as any)?.spec?.repositoryFormat
-        ? ((initialValues as any)?.spec?.repositoryFormat as RepositoryFormatTypes)
+      repoFormat = getRepositoryFormat(initialValues)
+        ? (getRepositoryFormat(initialValues) as RepositoryFormatTypes)
         : RepositoryFormatTypes.Generic
     }
 
     setRepositoryFormat(repoFormat)
   }, [])
-
-  // const isAzureWebAppGeneric = useMemo(() => {
-  //   return isAzureWebAppDeploymentTypeSelected && repositoryFormat === RepositoryFormatTypes.Generic
-  // }, [isAzureWebAppDeploymentTypeSelected, repositoryFormat])
 
   const schemaObject = {
     artifactPath: Yup.string().trim().required(getString('pipeline.artifactsSelection.validation.artifactPath')),

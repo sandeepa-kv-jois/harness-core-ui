@@ -263,7 +263,7 @@ export const isAzureWebAppDeploymentType = (deploymentType: string): boolean => 
   return deploymentType === ServiceDeploymentType.AzureWebApp
 }
 
-export const isAzureWebAppGenericDeploymentType = (deploymentType: string, repo: string): boolean => {
+export const isAzureWebAppGenericDeploymentType = (deploymentType: string, repo: string | undefined): boolean => {
   if (deploymentType === ServiceDeploymentType.AzureWebApp) {
     // default repository format should be Generic if none is previously selected
     return repo ? repo === RepositoryFormatTypes.Generic : true

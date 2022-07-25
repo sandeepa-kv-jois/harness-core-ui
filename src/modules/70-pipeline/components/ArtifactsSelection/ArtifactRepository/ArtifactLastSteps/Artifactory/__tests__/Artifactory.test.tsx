@@ -14,6 +14,9 @@ import { TagTypes } from '@pipeline/components/ArtifactsSelection/ArtifactInterf
 import * as pipelineng from 'services/cd-ng'
 import Artifactory from '../Artifactory'
 import {
+  azureWebAppDeploymentTypeProps,
+  azureWebAppDockerInitialValues,
+  azureWebAppGenericInitialValues,
   emptyRepoMockData,
   props,
   repoMock,
@@ -67,6 +70,8 @@ describe('Nexus Artifact tests', () => {
         <Artifactory key={'key'} initialValues={initialValues} {...props} />
       </TestWrapper>
     )
+
+    expect(container.querySelector('input[name="repositoryFormat"]')!).toBeNull()
     expect(container).toMatchSnapshot()
   })
 
@@ -208,6 +213,8 @@ describe('Serverless artifact', () => {
         <Artifactory key={'key'} initialValues={initialValues} {...serverlessDeploymentTypeProps} />
       </TestWrapper>
     )
+
+    expect(container.querySelector('input[name="repositoryFormat"]')!).toBeNull()
     expect(container).toMatchSnapshot()
   })
 
@@ -304,6 +311,47 @@ describe('Serverless artifact', () => {
         <Artifactory key={'key'} initialValues={runtimeInitialValues as any} {...serverlessDeploymentTypeProps} />
       </TestWrapper>
     )
+    expect(container).toMatchSnapshot()
+  })
+})
+
+describe('Azure web app artifact', () => {
+  test(`renders Generic Artifactory view by default`, () => {
+    const { container, getByPlaceholderText } = render(
+      <TestWrapper>
+        <Artifactory key={'key'} initialValues={azureWebAppGenericInitialValues} {...azureWebAppDeploymentTypeProps} />
+      </TestWrapper>
+    )
+
+    const repositoryFormat = getByPlaceholderText('- Select -')
+    expect(repositoryFormat!).toBeDefined()
+    expect(repositoryFormat!).toHaveAttribute('value', 'Generic')
+
+    const artifactDirectory = container.querySelector('input[name="artifactDirectory"]')
+    expect(artifactDirectory!).toBeDefined()
+
+    const repositoryUrl = container.querySelector('input[name="repositoryUrl"]')
+    expect(repositoryUrl!).toBeNull()
+
+    expect(container).toMatchSnapshot()
+  })
+
+  test(`renders Docker Artifactory view`, () => {
+    const { container, getByPlaceholderText } = render(
+      <TestWrapper>
+        <Artifactory key={'key'} initialValues={azureWebAppDockerInitialValues} {...azureWebAppDeploymentTypeProps} />
+      </TestWrapper>
+    )
+
+    const repositoryFormat = getByPlaceholderText('- Select -')
+    expect(repositoryFormat!).toBeDefined()
+
+    const artifactDirectory = container.querySelector('input[name="artifactDirectory"]')
+    expect(artifactDirectory!).toBeNull()
+
+    const repositoryUrl = container.querySelector('input[name="repositoryUrl"]')
+    expect(repositoryUrl!).toBeDefined()
+
     expect(container).toMatchSnapshot()
   })
 })
