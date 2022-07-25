@@ -30,6 +30,7 @@ import { useQueryParams } from '@common/hooks'
 import { ConnectorConfigDTO, DockerBuildDetailsDTO, useGetBuildDetailsForArtifactoryArtifact } from 'services/cd-ng'
 import {
   checkIfQueryParamsisNotEmpty,
+  defaultArtifactInitialValues,
   getArtifactFormData,
   getConnectorIdValue,
   getFinalArtifactFormObj,
@@ -303,6 +304,8 @@ function Artifactory({
                     items={repositoryFormats}
                     onChange={value => {
                       if (isAzureWebAppDeploymentTypeSelected) {
+                        selectedArtifact && formik.setValues(defaultArtifactInitialValues(selectedArtifact))
+                        formik.setFieldValue('repositoryFormat', value?.value)
                         setRepositoryFormat(value?.value as string)
                         setIsAzureWebAppGeneric(
                           isAzureWebAppDeploymentTypeSelected && value?.value === RepositoryFormatTypes.Generic
