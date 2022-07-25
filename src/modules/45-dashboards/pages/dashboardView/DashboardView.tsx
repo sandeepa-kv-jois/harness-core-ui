@@ -32,12 +32,12 @@ const DashboardViewPage: React.FC = () => {
 
   const { accountId, viewId, folderId } = useParams<AccountPathProps & { viewId: string; folderId: string }>()
   const [embedUrl, setEmbedUrl] = React.useState<string>()
-  const [dashboardFilters, setDashboardFilters] = useQueryParamsState<string | undefined>('filters', '')
+  const [dashboardFilters, setDashboardFilters] = useQueryParamsState<string | undefined>('filters', undefined)
   const [iframeState] = React.useState(0)
   const history = useHistory()
 
   const signedQueryUrl: string = useMemo(() => {
-    const filters = dashboardFilters ?? ''
+    const filters = `&${dashboardFilters}` ?? ''
     return `/embed/dashboards-next/${viewId}?embed_domain=${location.host}${filters}`
   }, [dashboardFilters, viewId])
 
@@ -56,7 +56,7 @@ const DashboardViewPage: React.FC = () => {
     }
 
     generateSignedUrl()
-  }, [createSignedUrl, viewId])
+  }, [viewId])
 
   const lookerDashboardFilterChangedEvent = (eventData: DashboardFiltersChangedEvent): void => {
     setDashboardFilters(new URLSearchParams(eventData.dashboard.dashboard_filters).toString())
@@ -88,7 +88,8 @@ const DashboardViewPage: React.FC = () => {
     return () => {
       window.removeEventListener('message', lookerEventHandler)
     }
-  }, [history, viewId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewId])
 
   const { data: folderDetail, refetch: fetchFolderDetail } = useGetFolderDetail({
     lazy: true,
@@ -143,7 +144,7 @@ const DashboardViewPage: React.FC = () => {
           height="100%"
           width="100%"
           frameBorder="0"
-          id="dashboard-render"
+          id="looker"
           data-testid="dashboard-iframe"
         />
       </Layout.Vertical>
