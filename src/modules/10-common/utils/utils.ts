@@ -31,6 +31,8 @@ export const getModuleIcon = (module: ModuleName): IconName => {
       return 'cf-main'
     case ModuleName.STO:
       return 'sto-color-filled'
+    case ModuleName.CHAOS:
+      return 'chaos-main'
   }
   return 'nav-project'
 }

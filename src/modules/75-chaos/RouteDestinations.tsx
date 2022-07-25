@@ -77,7 +77,7 @@ const ChaosSideNavProps: SidebarContext = {
   navComponent: ChaosSideNav,
   subtitle: 'Chaos',
   title: 'Engineering',
-  icon: 'command-stop'
+  icon: 'chaos-main'
 }
 
 const chaosModuleParams: ModulePathParams = {
