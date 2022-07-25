@@ -70,16 +70,19 @@ export default function CustomApprovalInputSetStep(props: CustomApprovalInputSet
             allowedTypes={allowableTypes}
             disableTypeSelection={readonly}
             skipRenderValueInExpressionLabel
-            expressionRender={() => {
-              return (
-                <ShellScriptMonacoField
-                  name={`${prefix}spec.source.spec.script`}
-                  scriptType={scriptType}
-                  disabled={readonly}
-                  expressions={expressions}
-                />
-              )
-            }}
+            expressionRender={
+              /* istanbul ignore next */ () => {
+                /* istanbul ignore next */
+                return (
+                  <ShellScriptMonacoField
+                    name={`${prefix}spec.source.spec.script`}
+                    scriptType={scriptType}
+                    disabled={readonly}
+                    expressions={expressions}
+                  />
+                )
+              }
+            }
           >
             <ShellScriptMonacoField
               name={`${prefix}spec.source.spec.script`}

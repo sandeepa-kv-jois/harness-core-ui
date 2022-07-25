@@ -232,7 +232,7 @@ const K8ScaleInputStep: React.FC<K8sScaleProps> = ({ template, readonly, path, a
       {getMultiTypeFromValue(template?.spec?.workload) === MultiTypeInputType.RUNTIME && (
         <div className={cx(stepCss.formGroup, stepCss.md)}>
           <FormInput.MultiTextInput
-            name="spec.workload"
+            name={`${prefix}spec.workload`}
             placeholder={getString('pipeline.kubernetesStep.workload')}
             label={getString('pipelineSteps.workload')}
             disabled={readonly}

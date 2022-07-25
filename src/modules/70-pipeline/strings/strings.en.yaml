@@ -425,10 +425,15 @@ loopingStrategy:
   toggleTypeModal:
     title: Are you sure, you want to switch the looping strategy?
     content: '{{$.pipeline.loopingStrategy.warningText}}'
-  helperText:
-    matrix: Matrix gives the ability to execute the same set of tasks multiple times for a bunch of different configurations.
-    for: Placeholder for helper text of for loop.
-    parallelism: Placeholder for helper text of parallelism
+  matrix:
+    label: Matrix
+    helperText: Matrix gives the ability to execute the same set of tasks multiple times for a bunch of different configurations.
+  repeat:
+    label: Repeat
+    helperText: Repeat gives the ability to execute the same set of tasks multiple times.
+  parallelism:
+    label: Parallelism
+    helperText: If parallelism is set to N > 1, then N independent executors will be set up and each will run that stage/step in parallel.
 selectOrCreatePipeline:
   pipelineNameRequired: Please select a pipeline
   setupHeader: Create or Select a Pipeline
@@ -597,6 +602,8 @@ dashboards:
   failedDeployments: Failed Deployments
   activeDeployments: Active Deployments
   pendingDeployments: Pending Approval/Manual Intervention
+  baselineTargets: Targets Baselines
+  baselineActivityComingSoon: Baseline target activity coming soon!
   noRepositories: No Repositories found
   noFailedBuilds: No Failed Builds found
   noActiveBuilds: No Active Builds found
@@ -1226,3 +1233,5 @@ startupScript:
   fileDetails: '{{$.pipeline.startupScript.name}} File Details'
   fileSource: '{{$.pipeline.startupScript.name}} File Source'
   scriptFilePath: 'Script File Path'
+  fileValidation: 'file is required'
+  plainText: 'Plain Text'

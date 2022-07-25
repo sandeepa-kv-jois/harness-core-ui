@@ -42,6 +42,8 @@ export interface HarnessApprovalTabProps {
   showBannerInfo?: boolean
   showInputsHeader?: boolean
   approvalBoxClassName?: string
+  startTs?: number
+  endTs?: number
 }
 
 export function HarnessApprovalTab(props: HarnessApprovalTabProps): React.ReactElement {
@@ -50,6 +52,8 @@ export function HarnessApprovalTab(props: HarnessApprovalTabProps): React.ReactE
     approvalInstanceId,
     isWaiting,
     updateState,
+    startTs,
+    endTs,
     authData,
     showBannerInfo = true,
     showInputsHeader = true,
@@ -115,8 +119,8 @@ export function HarnessApprovalTab(props: HarnessApprovalTabProps): React.ReactE
         ) : (
           <StepDetails
             step={{
-              startTs: approvalData?.createdAt,
-              endTs: approvalData?.lastModifiedAt,
+              startTs: startTs,
+              endTs: endTs,
               stepParameters: props.stepParameters
             }}
           />

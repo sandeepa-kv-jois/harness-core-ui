@@ -198,6 +198,9 @@ serviceDashboard:
   function: function
   deployedAt: Deployed At
   deployedBy: Deployed By
+  host: host
+  deploymentSlot: deploymentSlot
+  webApp: Web App Name
   artifact: artifact
   totalPipelines: Total Pipelines
   totalDeployments: Total Deployments

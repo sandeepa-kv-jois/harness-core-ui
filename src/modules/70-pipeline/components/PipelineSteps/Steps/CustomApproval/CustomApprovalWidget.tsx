@@ -43,7 +43,7 @@ export function CustomApprovalWidget(
     onUpdate,
     onChange,
     allowableTypes,
-    isNewStep = true,
+    isNewStep = /* istanbul ignore next */ true,
     readonly,
     stepViewType
   }: CustomApprovalWidgetProps,
@@ -99,9 +99,12 @@ export function CustomApprovalWidget(
 
   return (
     <Formik<CustomApprovalFormData>
-      onSubmit={submit => {
-        onUpdate?.(submit)
-      }}
+      onSubmit={
+        /* istanbul ignore next */ submit => {
+          /* istanbul ignore next */
+          onUpdate?.(submit)
+        }
+      }
       validate={formValues => {
         onChange?.(formValues)
       }}

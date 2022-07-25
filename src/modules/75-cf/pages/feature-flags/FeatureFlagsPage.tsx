@@ -590,6 +590,7 @@ const FeatureFlagsPage: React.FC = () => {
   const hasFeatureFlags = !!features?.featureCounts?.totalFeatures || !emptyFeatureFlags
   const title = getString('featureFlagsText')
   const FILTER_FEATURE_FLAGS = useFeatureFlag(FeatureFlag.STALE_FLAGS_FFM_1510)
+  const showFilterCards = FILTER_FEATURE_FLAGS && hasFeatureFlags && environmentIdentifier
 
   const onClearFilter = (): void => setFlagFilter({})
   const onClearSearch = (): void => searchRef.current.clear()
@@ -639,7 +640,7 @@ const FeatureFlagsPage: React.FC = () => {
       }}
     >
       <Container padding={{ top: 'medium', right: 'xlarge', left: 'xlarge' }}>
-        {FILTER_FEATURE_FLAGS && hasFeatureFlags && (
+        {showFilterCards && (
           <FlagTableFilters
             features={features}
             currentFilter={flagFilter}

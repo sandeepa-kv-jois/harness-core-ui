@@ -19,7 +19,7 @@ import { isApprovalWaiting } from '@pipeline/utils/approvalUtils'
 import { useHarnessApproval } from '@pipeline/components/execution/StepDetails/views/HarnessApprovalView/useHarnessApproval'
 import css from './HarnessApprovalLogsView.module.scss'
 
-export function HarnessApprovalLogsView(props: ConsoleViewStepDetailProps) {
+export function HarnessApprovalLogsView(props: ConsoleViewStepDetailProps): React.ReactElement {
   const { getString } = useStrings()
   const step = props.step
 
@@ -62,6 +62,8 @@ export function HarnessApprovalLogsView(props: ConsoleViewStepDetailProps) {
             isWaiting={isWaiting}
             authData={authData}
             approvalBoxClassName={css.harnessApprovalLogsView}
+            startTs={step.startTs}
+            endTs={step.endTs}
             updateState={updatedData => {
               setApprovalData(updatedData)
               refetchAuthData()
@@ -105,7 +107,7 @@ export function HarnessApprovalLogsView(props: ConsoleViewStepDetailProps) {
     )
   }
 
-  const renderLogs = (renderLogsProps: RenderLogsInterface) => {
+  const renderLogs = (renderLogsProps: RenderLogsInterface): React.ReactElement => {
     return (
       <div data-testid="harnessApprovalLogsTest">
         {approveButtonNode}

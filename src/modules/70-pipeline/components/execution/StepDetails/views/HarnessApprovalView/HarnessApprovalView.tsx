@@ -118,6 +118,8 @@ export function HarnessApprovalView(props: HarnessApprovalViewProps): React.Reac
               setApprovalData(updatedData)
               refetchAuthData()
             }}
+            startTs={step.startTs}
+            endTs={step.endTs}
             stepParameters={step.stepParameters}
           />
         }

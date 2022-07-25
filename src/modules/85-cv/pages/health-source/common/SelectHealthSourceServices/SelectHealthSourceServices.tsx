@@ -95,7 +95,7 @@ export default function SelectHealthSourceServices({
           metricPackResponse={metricPackResponse}
           labelNamesResponse={labelNamesResponse}
           continuousVerificationEnabled={continuousVerification && !hideServiceIdentifier}
-          serviceInstance={serviceInstance}
+          serviceInstance={typeof serviceInstance === 'string' ? serviceInstance : (serviceInstance?.value as string)}
           riskCategory={riskCategory}
           isConnectorRuntimeOrExpression={isConnectorRuntimeOrExpression}
         />

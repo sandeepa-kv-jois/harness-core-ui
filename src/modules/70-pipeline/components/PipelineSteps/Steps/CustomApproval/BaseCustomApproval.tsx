@@ -53,7 +53,7 @@ export default function BaseCustomApproval(props: {
   const { values: formValues, setFieldValue } = formik
   const { getString } = useStrings()
   const { expressions } = useVariablesExpression()
-  const scriptType: ScriptType = formValues.spec?.shell || 'Bash'
+  const scriptType: ScriptType = formValues.spec?.shell || /* istanbul ignore next */ 'Bash'
 
   return (
     <Container className={css.customApprovalContainer}>
@@ -85,9 +85,12 @@ export default function BaseCustomApproval(props: {
             showRequiredField={false}
             showDefaultField={false}
             showAdvanced={true}
-            onChange={value => {
-              setFieldValue('timeout', value)
-            }}
+            onChange={
+              /* istanbul ignore next */ value => {
+                /* istanbul ignore next */
+                setFieldValue('timeout', value)
+              }
+            }
             isReadonly={readonly}
           />
         )}
@@ -111,16 +114,19 @@ export default function BaseCustomApproval(props: {
           allowedTypes={allowableTypes}
           disableTypeSelection={readonly}
           skipRenderValueInExpressionLabel
-          expressionRender={() => {
-            return (
-              <ShellScriptMonacoField
-                name="spec.source.spec.script"
-                scriptType={scriptType}
-                disabled={readonly}
-                expressions={expressions}
-              />
-            )
-          }}
+          expressionRender={
+            /* istanbul ignore next */ () => {
+              /* istanbul ignore next */
+              return (
+                <ShellScriptMonacoField
+                  name="spec.source.spec.script"
+                  scriptType={scriptType}
+                  disabled={readonly}
+                  expressions={expressions}
+                />
+              )
+            }
+          }
         >
           <ShellScriptMonacoField
             name="spec.source.spec.script"
@@ -160,9 +166,12 @@ export default function BaseCustomApproval(props: {
             showRequiredField={false}
             showDefaultField={false}
             showAdvanced={true}
-            onChange={value => {
-              setFieldValue('spec.retryInterval', value)
-            }}
+            onChange={
+              /* istanbul ignore next */ value => {
+                /* istanbul ignore next */
+                setFieldValue('spec.retryInterval', value)
+              }
+            }
             isReadonly={readonly}
           />
         )}
@@ -183,9 +192,12 @@ export default function BaseCustomApproval(props: {
             showRequiredField={false}
             showDefaultField={false}
             showAdvanced={true}
-            onChange={value => {
-              setFieldValue('spec.scriptTimeout', value)
-            }}
+            onChange={
+              /* istanbul ignore next */ value => {
+                /* istanbul ignore next */
+                setFieldValue('spec.scriptTimeout', value)
+              }
+            }
             isReadonly={readonly}
           />
         )}

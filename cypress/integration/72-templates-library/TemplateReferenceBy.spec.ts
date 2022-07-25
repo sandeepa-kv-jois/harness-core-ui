@@ -50,10 +50,12 @@ describe('Template Reference By', () => {
   it('when pipeline and template references are present', () => {
     cy.intercept('GET', templateReferencesCall, { fixture: 'ng/api/entitySetupUsageV2' }).as('templateReferencesCall')
     cy.wait('@templateReferencesCall', { timeout: 10000 })
-    cy.contains('p', 'stage temp (v34)').should('be.visible')
-    // cy.contains('p', 'Template').should('be.visible')
-    cy.contains('p', 'pipeline temp latest (32)').should('be.visible')
-    cy.contains('p', 'original pipeline').should('be.visible')
-    // cy.contains('p', 'Pipelines').should('be.visible')
+    cy.get('[id=bp3-tab-panel_template-details_REFERENCEDBY]').within(() => {
+      cy.contains('stage temp (v34)').should('be.visible')
+      cy.contains('Template').should('be.visible')
+      cy.contains('pipeline temp latest (32)').should('be.visible')
+      cy.contains('original pipeline').should('be.visible')
+      cy.contains('Pipelines').should('be.visible')
+    })
   })
 })
