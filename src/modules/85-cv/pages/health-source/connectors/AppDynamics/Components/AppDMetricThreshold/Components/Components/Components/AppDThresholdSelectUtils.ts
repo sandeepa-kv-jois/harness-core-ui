@@ -7,8 +7,7 @@ import {
   CustomMetricDropdownOption,
   DefaultCustomMetricGroupName,
   FailFastActionValues,
-  MetricTypeValues,
-  PercentageCriteriaDropdownValues
+  MetricTypeValues
 } from '../../../AppDMetricThresholdConstants'
 
 export function getItembyValue(items: SelectItem[], value: string): SelectItem {
@@ -161,14 +160,3 @@ export function getDefaultMetricTypeValue(
 
   return null
 }
-
-export const getCriteriaPercentageDropdownOptions = (getString: UseStringsReturn['getString']): SelectItem[] => [
-  {
-    label: getString('cv.monitoringSources.appD.greaterThan'),
-    value: PercentageCriteriaDropdownValues.GreaterThan
-  },
-  {
-    label: getString('cv.monitoringSources.appD.lesserThan'),
-    value: PercentageCriteriaDropdownValues.LessThan
-  }
-]

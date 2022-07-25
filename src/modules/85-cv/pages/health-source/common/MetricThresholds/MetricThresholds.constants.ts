@@ -25,3 +25,8 @@ export const MetricThresholdTypes = {
   IgnoreThreshold: 'IgnoreThreshold',
   FailImmediately: 'FailImmediately'
 }
+
+export const PercentageCriteriaDropdownValues = {
+  GreaterThan: 'greaterThan',
+  LessThan: 'lessThan'
+}

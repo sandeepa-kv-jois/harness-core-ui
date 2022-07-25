@@ -4,13 +4,14 @@ import { Color } from '@harness/design-system'
 import { cloneDeep } from 'lodash-es'
 import { useFormikContext, FieldArray } from 'formik'
 import { useStrings } from 'framework/strings'
+import ThresholdSelect from '@cv/pages/health-source/common/MetricThresholds/Components/ThresholdSelect'
+import ThresholdCriteria from '@cv/pages/health-source/common/MetricThresholds/Components/ThresholdCriteria'
 import { AppDynamicsMonitoringSourceFieldNames as FieldName } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.constants'
 import type { AppDynamicsFomikFormInterface } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.types'
 import { PrometheusMetricThresholdContext } from '../../PrometheusMetricThreshold'
 import { getMetricItems, getMetricTypeItems } from './Components/AppDThresholdSelectUtils'
 import { NewDefaultVauesForIgnoreThreshold } from '../../PrometheusMetricThresholdConstants'
-import ThresholdSelect from './Components/ThresholdSelect'
-import ThresholdCriteria from './Components/ThresholdCriteria'
+
 import css from '../PrometheusMetricThresholdContent.module.scss'
 
 export default function PrometheusDIgnoreThresholdTabContent(): JSX.Element {

@@ -16,6 +16,8 @@ export default function AppDMetricThreshold({
   groupedCreatedMetrics,
   setNonCustomFeilds
 }: AppDMetricThresholdPropsType): JSX.Element {
+  // console.log('props', { formikValues, metricPacks, groupedCreatedMetrics, setNonCustomFeilds })
+
   const { getString } = useStrings()
   return (
     <Container margin={{ bottom: 'huge' }} padding="large">

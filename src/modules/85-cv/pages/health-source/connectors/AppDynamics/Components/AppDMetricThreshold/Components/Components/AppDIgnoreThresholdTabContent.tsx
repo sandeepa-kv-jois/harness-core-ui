@@ -6,6 +6,8 @@ import { useFormikContext, FieldArray } from 'formik'
 import { useStrings } from 'framework/strings'
 import { AppDynamicsMonitoringSourceFieldNames as FieldName } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.constants'
 import type { AppDynamicsFomikFormInterface } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.types'
+import ThresholdCriteria from '@cv/pages/health-source/common/MetricThresholds/Components/ThresholdCriteria'
+import ThresholdSelect from '@cv/pages/health-source/common/MetricThresholds/Components/ThresholdSelect'
 import { AppDMetricThresholdContext } from '../../AppDMetricThreshold'
 import {
   getDefaultMetricTypeValue,
@@ -18,8 +20,6 @@ import {
   MetricTypeValues,
   NewDefaultVauesForIgnoreThreshold
 } from '../../AppDMetricThresholdConstants'
-import ThresholdSelect from './Components/ThresholdSelect'
-import ThresholdCriteria from './Components/ThresholdCriteria'
 import css from '../AppDMetricThresholdContent.module.scss'
 
 export default function AppDIgnoreThresholdTabContent(): JSX.Element {
@@ -94,6 +94,7 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
                       variation={ButtonVariation.LINK}
                       onClick={() => handleAddThreshold(props.unshift)}
                       style={{ justifySelf: 'start' }}
+                      data-testid="AddThresholdButton"
                     >
                       {getString('cv.monitoringSources.appD.addThreshold')}
                     </Button>
@@ -102,7 +103,11 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
 
                 {props?.form?.values?.ignoreThresholds?.map((data, index: number) => {
                   return (
-                    <Container key={index} className={css.appDMetricThresholdContentIgnoreTableRow}>
+                    <Container
+                      key={index}
+                      className={css.appDMetricThresholdContentIgnoreTableRow}
+                      data-testid="ThresholdRow"
+                    >
                       {/* ==== ⭐️ Metric Type ==== */}
                       <ThresholdSelect
                         items={getMetricTypeItems(metricPacks, formValues.metricData, groupedCreatedMetrics)}
@@ -120,6 +125,7 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
                           style={{ marginTop: 'medium' }}
                           name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_GROUP_NAME}`}
                           disabled={!data.metricType}
+                          data-testid="GroupInput"
                         />
                       ) : (
                         <ThresholdSelect

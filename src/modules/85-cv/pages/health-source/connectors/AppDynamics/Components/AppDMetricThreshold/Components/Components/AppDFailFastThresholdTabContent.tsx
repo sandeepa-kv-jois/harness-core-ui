@@ -7,6 +7,8 @@ import { FieldArray, useFormikContext } from 'formik'
 import { useStrings } from 'framework/strings'
 import { AppDynamicsMonitoringSourceFieldNames as FieldName } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.constants'
 import type { AppDynamicsFomikFormInterface } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.types'
+import ThresholdSelect from '@cv/pages/health-source/common/MetricThresholds/Components/ThresholdSelect'
+import ThresholdCriteria from '@cv/pages/health-source/common/MetricThresholds/Components/ThresholdCriteria'
 import { AppDMetricThresholdContext } from '../../AppDMetricThreshold'
 import {
   getActionItems,
@@ -15,8 +17,6 @@ import {
   getMetricItems,
   getMetricTypeItems
 } from './Components/AppDThresholdSelectUtils'
-import ThresholdSelect from './Components/ThresholdSelect'
-import ThresholdCriteria from './Components/ThresholdCriteria'
 import {
   FailFastActionValues,
   MetricTypesForTransactionTextField,
