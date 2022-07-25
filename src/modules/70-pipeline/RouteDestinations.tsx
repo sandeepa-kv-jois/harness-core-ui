@@ -73,6 +73,8 @@ import { ModuleName } from 'framework/types/ModuleName'
 import PipelineResourceRenderer from './components/RbacResourceModals/PipelineResourceRenderer/PipelineResourceRenderer'
 import { JiraCreateUpdateView } from './components/execution/StepDetails/views/JiraCreateUpdateView/JiraCreateUpdateView'
 import ExecutionErrorTrackingView from './pages/execution/ExecutionErrorTrackingView/ExecutionErrorTrackingView'
+import EnvironmentResourceRenderer from './components/RbacResourceTables/EnvironmentAttributeRenderer/EnvironmentResourceRenderer'
+import EnvironmentAttributeRenderer from './components/RbacResourceTables/EnvironmentAttributeRenderer/EnvironmentAttributeRenderer'
 /**
  * Register RBAC resources
  */
@@ -115,7 +117,9 @@ RbacFactory.registerResourceTypeHandler(ResourceType.ENVIRONMENT, {
   },
   // eslint-disable-next-line react/display-name
   addResourceModalBody: props => <EnvironmentResourceModal {...props} />,
-  addAttributeModalBody: props => <EnvironmentAttributeModal {...props} />
+  addAttributeModalBody: props => <EnvironmentAttributeModal {...props} />,
+  staticResourceRenderer: props => <EnvironmentResourceRenderer {...props} />,
+  attributeRenderer: props => <EnvironmentAttributeRenderer {...props} />
 })
 
 RbacFactory.registerResourceTypeHandler(ResourceType.ENVIRONMENT_GROUP, {

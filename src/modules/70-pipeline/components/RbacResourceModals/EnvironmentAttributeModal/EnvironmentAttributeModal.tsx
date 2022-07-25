@@ -16,12 +16,13 @@ import type { RbacAttributeModalProps } from '@rbac/factories/RbacFactory'
 import { useStrings } from 'framework/strings'
 
 interface EnvironmentType {
-  label: string
+  label?: string
   identifier: string
 }
 
-// eslint-disable-next-line react/function-component-definition
-const RenderEnvType: Renderer<CellProps<EnvironmentType>> = ({ row }) => {
+type CellType = { row: { original: EnvironmentType } }
+
+function RenderEnvType({ row }: CellType): Renderer<CellProps<EnvironmentType>> {
   const rowdata = row.original
 
   return (
