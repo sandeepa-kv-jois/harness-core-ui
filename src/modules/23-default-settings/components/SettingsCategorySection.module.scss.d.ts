@@ -12,6 +12,7 @@ declare const styles: {
   readonly settingOverrideRestore: string
   readonly settingRestore: string
   readonly settingTable: string
+  readonly subCategoryLabel: string
   readonly summaryCard: string
   readonly summarySetting: string
   readonly typeRenderer: string

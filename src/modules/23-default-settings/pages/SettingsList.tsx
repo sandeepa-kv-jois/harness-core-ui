@@ -71,7 +71,12 @@ const SettingsList = () => {
   }
   return (
     <>
-      <Formik initialValues={{}} validationSchema={Yup.object(validationScheme as any)} onSubmit={saveSettings}>
+      <Formik
+        formName="defaultSettingsForm"
+        initialValues={{}}
+        validationSchema={Yup.object(validationScheme as any)}
+        onSubmit={saveSettings}
+      >
         {() => {
           return (
             <FormikForm>

@@ -43,7 +43,7 @@ const SettingCategorySectionContents: React.FC<SettingCategorySectionContentsPro
   }
   const GroupHeader: React.FC<{ groupName: keyof StringsMap }> = ({ groupName }) => (
     <>
-      <Text font={{ variation: FontVariation.H6 }}>{getString(groupName)}</Text>
+      <Text font={{ variation: FontVariation.TINY }} >{getString(groupName).toUpperCase()}</Text>
       <span></span> <span></span>
     </>
   )
@@ -63,17 +63,17 @@ const SettingCategorySectionContents: React.FC<SettingCategorySectionContentsPro
             <SettingTypeRow
               key={settingTypeKey}
               allSettings={allSettings}
-              allowedValues={allSettings.get(settingTypeKey)?.allowedValues}
               settingType={settingTypeKey}
               onRestore={() => onRestoreLocal(settingTypeKey)}
               settingTypeHandler={settingTypeHandler}
-              settingValue={allSettings.get(settingTypeKey)?.value}
+              settingValue={allSettings.get(settingTypeKey)}
               onSelectionChange={(val: string) => onSelectionChangeLocal(settingTypeKey, val)}
               onAllowOverride={(checked: boolean) => {
                 onAllowOverride(checked, settingTypeKey)
               }}
               allowOverride={!!allSettings.get(settingTypeKey)?.allowOverrides}
               errorMessage={settingErrorMessages.get(settingTypeKey) || ''}
+              isSubCategory={!!registeredGroupedSetting.groupName}
             />
           )
         })
