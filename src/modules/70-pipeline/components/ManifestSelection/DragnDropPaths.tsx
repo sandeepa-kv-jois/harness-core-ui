@@ -17,9 +17,9 @@ import {
   Icon,
   ButtonSize,
   AllowedTypes
-} from '@wings-software/uicore'
-
+} from '@harness/uicore'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
+import { defaultTo } from 'lodash-es'
 import { useStrings } from 'framework/strings'
 import MultiTypeFieldSelector from '@common/components/MultiTypeFieldSelector/MultiTypeFieldSelector'
 
@@ -34,6 +34,7 @@ export interface DragnDropPathsProps<T = unknown> {
   placeholder: string
   defaultValue: T
   allowOnlyOneFilePath?: boolean
+  dialogWidth?: number
 }
 
 function DragnDropPaths({
@@ -44,7 +45,8 @@ function DragnDropPaths({
   fieldPath,
   placeholder,
   defaultValue,
-  allowOnlyOneFilePath
+  allowOnlyOneFilePath,
+  dialogWidth
 }: DragnDropPathsProps): React.ReactElement {
   const { getString } = useStrings()
 
@@ -98,7 +100,7 @@ function DragnDropPaths({
                                 label={''}
                                 placeholder={placeholder}
                                 name={`${fieldPath}[${index}].path`}
-                                style={{ width: 275 }}
+                                style={{ width: defaultTo(dialogWidth, 275) }}
                                 multiTextInputProps={{
                                   expressions,
                                   allowableTypes: (allowableTypes as MultiTypeInputType[]).filter(

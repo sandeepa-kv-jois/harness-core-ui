@@ -532,6 +532,8 @@ notifications:
   changeType: Change Type
   healthScoreBelow: Health score is below
   thresholdBelow: Threshold is below
+  validations:
+    conditionIsRequired: Condition is required
 changeSource:
   alertText: Alert
   incident: Incident

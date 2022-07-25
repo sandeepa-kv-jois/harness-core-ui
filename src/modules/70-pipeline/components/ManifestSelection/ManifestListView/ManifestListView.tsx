@@ -34,12 +34,10 @@ import {
 } from '@connectors/pages/connectors/utils/ConnectorUtils'
 import DelegateSelectorStep from '@connectors/components/CreateConnector/commonSteps/DelegateSelectorStep/DelegateSelectorStep'
 import GcpAuthentication from '@connectors/components/CreateConnector/GcpConnector/StepAuth/GcpAuthentication'
-
 import type { GitQueryParams, ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import { useQueryParams } from '@common/hooks'
 import { useTelemetry } from '@common/hooks/useTelemetry'
 import { ManifestActions } from '@common/constants/TrackingConstants'
-
 import { ManifestWizard } from '../ManifestWizard/ManifestWizard'
 import { getStatus, getConnectorNameFromValue } from '../../PipelineStudio/StageBuilder/StageBuilderUtil'
 import { useVariablesExpression } from '../../PipelineStudio/PiplineHooks/useVariablesExpression'
@@ -85,6 +83,7 @@ import { getConnectorPath } from '../ManifestWizardSteps/ManifestUtils'
 import HarnessFileStore from '../ManifestWizardSteps/HarnessFileStore/HarnessFileStore'
 import KustomizeWithHarnessStore from '../ManifestWizardSteps/KustomizeWithHarnessStore/KustomizeWithHarnessStore'
 import CommonManifestDetails from '../ManifestWizardSteps/CommonManifestDetails/CommonManifestDetails'
+import HelmWithHarnessStore from '../ManifestWizardSteps/HelmWithHarnessStore/HelmWithHarnessStore'
 import css from '../ManifestSelection.module.scss'
 
 const DIALOG_PROPS: IDialogProps = {
@@ -210,6 +209,7 @@ function ManifestListView({
       manifestDetailsProps.deploymentType = deploymentType
     }
     return manifestDetailsProps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedManifest, manifestStore, getLastStepInitialData])
 
   const getLabels = (): ConnectorRefLabelType => {
@@ -252,6 +252,9 @@ function ManifestListView({
       case selectedManifest === ManifestDataType.HelmChart && manifestStore === ManifestStoreMap.Gcs:
         manifestDetailStep = <HelmWithGcs {...lastStepProps()} />
         break
+      case selectedManifest === ManifestDataType.HelmChart && manifestStore === ManifestStoreMap.Harness:
+        manifestDetailStep = <HelmWithHarnessStore {...lastStepProps()} />
+        break
       case selectedManifest === ManifestDataType.OpenshiftTemplate && isGitTypeStores:
         manifestDetailStep = <OpenShiftTemplateWithGit {...lastStepProps()} />
         break
@@ -275,7 +278,13 @@ function ManifestListView({
       ) && manifestStore === ManifestStoreMap.InheritFromManifest:
         manifestDetailStep = <InheritFromManifest {...lastStepProps()} />
         break
-      case selectedManifest !== ManifestDataType.Kustomize && manifestStore === ManifestStoreMap.Harness:
+      case [
+        ManifestDataType.K8sManifest,
+        ManifestDataType.Values,
+        ManifestDataType.OpenshiftTemplate,
+        ManifestDataType.OpenshiftParam,
+        ManifestDataType.KustomizePatches
+      ].includes(selectedManifest as ManifestTypes) && manifestStore === ManifestStoreMap.Harness:
         manifestDetailStep = <HarnessFileStore {...lastStepProps()} />
         break
       case [
@@ -393,6 +402,7 @@ function ManifestListView({
           </StepWizard>
         )
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectorView, manifestStore, isEditMode])
 
   const [showConnectorModal, hideConnectorModal] = useModalHook(() => {

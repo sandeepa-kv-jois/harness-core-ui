@@ -1340,6 +1340,8 @@ export interface ResourceDTO {
     | 'PERSPECTIVE_BUDGET'
     | 'PERSPECTIVE_REPORT'
     | 'COST_CATEGORY'
+    | 'STO_TARGET'
+    | 'STO_EXEMPTION'
     | 'SMTP'
     | 'PERSPECTIVE_FOLDER'
     | 'AUTOSTOPPING_RULE'
