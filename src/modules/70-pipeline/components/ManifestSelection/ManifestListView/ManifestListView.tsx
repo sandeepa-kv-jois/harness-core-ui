@@ -278,13 +278,7 @@ function ManifestListView({
       ) && manifestStore === ManifestStoreMap.InheritFromManifest:
         manifestDetailStep = <InheritFromManifest {...lastStepProps()} />
         break
-      case [
-        ManifestDataType.K8sManifest,
-        ManifestDataType.Values,
-        ManifestDataType.OpenshiftTemplate,
-        ManifestDataType.OpenshiftParam,
-        ManifestDataType.KustomizePatches
-      ].includes(selectedManifest as ManifestTypes) && manifestStore === ManifestStoreMap.Harness:
+      case manifestStore === ManifestStoreMap.Harness:
         manifestDetailStep = <HarnessFileStore {...lastStepProps()} />
         break
       case [

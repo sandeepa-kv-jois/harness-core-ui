@@ -77,6 +77,15 @@ const getConnectorRefOrConnectorId = (prevStepData?: ConnectorConfigDTO): string
   return prevStepData?.connectorRef ? getConnectorRef(prevStepData) : getConnectorId(prevStepData)
 }
 
+const shouldAllowOnlyOneFilePath = (selectedManifest: ManifestTypes): boolean => {
+  return [
+    ManifestDataType.EcsTaskDefinition,
+    ManifestDataType.EcsServiceDefinition,
+    ManifestDataType.EcsScalableTargetDefinition,
+    ManifestDataType.EcsScalingPolicyDefinition
+  ].includes(selectedManifest)
+}
+
 function CommonManifestDetails({
   stepName,
   selectedManifest,
@@ -314,6 +323,7 @@ function CommonManifestDetails({
                       pathLabel={getString('fileFolderPathText')}
                       placeholder={getString('pipeline.manifestType.manifestPathPlaceholder')}
                       defaultValue={{ path: '', uuid: uuid('', nameSpace()) }}
+                      allowOnlyOneFilePath={selectedManifest ? shouldAllowOnlyOneFilePath(selectedManifest) : false}
                     />
                   </div>
 

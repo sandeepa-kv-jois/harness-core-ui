@@ -13,6 +13,10 @@ import { KustomizeManifestSource } from '@cd/components/PipelineSteps/K8sService
 import { KustomizePatchesManifestSource } from '@cd/components/PipelineSteps/K8sServiceSpec/ManifestSource/KustomizePatchesManifestSource/KustomizePatchesManifestSource'
 import { HelmChartManifestSource } from '@cd/components/PipelineSteps/K8sServiceSpec/ManifestSource/HelmChartManifestSource/HelmChartManifestSource'
 import { ServerlessAwsLambdaManifestSource } from '@cd/components/PipelineSteps/K8sServiceSpec/ManifestSource/ServerlessAwsLambdaManifestSource/ServerlessAwsLambdaManifestSource'
+import { EcsTaskDefinitionManifestSource } from '@cd/components/PipelineSteps/K8sServiceSpec/ManifestSource/EcsTaskDefinitionManifestSource/EcsTaskDefinitionManifestSource'
+import { EcsServiceDefinitionManifestSource } from '@cd/components/PipelineSteps/K8sServiceSpec/ManifestSource/EcsServiceDefinitionManifestSource/EcsServiceDefinitionManifestSource'
+import { EcsScalableTargetDefinitionManifestSource } from '@cd/components/PipelineSteps/K8sServiceSpec/ManifestSource/EcsScalableTargetDefinitionManifestSource/EcsScalableTargetDefinitionManifestSource'
+import { EcsScalingPolicyDefinitionManifestSource } from '@cd/components/PipelineSteps/K8sServiceSpec/ManifestSource/EcsScalingPolicyDefinitionManifestSource/EcsScalingPolicyDefinitionManifestSource'
 import type { ManifestSourceBase } from './ManifestSourceBase'
 
 export class ManifestSourceBaseFactory {
@@ -46,5 +50,9 @@ manifestSourceBaseFactory.registerManifestSource(new KustomizeManifestSource())
 manifestSourceBaseFactory.registerManifestSource(new KustomizePatchesManifestSource())
 manifestSourceBaseFactory.registerManifestSource(new HelmChartManifestSource())
 manifestSourceBaseFactory.registerManifestSource(new ServerlessAwsLambdaManifestSource())
+manifestSourceBaseFactory.registerManifestSource(new EcsTaskDefinitionManifestSource())
+manifestSourceBaseFactory.registerManifestSource(new EcsServiceDefinitionManifestSource())
+manifestSourceBaseFactory.registerManifestSource(new EcsScalableTargetDefinitionManifestSource())
+manifestSourceBaseFactory.registerManifestSource(new EcsScalingPolicyDefinitionManifestSource())
 
 export default manifestSourceBaseFactory

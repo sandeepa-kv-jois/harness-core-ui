@@ -135,8 +135,11 @@ export const gitStoreTypes: Array<ManifestStores> = [
   ManifestStoreMap.GitLab,
   ManifestStoreMap.Bitbucket
 ]
+
+export const gitStoreTypesWithHarnessStoreType: Array<ManifestStores> = [...gitStoreTypes, ManifestStoreMap.Harness]
+
 export const ManifestTypetoStoreMap: Record<ManifestTypes, ManifestStores[]> = {
-  K8sManifest: [...gitStoreTypes, ManifestStoreMap.Harness, ManifestStoreMap.CustomRemote],
+  K8sManifest: [...gitStoreTypesWithHarnessStoreType, ManifestStoreMap.CustomRemote],
   Values: [
     ...gitStoreTypes,
     ManifestStoreMap.InheritFromManifest,
@@ -152,20 +155,20 @@ export const ManifestTypetoStoreMap: Record<ManifestTypes, ManifestStores[]> = {
     ManifestStoreMap.Harness,
     ManifestStoreMap.CustomRemote
   ],
-  OpenshiftTemplate: [...gitStoreTypes, ManifestStoreMap.Harness, ManifestStoreMap.CustomRemote],
+  OpenshiftTemplate: [...gitStoreTypesWithHarnessStoreType, ManifestStoreMap.CustomRemote],
   OpenshiftParam: [
     ...gitStoreTypes,
     ManifestStoreMap.InheritFromManifest,
     ManifestStoreMap.Harness,
     ManifestStoreMap.CustomRemote
   ],
-  Kustomize: [...gitStoreTypes, ManifestStoreMap.Harness],
+  Kustomize: gitStoreTypesWithHarnessStoreType,
   KustomizePatches: [...gitStoreTypes, ManifestStoreMap.InheritFromManifest, ManifestStoreMap.Harness],
   ServerlessAwsLambda: gitStoreTypes,
-  EcsTaskDefinition: gitStoreTypes,
-  EcsServiceDefinition: gitStoreTypes,
-  EcsScalingPolicyDefinition: gitStoreTypes,
-  EcsScalableTargetDefinition: gitStoreTypes
+  EcsTaskDefinition: gitStoreTypesWithHarnessStoreType,
+  EcsServiceDefinition: gitStoreTypesWithHarnessStoreType,
+  EcsScalingPolicyDefinition: gitStoreTypesWithHarnessStoreType,
+  EcsScalableTargetDefinition: gitStoreTypesWithHarnessStoreType
 }
 
 export const manifestTypeIcons: Record<ManifestTypes, IconName> = {
