@@ -35,7 +35,7 @@ import { ACCOUNT_SCOPE_PREFIX, getFullRepoName } from './Constants'
 import css from './InfraProvisioningWizard.module.scss'
 
 export interface SelectRepositoryRef {
-  repository: UserRepoResponse
+  repository?: UserRepoResponse
 }
 
 export type SelectRepositoryForwardRef =
@@ -175,10 +175,8 @@ const SelectRepositoryRef = (
       return
     }
 
-    if (repository) {
-      forwardRef.current = {
-        repository
-      }
+    forwardRef.current = {
+      repository
     }
   }, [repository])
 
