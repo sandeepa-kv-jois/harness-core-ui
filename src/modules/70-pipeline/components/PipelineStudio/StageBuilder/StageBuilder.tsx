@@ -786,7 +786,7 @@ function StageBuilder(): JSX.Element {
       case 'INFRASTRUCTURE':
         return 'InfrastructurePipelineStudio'
       case 'ENVIRONMENT':
-        return 'InfrastructurePipelineStudio'
+        return 'EnvironmentPipelineStudio'
       case 'EXECUTION':
         return 'ExecutionPipelineStudio'
       case 'ADVANCED':
@@ -860,7 +860,7 @@ function StageBuilder(): JSX.Element {
           </div>
         </SplitPane>
       </div>
-      {!isEmpty(sectionId) || (storeType === 'INLINE' && isEmpty(sectionId)) ? (
+      {(!isEmpty(sectionId) && sectionId !== 'ENVIRONMENT') || (storeType === 'INLINE' && isEmpty(sectionId)) ? (
         <HelpPanel referenceId={referenceId(sectionId)} type={HelpPanelType.FLOATING_CONTAINER} />
       ) : null}
     </Layout.Horizontal>
