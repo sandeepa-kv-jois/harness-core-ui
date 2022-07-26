@@ -475,7 +475,7 @@ describe('Hosted by Harness', () => {
       </TestWrapper>
     )
     const buildInfraTypeTiles = container.querySelectorAll('input[type="checkbox"]')
-    expect(buildInfraTypeTiles.length).toBe(2)
+    expect(buildInfraTypeTiles.length).toBe(1)
     fireEvent.click(buildInfraTypeTiles[0])
     expect(getByText('ci.getStartedWithCI.provisioningHelpText')).toBeTruthy()
   })
