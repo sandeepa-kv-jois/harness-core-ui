@@ -231,8 +231,8 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
     }
 
     return isNewServiceEnvEntity(path as string)
-      ? (selectedStageSpec?.service?.serviceInputs?.serviceDefinition?.type as ServiceDeploymentType)
-      : (selectedStageSpec?.serviceConfig?.serviceDefinition?.type as ServiceDeploymentType)
+      ? (get(selectedStageSpec, 'service.serviceInputs.serviceDefinition.type') as ServiceDeploymentType)
+      : (get(selectedStageSpec, 'serviceConfig.serviceDefinition.type') as ServiceDeploymentType)
   }, [path, props.formik.values, props.stageIdentifier])
 
   const isServerlessDeploymentTypeSelected = isServerlessDeploymentType(selectedDeploymentType)
@@ -243,6 +243,7 @@ const Content = (props: ArtifactoryRenderContent): JSX.Element => {
       get(initialValues, `artifacts.${artifactPath}.spec.repositoryFormat`, '')
     )
 
+    /* istanbul ignore else */
     if (service) {
       const parsedService = service?.data?.yaml && parse(service?.data?.yaml)
       repoFormat = get(parsedService, `service.serviceDefinition.spec.artifacts.${artifactPath}.spec.repositoryFormat`)

@@ -14,17 +14,20 @@ import { StepViewType } from '@pipeline/components/AbstractSteps/Step'
 
 import { ArtifactSourceBaseFactory } from '@cd/factory/ArtifactSourceFactory/ArtifactSourceBaseFactory'
 import type { ArtifactListConfig, ServiceSpec } from 'services/cd-ng'
-import * as cdng from 'services/cd-ng'
 import * as artifactSourceUtils from '../../artifactSourceUtils'
 import { KubernetesPrimaryArtifacts } from '../../../KubernetesArtifacts/KubernetesPrimaryArtifacts/KubernetesPrimaryArtifacts'
 import { KubernetesSidecarArtifacts } from '../../../KubernetesArtifacts/KubernetesSidecarArtifacts/KubernetesSidecarArtifacts'
 
 import { template, artifacts } from './mocks'
 
+jest.mock('services/cd-ng', () => ({
+  ...jest.requireActual('services/cd-ng'),
+  useGetService: jest.fn().mockImplementation(() => ({ loading: false, data: {}, refetch: jest.fn() }))
+}))
+
 jest.spyOn(artifactSourceUtils, 'fromPipelineInputTriggerTab')
 jest.spyOn(artifactSourceUtils, 'isFieldfromTriggerTabDisabled')
 jest.spyOn(artifactSourceUtils, 'resetTags').mockImplementation(() => jest.fn())
-jest.spyOn(cdng, 'useGetBuildDetailsForArtifactoryArtifactWithYaml')
 
 jest.mock('@connectors/components/ConnectorReferenceField/FormMultiTypeConnectorField', () => ({
   ...(jest.requireActual('@connectors/components/ConnectorReferenceField/FormMultiTypeConnectorField') as any),
@@ -108,7 +111,6 @@ describe('Artifactory Artifact Source tests', () => {
     expect(await waitFor(() => findByText('pipeline.artifactPathLabel'))).toBeInTheDocument()
     expect(await waitFor(() => artifactSourceUtils.fromPipelineInputTriggerTab)).toBeCalled()
     expect(await waitFor(() => artifactSourceUtils.isFieldfromTriggerTabDisabled)).toBeCalled()
-    expect(await waitFor(() => cdng.useGetBuildDetailsForArtifactoryArtifactWithYaml)).toBeCalled()
 
     const button = await waitFor(() => findByText('Form Multi Type Connector Field button'))
     act(() => {
