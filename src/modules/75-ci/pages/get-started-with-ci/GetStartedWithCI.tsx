@@ -41,6 +41,7 @@ import { InfraProvisioningWizard } from './InfraProvisioningWizard/InfraProvisio
 import { InfraProvisiongWizardStepId, ProvisioningStatus } from './InfraProvisioningWizard/Constants'
 import { InfraProvisioningCarousel } from './InfraProvisioningCarousel/InfraProvisioningCarousel'
 import { useProvisionDelegateForHostedBuilds } from '../../hooks/useProvisionDelegateForHostedBuilds'
+import { sortConnectorsByLastTestedAtTs } from '../../utils/HostedBuildsUtils'
 
 import buildImgURL from './build.svg'
 import css from './GetStartedWithCI.module.scss'
@@ -74,12 +75,9 @@ export default function GetStartedWithCI(): React.ReactElement {
           setConnectorsEligibleForPreSelection(
             data.content.map((item: ConnectorResponse) => item.connector) as ConnectorInfoDTO[]
           )
-          const selectedConnector = data.content
-            .filter((item: ConnectorResponse) => {
-              return get(item, 'connector.spec.apiAccess.spec.tokenRef') && item.status?.status === Status.SUCCESS
-            })
-            ?.slice(-1)
-            .pop()
+          const selectedConnector = sortConnectorsByLastTestedAtTs(data.content).filter((item: ConnectorResponse) => {
+            return get(item, 'connector.spec.apiAccess.spec.tokenRef') && item.status?.status === Status.SUCCESS
+          })?.[0]
           if (selectedConnector) {
             setPreselectedGitConnector(selectedConnector?.connector)
             const secretIdentidier = getIdentifierFromValue(
