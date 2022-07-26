@@ -95,12 +95,13 @@ export const getPRTriggerActions = (gitProviderType: ConnectorInfoDTO['type']) =
   }
 }
 
-export const sortConnectorsByLastTestedAtTs = (unSortedItems: ConnectorResponse[]): ConnectorResponse[] => {
-  return [...unSortedItems].sort((ctr1, ctr2) => {
+export const sortConnectorsByLastConnectedAtTs = (unsortedConnectorItems: ConnectorResponse[]): ConnectorResponse[] => {
+  const itemsCloneArr = [...unsortedConnectorItems]
+  return [...itemsCloneArr].sort((ctr1, ctr2) => {
     const lastTestedAt1: number =
-      ctr1?.status?.lastTestedAt && !isNaN(ctr1.status.lastTestedAt) ? ctr1.status.lastTestedAt : 0
+      ctr1?.status?.lastConnectedAt && !isNaN(ctr1.status.lastConnectedAt) ? ctr1.status.lastConnectedAt : 0
     const lastTestedAt2: number =
-      ctr2?.status?.lastTestedAt && !isNaN(ctr2.status.lastTestedAt) ? ctr2.status.lastTestedAt : 0
+      ctr2?.status?.lastConnectedAt && !isNaN(ctr2.status.lastConnectedAt) ? ctr2.status.lastConnectedAt : 0
     return lastTestedAt2 - lastTestedAt1
   })
 }
