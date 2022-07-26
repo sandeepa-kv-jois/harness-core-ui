@@ -6,7 +6,7 @@
  */
 
 import React from 'react'
-import { waitFor, act, fireEvent, findByText, findAllByText, render } from '@testing-library/react'
+import { waitFor, act, fireEvent, findByText, findAllByText, render, getAllByText } from '@testing-library/react'
 import { cloneDeep, set } from 'lodash-es'
 import * as featureFlags from '@common/hooks/useFeatureFlag'
 import * as hostedBuilds from '@common/hooks/useHostedBuild'
@@ -364,11 +364,7 @@ describe('BuildInfraSpecifications snapshot tests for Advanced Panel K8s Build I
     context.state.selectionState = {
       selectedStageId: 'propagatestage'
     }
-    const {
-      container,
-      findByTestId,
-      findByText: getByText
-    } = render(
+    const { container, findByTestId } = render(
       <TestWrapper pathParams={{ accountId: 'dummy', orgIdentifier: 'dummy', projectIdentifier: 'dummy' }}>
         <PipelineContext.Provider
           value={
@@ -417,7 +413,9 @@ describe('BuildInfraSpecifications snapshot tests for Advanced Panel K8s Build I
       }
       fireEvent.click(advancedSummary)
     })
-    await waitFor(() => expect(getByText('pipeline.infraSpecifications.serviceAccountName')).toBeDefined())
+    await waitFor(() =>
+      expect(getAllByText(container, 'pipeline.infraSpecifications.serviceAccountName')).toBeDefined()
+    )
   })
 })
 
