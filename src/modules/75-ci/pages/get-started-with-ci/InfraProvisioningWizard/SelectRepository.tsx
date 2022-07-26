@@ -67,10 +67,11 @@ const SelectRepositoryRef = (
     onConnectorSelect
   } = props
   const { getString } = useStrings()
+  const { accountId, projectIdentifier, orgIdentifier } = useParams<ProjectPathProps>()
   const [repository, setRepository] = useState<UserRepoResponse | undefined>(selectedRepository)
   const [query, setQuery] = useState<string>('')
   const [repositories, setRepositories] = useState<UserRepoResponse[]>()
-  const { accountId, projectIdentifier, orgIdentifier } = useParams<ProjectPathProps>()
+  const [selectedConnectorOption, setSelectedConnectorOption] = useState<SelectOption>()
   const {
     data: repoData,
     loading: fetchingRepositories,
@@ -85,7 +86,6 @@ const SelectRepositoryRef = (
     },
     lazy: true
   })
-  const [selectedConnector, setSelectedConnector] = useState<SelectOption>()
 
   const getIcon = React.useCallback((type: ConnectorInfoDTO['type']): IconName | undefined => {
     switch (type) {
@@ -113,34 +113,33 @@ const SelectRepositoryRef = (
 
   useEffect(() => {
     if (validatedConnectorRef && selectionItems.length > 0) {
-      setSelectedConnector(selectionItems.filter((item: SelectOption) => item.value === validatedConnectorRef)?.[0])
+      setSelectedConnectorOption(
+        selectionItems.filter((item: SelectOption) => item.value === validatedConnectorRef)?.[0]
+      )
     }
   }, [selectionItems, validatedConnectorRef])
 
   useEffect(() => {
-    const connectorRefForRepoFetch = validatedConnectorRef || (selectedConnector?.value as string)
-    if (connectorRefForRepoFetch) {
-      cancelRepositoriesFetch()
-      fetchRepositories({
-        queryParams: {
-          accountIdentifier: accountId,
-          projectIdentifier,
-          orgIdentifier,
-          connectorRef: `${ACCOUNT_SCOPE_PREFIX}${connectorRefForRepoFetch}`
-        }
-      })
-    }
-  }, [validatedConnectorRef, selectedConnector])
-
-  useEffect(() => {
     setRepository(undefined)
     const matchingConnector = connectorsEligibleForPreSelection?.filter(
-      (item: ConnectorInfoDTO) => item.identifier === selectedConnector?.value
+      (item: ConnectorInfoDTO) => item.identifier === selectedConnectorOption?.value
     )?.[0]
     if (matchingConnector) {
       onConnectorSelect?.(matchingConnector)
+      const connectorRefForReposFetch = selectedConnectorOption?.value as string
+      if (connectorRefForReposFetch) {
+        cancelRepositoriesFetch()
+        fetchRepositories({
+          queryParams: {
+            accountIdentifier: accountId,
+            projectIdentifier,
+            orgIdentifier,
+            connectorRef: `${ACCOUNT_SCOPE_PREFIX}${connectorRefForReposFetch}`
+          }
+        })
+      }
     }
-  }, [selectedConnector])
+  }, [selectedConnectorOption])
 
   useEffect(() => {
     setRepositories(repoData?.data)
@@ -208,7 +207,7 @@ const SelectRepositoryRef = (
         {getString('noSearchResultsFoundPeriod')}
       </Text>
     )
-  }, [fetchingRepositories, repositories, repoData?.data])
+  }, [fetchingRepositories, repositories, repoData?.data, selectedConnectorOption])
 
   const showValidationErrorForRepositoryNotSelected = useMemo((): boolean => {
     return (!fetchingRepositories && showError && !repository?.name) || false
@@ -232,9 +231,9 @@ const SelectRepositoryRef = (
           />
           <Select
             items={selectionItems}
-            value={selectedConnector}
+            value={selectedConnectorOption}
             className={css.connectorSelect}
-            onChange={(item: SelectOption) => setSelectedConnector(item)}
+            onChange={(item: SelectOption) => setSelectedConnectorOption(item)}
             disabled={fetchingRepositories}
           />
         </Layout.Horizontal>

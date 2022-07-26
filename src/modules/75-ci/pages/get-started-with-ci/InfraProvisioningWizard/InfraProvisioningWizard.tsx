@@ -442,7 +442,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
     buttonLabel = getString('next')
   }
 
-  const showBackButton = useMemo((): boolean => {
+  const shouldRenderBackButton = useMemo((): boolean => {
     return !(
       (preSelectedGitConnector && currentWizardStepId === InfraProvisiongWizardStepId.SelectRepository) ||
       currentWizardStepId === InfraProvisiongWizardStepId.SelectGitProvider
@@ -474,7 +474,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
         className={css.footer}
         width="100%"
       >
-        {showBackButton ? (
+        {shouldRenderBackButton ? (
           <Button
             variation={ButtonVariation.SECONDARY}
             text={getString('back')}
