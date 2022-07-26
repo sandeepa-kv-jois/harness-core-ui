@@ -184,15 +184,18 @@ export function getFqnPath(
   path: string,
   isPropagatedStage: boolean,
   stageIdentifier: string,
-  artifactPath: string
+  artifactPath: string,
+  isServerlessDeploymentTypeSelected?: boolean,
+  isAzureWebAppGenericSelected?: boolean
 ): string {
+  const fieldName = isServerlessDeploymentTypeSelected || isAzureWebAppGenericSelected ? 'artifactPath' : 'tag'
   if (isNewServiceEnvEntity(path)) {
-    return `pipeline.stages.${stageIdentifier}.spec.service.serviceInputs.serviceDefinition.spec.artifacts.${artifactPath}.spec.tag`
+    return `pipeline.stages.${stageIdentifier}.spec.service.serviceInputs.serviceDefinition.spec.artifacts.${artifactPath}.spec.${fieldName}`
   } else {
     if (isPropagatedStage) {
-      return `pipeline.stages.${stageIdentifier}.spec.serviceConfig.stageOverrides.artifacts.${artifactPath}.spec.tag`
+      return `pipeline.stages.${stageIdentifier}.spec.serviceConfig.stageOverrides.artifacts.${artifactPath}.spec..${fieldName}`
     }
-    return `pipeline.stages.${stageIdentifier}.spec.serviceConfig.serviceDefinition.spec.artifacts.${artifactPath}.spec.tag`
+    return `pipeline.stages.${stageIdentifier}.spec.serviceConfig.serviceDefinition.spec.artifacts.${artifactPath}.spec..${fieldName}`
   }
 }
 
