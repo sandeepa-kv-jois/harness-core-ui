@@ -48,6 +48,7 @@ interface SelectRepositoryProps {
   showError?: boolean
   validatedConnectorRef?: string
   connectorsEligibleForPreSelection?: ConnectorInfoDTO[]
+  onConnectorSelect?: (connector: ConnectorInfoDTO) => void
   disableNextBtn: () => void
   enableNextBtn: () => void
 }
@@ -62,7 +63,8 @@ const SelectRepositoryRef = (
     validatedConnectorRef,
     disableNextBtn,
     enableNextBtn,
-    connectorsEligibleForPreSelection
+    connectorsEligibleForPreSelection,
+    onConnectorSelect
   } = props
   const { getString } = useStrings()
   const [repository, setRepository] = useState<UserRepoResponse | undefined>(selectedRepository)
@@ -116,7 +118,6 @@ const SelectRepositoryRef = (
   }, [selectionItems, validatedConnectorRef])
 
   useEffect(() => {
-    setRepository(undefined)
     const connectorRefForRepoFetch = validatedConnectorRef || (selectedConnector?.value as string)
     if (connectorRefForRepoFetch) {
       cancelRepositoriesFetch()
@@ -130,6 +131,16 @@ const SelectRepositoryRef = (
       })
     }
   }, [validatedConnectorRef, selectedConnector])
+
+  useEffect(() => {
+    setRepository(undefined)
+    const matchingConnector = connectorsEligibleForPreSelection?.filter(
+      (item: ConnectorInfoDTO) => item.identifier === selectedConnector?.value
+    )?.[0]
+    if (matchingConnector) {
+      onConnectorSelect?.(matchingConnector)
+    }
+  }, [selectedConnector])
 
   useEffect(() => {
     setRepositories(repoData?.data)
