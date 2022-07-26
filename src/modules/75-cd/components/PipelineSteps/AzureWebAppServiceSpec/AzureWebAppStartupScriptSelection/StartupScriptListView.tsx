@@ -87,12 +87,16 @@ function StartupScriptListView({
 
   const removeStartupScript = (): void => {
     if (stage) {
+      const path = isPropagating
+        ? 'stage.spec.serviceConfig.stageOverrides'
+        : 'stage.spec.serviceConfig.serviceDefinition.spec'
+      const { startupCommand: command, ...rest } = get(stage, path)
       const newStage = produce(stage, draft => {
-        set(draft, 'stage.spec.serviceConfig.serviceDefinition.spec.startupCommand', {})
+        set(draft, path, rest)
       }).stage
 
       if (newStage) {
-        updateStage(newStage)
+        updateStage?.(newStage)
       }
     }
   }
@@ -129,7 +133,7 @@ function StartupScriptListView({
       : 'stage.spec.serviceConfig.serviceDefinition.spec.startupCommand'
 
     if (stage) {
-      updateStage(
+      updateStage?.(
         produce(stage, draft => {
           set(draft, path, script)
         }).stage as StageElementConfig
@@ -343,7 +347,7 @@ function StartupScriptListView({
                     minimal
                   />
 
-                  <Button iconProps={{ size: 18 }} icon="main-trash" onClick={() => removeStartupScript()} minimal />
+                  <Button iconProps={{ size: 18 }} icon="main-trash" onClick={removeStartupScript} minimal />
                 </Layout.Horizontal>
               </span>
             )}

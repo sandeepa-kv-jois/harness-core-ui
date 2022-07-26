@@ -28,7 +28,8 @@ export default function StartupScriptSelection({
   isPropagating,
   deploymentType,
   isReadonlyServiceMode,
-  readonly
+  readonly,
+  updateStage
 }: StartupScriptSelectionProps): JSX.Element | null {
   const {
     state: {
@@ -36,7 +37,6 @@ export default function StartupScriptSelection({
       selectionState: { selectedStageId }
     },
     getStageFromPipeline,
-    updateStage,
     allowableTypes
   } = usePipelineContext()
 

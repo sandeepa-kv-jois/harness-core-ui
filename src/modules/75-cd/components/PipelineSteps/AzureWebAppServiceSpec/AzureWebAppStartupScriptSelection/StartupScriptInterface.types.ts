@@ -53,6 +53,7 @@ export interface StartupScriptSelectionProps {
   deploymentType: ServiceDefinition['type']
   isReadonlyServiceMode: boolean
   readonly: boolean
+  updateStage?: (stage: any) => Promise<void>
 }
 
 export interface StartupScriptDataType {
@@ -118,7 +119,7 @@ export interface AzureWebAppsServiceDefinition {
 
 export interface StartupScriptListViewProps {
   pipeline: any
-  updateStage: (stage: StageElementConfig) => Promise<void>
+  updateStage?: (stage: StageElementConfig) => Promise<void>
   stage: StageElementWrapper | undefined
   isPropagating?: boolean
   connectors: PageConnectorResponse | undefined
