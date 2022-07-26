@@ -96,6 +96,23 @@ export const getDefaultDependencyServiceState = (): StepState => ({
   isStepGroup: false,
   stepType: StepType.SERVICE
 })
+interface GetStepFromNodeProps {
+  stepData: ExecutionWrapper | undefined
+  node?: DefaultNodeModel
+  isComplete: boolean
+  isFindParallelNode: boolean
+  nodeId?: string
+  parentId?: string
+  isRollback?: boolean
+}
+
+interface RemoveStepOrGroupProps {
+  state: ExecutionGraphState
+  entity: any
+  skipFlatten?: boolean
+  newPipelineStudioEnabled?: boolean
+  isRollback?: boolean
+}
 
 export type StepStateMap = Map<string, StepState>
 
@@ -154,15 +171,15 @@ export const getDependencyFromNodeV1 = (
   return { node: _service, parent: servicesData }
 }
 
-export const getStepFromNode = (
-  stepData: ExecutionWrapper | undefined,
-  node?: DefaultNodeModel,
+export const getStepFromNode = ({
+  stepData,
+  node,
   isComplete = false,
   isFindParallelNode = false,
-  nodeId?: string,
-  parentId?: string,
-  isRollback?: boolean
-): { node: ExecutionWrapper | undefined; parent: ExecutionWrapper[] } => {
+  nodeId,
+  parentId,
+  isRollback
+}: GetStepFromNodeProps): { node: ExecutionWrapper | undefined; parent: ExecutionWrapper[] } => {
   let data = stepData
   if (parentId) {
     const group = getStepFromId(data, defaultTo(parentId, ''), false, false, Boolean(isRollback)).node
@@ -442,13 +459,13 @@ export const updateStepsState = (
   }
 }
 
-export const removeStepOrGroup = (
-  state: ExecutionGraphState,
-  entity: any,
+export const removeStepOrGroup = ({
+  state,
+  entity,
   skipFlatten = false,
-  newPipelineStudioEnabled?: boolean,
+  newPipelineStudioEnabled,
   isRollback = false
-): boolean => {
+}: RemoveStepOrGroupProps): boolean => {
   if (newPipelineStudioEnabled) {
     return removeStepOrGroupV2(state, entity, skipFlatten, isRollback)
   }
