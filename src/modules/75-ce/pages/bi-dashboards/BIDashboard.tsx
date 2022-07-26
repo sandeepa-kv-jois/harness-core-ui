@@ -150,7 +150,13 @@ const BIDashboard: React.FC = () => {
                     <Icon
                       size={62}
                       name={getServiceIcons(item.serviceType as string)}
-                      style={{ alignSelf: 'center' }}
+                      style={{
+                        alignSelf: 'center',
+                        color:
+                          getServiceIcons(item.serviceType as string) === 'default-dashboard'
+                            ? 'var(--primary-7)'
+                            : 'inherit'
+                      }}
                     />
                     <Text font={{ variation: FontVariation.SMALL }} color={Color.GREY_600}>
                       {item.description}

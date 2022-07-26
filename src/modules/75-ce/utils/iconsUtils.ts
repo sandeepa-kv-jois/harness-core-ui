@@ -30,19 +30,19 @@ export const getServiceIcons = (serviceProvider: string) => {
     case 'RDS':
       return 'aws-rds'
 
-    // case 'GCP INSTANCE':
-    // case 'GCP DISK':
-    //   return 'gcp-engine'
+    case 'GCP INSTANCE':
+    case 'GCP DISK':
+      return 'gcp-engine'
 
-    // case 'AZURE VM':
-    //   return 'azure-vm'
+    case 'AZURE VM':
+      return 'azure-vm'
 
-    // case 'AWS EC2':
-    // case 'AWS EBS':
-    //   return 'aws-ectwo-service'
+    case 'AWS EC2':
+    case 'AWS EBS':
+      return 'aws-ectwo-service'
 
     /* istanbul ignore next */
     default:
-      return 'dashboard'
+      return 'default-dashboard'
   }
 }
