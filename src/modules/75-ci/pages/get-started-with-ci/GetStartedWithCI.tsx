@@ -37,6 +37,7 @@ import type { StringsMap } from 'stringTypes'
 import type { ProjectPathProps } from '@common/interfaces/RouteInterfaces'
 import { Status } from '@common/utils/Constants'
 import { getIdentifierFromValue } from '@common/components/EntityReference/EntityReference'
+import { Connectors } from '@connectors/constants'
 import { InfraProvisioningWizard } from './InfraProvisioningWizard/InfraProvisioningWizard'
 import { InfraProvisiongWizardStepId, ProvisioningStatus } from './InfraProvisioningWizard/Constants'
 import { InfraProvisioningCarousel } from './InfraProvisioningCarousel/InfraProvisioningCarousel'
@@ -66,8 +67,8 @@ export default function GetStartedWithCI(): React.ReactElement {
   useEffect(() => {
     if (showWizard) {
       fetchGitConnectors({
-        types: ['Github', 'Gitlab', 'Bitbucket'],
-        connectivityStatuses: ['SUCCESS'],
+        types: [Connectors.GITHUB, Connectors.GITLAB, Connectors.BITBUCKET],
+        connectivityStatuses: [Status.SUCCESS],
         filterType: 'Connector'
       } as ConnectorFilterProperties).then((response: ResponsePageConnectorResponse) => {
         const { status, data } = response
