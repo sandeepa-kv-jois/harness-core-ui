@@ -21,6 +21,10 @@ exports[`STOExecutionCardSummary renders correctly 1`] = `
       data-testid="Low"
       data-value="4"
     />
+    <div
+      data-testid="Info"
+      data-value="5"
+    />
   </div>
 </div>
 `;
