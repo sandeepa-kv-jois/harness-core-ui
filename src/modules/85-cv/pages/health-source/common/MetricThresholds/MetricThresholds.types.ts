@@ -1,4 +1,5 @@
 import type { SelectOption, SelectProps } from '@harness/uicore'
+import type { MetricThresholdType as AppDMetricThresholdType } from '../../connectors/AppDynamics/AppDHealthSource.types'
 
 export interface SelectItem {
   label: string
@@ -6,10 +7,10 @@ export interface SelectItem {
 }
 
 export interface ThresholdCriteriaPropsType {
-  criteriaType: string | null
+  criteriaType?: 'Absolute' | 'Percentage'
   index: number
   thresholdTypeName: string
-  replaceFn: (value: any) => void
+  replaceFn: (value: AppDMetricThresholdType) => void
   criteriaPercentageType?: string
 }
 

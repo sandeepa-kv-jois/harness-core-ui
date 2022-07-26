@@ -5,8 +5,12 @@ import { cloneDeep } from 'lodash-es'
 import { Color } from '@harness/design-system'
 import { FieldArray, useFormikContext } from 'formik'
 import { useStrings } from 'framework/strings'
+import type { MetricThresholdSpec } from 'services/cv'
 import { AppDynamicsMonitoringSourceFieldNames as FieldName } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.constants'
-import type { AppDynamicsFomikFormInterface } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.types'
+import type {
+  AppDynamicsFomikFormInterface,
+  MetricThresholdType
+} from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.types'
 import ThresholdSelect from '@cv/pages/health-source/common/MetricThresholds/Components/ThresholdSelect'
 import ThresholdCriteria from '@cv/pages/health-source/common/MetricThresholds/Components/ThresholdCriteria'
 import { AppDMetricThresholdContext } from '../../AppDMetricThreshold'
@@ -39,40 +43,52 @@ export default function AppDFailFastThresholdTabContent(): JSX.Element {
     }))
   }, [formValues.failFastThresholds, setNonCustomFeilds])
 
-  const handleMetricUpdate = (index: number, selectedValue: string, replaceFn: (value: any) => void): void => {
+  const handleMetricUpdate = (
+    index: number,
+    selectedValue: string,
+    replaceFn: (value: MetricThresholdType) => void
+  ): void => {
     const clonedFailFastThresholds = [...formValues.failFastThresholds]
 
     const updatedFailFastThresholds = { ...clonedFailFastThresholds[index] }
 
-    updatedFailFastThresholds[FieldName.METRIC_THRESHOLD_METRIC_NAME] = null
-    updatedFailFastThresholds[FieldName.METRIC_THRESHOLD_GROUP_NAME] = null
-    updatedFailFastThresholds[FieldName.METRIC_THRESHOLD_METRIC_TYPE] = selectedValue
+    updatedFailFastThresholds.metricName = undefined
+    updatedFailFastThresholds.groupName = undefined
+    updatedFailFastThresholds.metricType = selectedValue
 
     clonedFailFastThresholds[index] = updatedFailFastThresholds
 
     replaceFn(updatedFailFastThresholds)
   }
 
-  const handleTransactionUpdate = (index: number, selectedValue: string, replaceFn: (value: any) => void): void => {
+  const handleTransactionUpdate = (
+    index: number,
+    selectedValue: string,
+    replaceFn: (value: MetricThresholdType) => void
+  ): void => {
     const clonedFailFastThresholds = [...formValues.failFastThresholds]
 
     const updatedFailFastThresholds = { ...clonedFailFastThresholds[index] }
 
-    updatedFailFastThresholds[FieldName.METRIC_THRESHOLD_METRIC_NAME] = null
-    updatedFailFastThresholds[FieldName.METRIC_THRESHOLD_GROUP_NAME] = selectedValue
+    updatedFailFastThresholds.metricName = undefined
+    updatedFailFastThresholds.groupName = selectedValue
 
     clonedFailFastThresholds[index] = updatedFailFastThresholds
 
     replaceFn(updatedFailFastThresholds)
   }
 
-  const handleActionUpdate = (index: number, selectedValue: string, replaceFn: (value: any) => void): void => {
+  const handleActionUpdate = (
+    index: number,
+    selectedValue: MetricThresholdSpec['action'],
+    replaceFn: (value: MetricThresholdType) => void
+  ): void => {
     const clonedFailFastThresholds = [...formValues.failFastThresholds]
 
     const updatedFailFastThresholds = { ...clonedFailFastThresholds[index] }
 
-    updatedFailFastThresholds.spec.spec[FieldName.METRIC_THRESHOLD_COUNT] = undefined
-    updatedFailFastThresholds.spec[FieldName.METRIC_THRESHOLD_ACTION] = selectedValue
+    updatedFailFastThresholds.spec.spec.count = undefined
+    updatedFailFastThresholds.spec.action = selectedValue
 
     clonedFailFastThresholds[index] = updatedFailFastThresholds
 
@@ -83,7 +99,7 @@ export default function AppDFailFastThresholdTabContent(): JSX.Element {
     MetricTypesForTransactionTextField.some(field => field === selectedMetricType)
 
   // TODO: Update the type from Swagger
-  const handleAddThreshold = (addFn: (newValue: any) => void): void => {
+  const handleAddThreshold = (addFn: (newValue: MetricThresholdType) => void): void => {
     const clonedDefaultValue = cloneDeep(NewDefaultVauesForFailFastThreshold)
     const defaultValueForMetricType = getDefaultMetricTypeValue(formValues.metricData, metricPacks)
     const newIgnoreThresholdRow = { ...clonedDefaultValue, metricType: defaultValueForMetricType }
@@ -125,7 +141,7 @@ export default function AppDFailFastThresholdTabContent(): JSX.Element {
                   </Layout.Horizontal>
                 </Container>
 
-                {props?.form?.values?.failFastThresholds?.map((data, index: number) => {
+                {props?.form?.values?.failFastThresholds?.map((data: MetricThresholdType, index: number) => {
                   return (
                     <Container
                       key={index}
@@ -140,7 +156,7 @@ export default function AppDFailFastThresholdTabContent(): JSX.Element {
                         items={getMetricTypeItems(metricPacks, formValues.metricData, groupedCreatedMetrics)}
                         key={`${data?.metricType}`}
                         name={`failFastThresholds.${index}.${FieldName.METRIC_THRESHOLD_METRIC_TYPE}`}
-                        onChange={({ value }) => {
+                        onChange={({ value }: { value: string }) => {
                           handleMetricUpdate(index, value as string, props.replace.bind(null, index))
                         }}
                       />
@@ -157,7 +173,7 @@ export default function AppDFailFastThresholdTabContent(): JSX.Element {
                         <ThresholdSelect
                           items={getGroupDropdownOptions(groupedCreatedMetrics)}
                           name={`failFastThresholds.${index}.${FieldName.METRIC_THRESHOLD_GROUP_NAME}`}
-                          onChange={({ value }) => {
+                          onChange={({ value }: { value: string }) => {
                             if (data.metricType === MetricTypeValues.Custom) {
                               handleTransactionUpdate(index, value as string, props.replace.bind(null, index))
                             }
@@ -179,9 +195,13 @@ export default function AppDFailFastThresholdTabContent(): JSX.Element {
                       <ThresholdSelect
                         items={getActionItems(getString)}
                         name={`failFastThresholds.${index}.spec.${FieldName.METRIC_THRESHOLD_ACTION}`}
-                        onChange={({ value }) => {
+                        onChange={({ value }: { value: string }) => {
                           if (value === FailFastActionValues.FailImmediately) {
-                            handleActionUpdate(index, value as string, props.replace.bind(null, index))
+                            handleActionUpdate(
+                              index,
+                              value as MetricThresholdSpec['action'],
+                              props.replace.bind(null, index)
+                            )
                           }
                         }}
                       />
@@ -201,6 +221,9 @@ export default function AppDFailFastThresholdTabContent(): JSX.Element {
                       <ThresholdCriteria
                         criteriaType={data?.criteria?.type}
                         thresholdTypeName="failFastThresholds"
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        // Ignored ts-lint here, as criteriaPercentageType is used only for frontend logic
                         criteriaPercentageType={data?.criteria?.criteriaPercentageType}
                         index={index}
                         replaceFn={props.replace.bind(null, index)}

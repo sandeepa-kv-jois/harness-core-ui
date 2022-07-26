@@ -15,7 +15,9 @@ import type {
   AppDynamicsHealthSourceSpec,
   AppdynamicsValidationResponse,
   MetricPackDTO,
-  RiskProfile
+  MetricThreshold,
+  RiskProfile,
+  TimeSeriesMetricPackDTO
 } from 'services/cv'
 import type { SelectOption } from '@pipeline/components/PipelineSteps/Steps/StepsTypes'
 import type { UpdatedHealthSource } from '../../HealthSourceDrawer/HealthSourceDrawerContent.types'
@@ -24,6 +26,7 @@ import type {
   AppDynamicsData,
   AppDynamicsFomikFormInterface,
   MapAppDynamicsMetric,
+  MetricThresholdType,
   NonCustomFeildsInterface,
   ValidateMappingInterface
 } from './AppDHealthSource.types'
@@ -32,6 +35,7 @@ import type { MetricPathData } from './Components/MetricPath/MetricPath.types'
 import { AppDynamicsMonitoringSourceFieldNames, initCustomForm, ThresholdTypes } from './AppDHealthSource.constants'
 import { PATHTYPE } from './Components/AppDCustomMetricForm/AppDCustomMetricForm.constants'
 import type { CustomMappedMetric } from '../../common/CustomMetric/CustomMetric.types'
+import { MetricTypeValues } from '../../common/MetricThresholds/MetricThresholds.constants'
 
 export const convertStringBasePathToObject = (baseFolder: string | BasePathData): BasePathData => {
   let basePathObj = {} as any
@@ -75,11 +79,7 @@ export const createAppDynamicsData = (sourceData: any): AppDynamicsData => {
     (source: UpdatedHealthSource) => source.identifier === sourceData.healthSourceIdentifier
   )
 
-  const {
-    applicationName = '',
-    tierName = '',
-    metricPacks = undefined
-  } = (payload?.spec as AppDynamicsHealthSourceSpec) || {}
+  const { applicationName = '', tierName = '', metricPacks } = (payload?.spec as AppDynamicsHealthSourceSpec) || {}
 
   const appdData = {
     name: sourceData?.healthSourceName,
@@ -375,7 +375,74 @@ export const convertFullPathToBaseAndMetric = (
   return { derivedBasePath, derivedMetricPath }
 }
 
-export const createAppDynamicsPayload = (formData: any): UpdatedHealthSource | null => {
+const getMetricPacksOfCustomMetrics = (
+  ignoreThresholds: MetricThresholdType[],
+  failFastThresholds: MetricThresholdType[]
+): TimeSeriesMetricPackDTO | null => {
+  const metricThresholds = [...ignoreThresholds, ...failFastThresholds]
+
+  const customMetricThresholdTypes = metricThresholds.filter(
+    metricThreshold => metricThreshold.metricType === MetricTypeValues.Custom
+  )
+
+  if (!customMetricThresholdTypes.length) {
+    return null
+  }
+
+  return {
+    identifier: MetricTypeValues.Custom,
+    metricThresholds: customMetricThresholdTypes
+  }
+}
+
+const getMetricThresholdsForPayload = (
+  metricPacksIdentifier: string,
+  ignoreThresholds: MetricThresholdType[],
+  failFastThresholds: MetricThresholdType[]
+): MetricThreshold[] => {
+  if (!metricPacksIdentifier) {
+    return []
+  }
+
+  const metricThresholds = [...ignoreThresholds, ...failFastThresholds]
+
+  return metricThresholds.filter(metricThreshold => metricThreshold.metricType === metricPacksIdentifier)
+}
+
+export const getMetricPacksForPayload = (
+  formData: AppDynamicsFomikFormInterface,
+  isMetricThresholdEnabled: boolean
+): TimeSeriesMetricPackDTO[] => {
+  const { metricData, ignoreThresholds, failFastThresholds } = formData
+
+  const metricPacks = Object.entries(metricData).map(item => {
+    return item[1]
+      ? {
+          identifier: item[0] as string,
+          metricThresholds: isMetricThresholdEnabled
+            ? getMetricThresholdsForPayload(item[0], ignoreThresholds, failFastThresholds)
+            : undefined
+        }
+      : {}
+  })
+
+  const filteredMetricPacks = metricPacks.filter(item => !isEmpty(item)) as TimeSeriesMetricPackDTO[]
+
+  if (filteredMetricPacks.length && isMetricThresholdEnabled) {
+    const customMetricThresholds = getMetricPacksOfCustomMetrics(ignoreThresholds, failFastThresholds)
+
+    if (customMetricThresholds) {
+      filteredMetricPacks.push(customMetricThresholds)
+    }
+  }
+
+  return filteredMetricPacks
+}
+
+export const createAppDynamicsPayload = (
+  formData: any,
+  isMetricThresholdEnabled: boolean
+): UpdatedHealthSource | null => {
   const specPayload = {
     applicationName: (formData?.appdApplication?.label as string) || (formData.appdApplication as string),
     tierName: (formData?.appDTier?.label as string) || (formData.appDTier as string),
@@ -452,15 +519,7 @@ export const createAppDynamicsPayload = (formData: any): UpdatedHealthSource | n
       ...specPayload,
       feature: 'Application Monitoring' as string,
       connectorRef: (formData?.connectorRef?.value as string) || (formData.connectorRef as string),
-      metricPacks: Object.entries(formData?.metricData)
-        .map(item => {
-          return item[1]
-            ? {
-                identifier: item[0]
-              }
-            : {}
-        })
-        .filter(item => !isEmpty(item))
+      metricPacks: getMetricPacksForPayload(formData, isMetricThresholdEnabled)
     }
   }
 }
@@ -513,36 +572,37 @@ export const getIsMetricPacksSelected = (metricData: { [key: string]: boolean })
   return Object.keys(metricData).some(metricPackKey => metricData[metricPackKey])
 }
 
-export const getAllMetricThresholds = (metricPacks?: MetricPackDTO[]): any[] => {
-  const availableMetricPacks = []
+export const getAllMetricThresholds = (metricPacks?: TimeSeriesMetricPackDTO[]): MetricThresholdType[] => {
+  const availableMetricPacks: MetricThresholdType[] = []
 
-  metricPacks?.forEach(metricPack => {
+  metricPacks?.forEach((metricPack: TimeSeriesMetricPackDTO) => {
     availableMetricPacks.push(...(metricPack?.metricThresholds ? metricPack.metricThresholds : []))
   })
 
   return availableMetricPacks
 }
 
-export const getFilteredMetricThresholdValues = (thresholdName: string, metricPacks?: MetricPackDTO[]): any[] => {
+export const getFilteredMetricThresholdValues = (
+  thresholdName: string,
+  metricPacks?: TimeSeriesMetricPackDTO[]
+): MetricThresholdType[] => {
   if (!metricPacks?.length) {
     return []
   }
 
   const metricThresholds = getAllMetricThresholds(metricPacks)
 
-  console.log('metricThresholds', metricThresholds)
-
   return metricThresholds.filter(metricThreshold => metricThreshold.type === thresholdName)
 }
 
 // TODO: 🚨 remove this
-const temproaryMetricPacksData = [
+const temproaryMetricPacksData: TimeSeriesMetricPackDTO[] = [
   {
     metricThresholds: [
       {
-        metricType: null,
-        groupName: null,
-        metricName: null,
+        metricType: 'Performance',
+        groupName: undefined,
+        metricName: undefined,
         type: ThresholdTypes.IgnoreThreshold,
         spec: {
           action: 'Ignore'
@@ -556,9 +616,9 @@ const temproaryMetricPacksData = [
         }
       },
       {
-        metricType: null,
-        groupName: null,
-        metricName: null,
+        metricType: 'Errors',
+        groupName: undefined,
+        metricName: undefined,
         type: ThresholdTypes.FailImmediately,
         spec: {
           action: 'FailImmediately',
@@ -580,16 +640,7 @@ export const createAppDFormData = (
   appDynamicsData: AppDynamicsData,
   mappedMetrics: Map<string, CustomMappedMetric>,
   selectedMetric: string,
-  nonCustomFeilds: {
-    appdApplication: string
-    appDTier: string
-    metricPacks?: MetricPackDTO[]
-    metricData: {
-      [key: string]: boolean
-    }
-    ignoreThresholds: any[]
-    failFastThresholds: any[]
-  },
+  nonCustomFeilds: NonCustomFeildsInterface,
   showCustomMetric: boolean,
   isTemplate = false
 ): AppDynamicsFomikFormInterface => {
@@ -631,14 +682,21 @@ export const createAppDFormData = (
   }
 }
 
-export const initializeNonCustomFields = (appDynamicsData: AppDynamicsData) => {
+export const initializeNonCustomFields = (
+  appDynamicsData: AppDynamicsData,
+  isMetricThresholdEnabled: boolean
+): NonCustomFeildsInterface => {
   return {
     appdApplication: appDynamicsData.applicationName || '',
     appDTier: appDynamicsData.tierName || '',
     metricPacks: appDynamicsData.metricPacks || undefined,
     metricData: convertMetricPackToMetricData(appDynamicsData?.metricPacks),
-    ignoreThresholds: getFilteredMetricThresholdValues(ThresholdTypes.IgnoreThreshold, temproaryMetricPacksData),
-    failFastThresholds: getFilteredMetricThresholdValues(ThresholdTypes.FailImmediately, temproaryMetricPacksData)
+    ignoreThresholds: isMetricThresholdEnabled
+      ? getFilteredMetricThresholdValues(ThresholdTypes.IgnoreThreshold, temproaryMetricPacksData)
+      : [],
+    failFastThresholds: isMetricThresholdEnabled
+      ? getFilteredMetricThresholdValues(ThresholdTypes.FailImmediately, temproaryMetricPacksData)
+      : []
   }
 }
 
@@ -703,16 +761,7 @@ export const getTypeOfInput = (value: SelectOption | string) => {
 
 export const setCustomFieldAndValidation = (
   value: string,
-  setNonCustomFeilds: React.Dispatch<
-    React.SetStateAction<{
-      appdApplication: string
-      appDTier: string
-      metricPacks: MetricPackDTO[] | undefined
-      metricData: {
-        [key: string]: boolean
-      }
-    }>
-  >,
+  setNonCustomFeilds: React.Dispatch<React.SetStateAction<NonCustomFeildsInterface>>,
   nonCustomFeilds: NonCustomFeildsInterface,
   setAppDValidation: React.Dispatch<
     React.SetStateAction<{

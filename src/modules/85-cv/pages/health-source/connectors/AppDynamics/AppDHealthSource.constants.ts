@@ -39,7 +39,7 @@ export const AppDynamicsMonitoringSourceFieldNames = {
   METRIC_THRESHOLD_COUNT: 'count'
 }
 
-export const ThresholdTypes = {
+export const ThresholdTypes: Record<string, 'IgnoreThreshold' | 'FailImmediately'> = {
   IgnoreThreshold: 'IgnoreThreshold',
   FailImmediately: 'FailImmediately'
 }

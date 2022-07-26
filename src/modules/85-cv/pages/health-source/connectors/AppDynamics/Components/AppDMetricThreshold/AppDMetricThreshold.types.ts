@@ -1,6 +1,10 @@
 import type { GroupedCreatedMetrics } from '@cv/pages/health-source/common/CustomMetric/CustomMetric.types'
-import type { MetricPackDTO } from 'services/cv'
-import type { AppDynamicsFomikFormInterface } from '../../AppDHealthSource.types'
+import type { TimeSeriesMetricPackDTO } from 'services/cv'
+import type {
+  AppDynamicsFomikFormInterface,
+  MetricThresholdType,
+  NonCustomFeildsInterface
+} from '../../AppDHealthSource.types'
 
 export interface SelectItem {
   label: string
@@ -9,16 +13,16 @@ export interface SelectItem {
 
 export interface AppDMetricThresholdPropsType {
   formikValues: AppDynamicsFomikFormInterface
-  metricPacks: MetricPackDTO[]
+  metricPacks: TimeSeriesMetricPackDTO[]
   groupedCreatedMetrics: GroupedCreatedMetrics
-  setNonCustomFeilds: React.Dispatch<React.SetStateAction<any>>
+  setNonCustomFeilds: React.Dispatch<React.SetStateAction<NonCustomFeildsInterface>>
 }
 
 export interface ThresholdCriteriaPropsType {
   criteriaType: string | null
   index: number
   thresholdTypeName: string
-  replaceFn: (value: any) => void
+  replaceFn: (value: MetricThresholdType) => void
   criteriaPercentageType?: string
 }
 

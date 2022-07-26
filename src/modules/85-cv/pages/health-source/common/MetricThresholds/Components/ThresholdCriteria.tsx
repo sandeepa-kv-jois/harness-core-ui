@@ -75,14 +75,14 @@ export default function ThresholdCriteria(props: ThresholdCriteriaPropsType): JS
         items={getCriterialItems(getString)}
         className={cx(css.metricThresholdSelect, css.metricThresholdCriteria)}
         key={criteriaType || undefined}
-        onChange={({ value }) => handleCriteriaUpdate(value as string)}
+        onChange={({ value }: { value: string }) => handleCriteriaUpdate(value as string)}
         name={`${thresholdTypeName}.${index}.${FieldName.METRIC_THRESHOLD_CRITERIA}.type`}
       />
       {criteriaType === MetricCriteriaValues.Percentage && (
         <ThresholdSelect
           items={getCriteriaPercentageDropdownOptions(getString)}
           className={cx(css.metricThresholdSelect, css.metricThresholdCriteria)}
-          onChange={({ value }) => handleCriteriaPercentageUpdate(value as string)}
+          onChange={({ value }: { value: string }) => handleCriteriaPercentageUpdate(value as string)}
           name={`${thresholdTypeName}.${index}.${FieldName.METRIC_THRESHOLD_CRITERIA}.${FieldName.METRIC_THRESHOLD_CRITERIA_PERCENTAGE_TYPE}`}
         />
       )}

@@ -5,7 +5,11 @@ import { cloneDeep } from 'lodash-es'
 import { useFormikContext, FieldArray } from 'formik'
 import { useStrings } from 'framework/strings'
 import { AppDynamicsMonitoringSourceFieldNames as FieldName } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.constants'
-import type { AppDynamicsFomikFormInterface } from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.types'
+import type {
+  AppDynamicsFomikFormInterface,
+  MetricThresholdType,
+  NonCustomFeildsInterface
+} from '@cv/pages/health-source/connectors/AppDynamics/AppDHealthSource.types'
 import ThresholdCriteria from '@cv/pages/health-source/common/MetricThresholds/Components/ThresholdCriteria'
 import ThresholdSelect from '@cv/pages/health-source/common/MetricThresholds/Components/ThresholdSelect'
 import { AppDMetricThresholdContext } from '../../AppDMetricThreshold'
@@ -29,14 +33,18 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
 
   const { metricPacks, groupedCreatedMetrics, setNonCustomFeilds } = useContext(AppDMetricThresholdContext)
 
-  const handleMetricUpdate = (index: number, selectedValue: string, replaceFn: (value: any) => void): void => {
+  const handleMetricTypeUpdate = (
+    index: number,
+    selectedValue: string,
+    replaceFn: (value: MetricThresholdType) => void
+  ): void => {
     const clonedIgnoreThreshold = [...formValues.ignoreThresholds]
 
     const updatedIgnoreThreshold = { ...clonedIgnoreThreshold[index] }
 
-    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_METRIC_NAME] = null
-    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_GROUP_NAME] = null
-    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_METRIC_TYPE] = selectedValue
+    updatedIgnoreThreshold.metricName = undefined
+    updatedIgnoreThreshold.groupName = undefined
+    updatedIgnoreThreshold.metricType = selectedValue
 
     clonedIgnoreThreshold[index] = updatedIgnoreThreshold
 
@@ -44,19 +52,25 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
   }
 
   useEffect(() => {
-    setNonCustomFeilds((prv: any) => ({
-      ...prv,
+    setNonCustomFeilds((previousValues: NonCustomFeildsInterface) => ({
+      ...previousValues,
       ignoreThresholds: formValues.ignoreThresholds
     }))
   }, [formValues.ignoreThresholds, setNonCustomFeilds])
 
-  const handleTransactionUpdate = (index: number, selectedValue: string, replaceFn: (value: any) => void): void => {
+  // TODO: use useCallback
+
+  const handleTransactionUpdate = (
+    index: number,
+    selectedValue: string,
+    replaceFn: (value: MetricThresholdType) => void
+  ): void => {
     const clonedIgnoreThreshold = [...formValues.ignoreThresholds]
 
     const updatedIgnoreThreshold = { ...clonedIgnoreThreshold[index] }
 
-    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_METRIC_NAME] = null
-    updatedIgnoreThreshold[FieldName.METRIC_THRESHOLD_GROUP_NAME] = selectedValue
+    updatedIgnoreThreshold.metricName = undefined
+    updatedIgnoreThreshold.groupName = selectedValue
 
     clonedIgnoreThreshold[index] = updatedIgnoreThreshold
 
@@ -66,8 +80,7 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
   const isGroupTransationTextField = (selectedMetricType: string | null): boolean =>
     MetricTypesForTransactionTextField.some(field => field === selectedMetricType)
 
-  // TODO: Update the type from Swagger
-  const handleAddThreshold = (addFn: (newValue: any) => void): void => {
+  const handleAddThreshold = (addFn: (newValue: MetricThresholdType) => void): void => {
     const clonedDefaultValue = cloneDeep(NewDefaultVauesForIgnoreThreshold)
     const defaultValueForMetricType = getDefaultMetricTypeValue(formValues.metricData, metricPacks)
     const newIgnoreThresholdRow = { ...clonedDefaultValue, metricType: defaultValueForMetricType }
@@ -101,7 +114,7 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
                   </Layout.Horizontal>
                 </Container>
 
-                {props?.form?.values?.ignoreThresholds?.map((data, index: number) => {
+                {props?.form?.values?.ignoreThresholds?.map((data: MetricThresholdType, index: number) => {
                   return (
                     <Container
                       key={index}
@@ -113,8 +126,8 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
                         items={getMetricTypeItems(metricPacks, formValues.metricData, groupedCreatedMetrics)}
                         key={`${data?.metricType}`}
                         name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_METRIC_TYPE}`}
-                        onChange={({ value }) => {
-                          handleMetricUpdate(index, value as string, props.replace.bind(null, index))
+                        onChange={({ value }: { value: string }) => {
+                          handleMetricTypeUpdate(index, value as string, props.replace.bind(null, index))
                         }}
                       />
 
@@ -131,7 +144,7 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
                         <ThresholdSelect
                           items={getGroupDropdownOptions(groupedCreatedMetrics)}
                           name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_GROUP_NAME}`}
-                          onChange={({ value }) => {
+                          onChange={({ value }: { value: string }) => {
                             if (data.metricType === MetricTypeValues.Custom) {
                               handleTransactionUpdate(index, value as string, props.replace.bind(null, index))
                             }
@@ -143,7 +156,12 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
                       {/* ==== ⭐️ Metric ==== */}
                       <ThresholdSelect
                         disabled={!data?.metricType}
-                        items={getMetricItems(metricPacks, data.metricType, data.groupName, groupedCreatedMetrics)}
+                        items={getMetricItems(
+                          metricPacks,
+                          data.metricType,
+                          data.groupName as string,
+                          groupedCreatedMetrics
+                        )}
                         key={`${data?.metricType}-${data.groupName}`}
                         name={`ignoreThresholds.${index}.${FieldName.METRIC_THRESHOLD_METRIC_NAME}`}
                       />
@@ -153,6 +171,9 @@ export default function AppDIgnoreThresholdTabContent(): JSX.Element {
                         index={index}
                         criteriaType={data?.criteria?.type}
                         thresholdTypeName="ignoreThresholds"
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        // Ignored ts-lint here, as criteriaPercentageType is used only for frontend logic
                         criteriaPercentageType={data?.criteria?.criteriaPercentageType}
                         replaceFn={props.replace.bind(null, index)}
                       />

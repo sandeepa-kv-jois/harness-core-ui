@@ -7,7 +7,13 @@
 
 import type { SelectOption } from '@wings-software/uicore'
 import type { StringKeys } from 'framework/strings'
-import type { MetricPackDTO } from 'services/cv'
+import type {
+  FailMetricThresholdSpec,
+  MetricPackDTO,
+  MetricThreshold,
+  MetricThresholdSpec,
+  TimeSeriesMetricPackDTO
+} from 'services/cv'
 import type { CustomMappedMetric } from '../../common/CustomMetric/CustomMetric.types'
 import type { HealthSourceTypes } from '../../types'
 import type { BasePathData } from './Components/BasePath/BasePath.types'
@@ -45,10 +51,15 @@ export interface AppDynamicsData {
   type: HealthSourceTypes
   applicationName: string
   tierName: string
-  metricPacks?: MetricPackDTO[]
+  metricPacks?: TimeSeriesMetricPackDTO[]
   showCustomMetric?: boolean
   mappedServicesAndEnvs: Map<string, MapAppDynamicsMetric>
 }
+
+export type MetricThresholdType = MetricThreshold & {
+  spec?: MetricThresholdSpec & FailMetricThresholdSpec
+}
+
 export interface AppDynamicsFomikFormInterface {
   name: string
   identifier: string
@@ -78,8 +89,8 @@ export interface AppDynamicsFomikFormInterface {
   fullPath?: string
   pathType?: string
   completeMetricPath?: string
-  ignoreThresholds: Array<any>
-  failFastThresholds: Array<any>
+  ignoreThresholds: MetricThresholdType[]
+  failFastThresholds: MetricThresholdType[]
 }
 
 export interface InitAppDCustomFormInterface {
@@ -105,8 +116,10 @@ export interface ValidateMappingInterface {
 export interface NonCustomFeildsInterface {
   appdApplication: string
   appDTier: string
-  metricPacks: MetricPackDTO[] | undefined
+  metricPacks: TimeSeriesMetricPackDTO[] | undefined
   metricData: {
     [key: string]: boolean
   }
+  ignoreThresholds: MetricThresholdType[]
+  failFastThresholds: MetricThresholdType[]
 }

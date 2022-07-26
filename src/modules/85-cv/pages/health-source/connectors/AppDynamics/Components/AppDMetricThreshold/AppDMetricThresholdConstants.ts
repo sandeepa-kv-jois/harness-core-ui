@@ -1,4 +1,5 @@
 import { ThresholdTypes } from '../../AppDHealthSource.constants'
+import type { MetricThresholdType } from '../../AppDHealthSource.types'
 import type { SelectItem } from './AppDMetricThreshold.types'
 
 export const MetricTypeValues = {
@@ -7,15 +8,18 @@ export const MetricTypeValues = {
   Errors: 'Errors'
 }
 
-export const CriteriaValues = {
+export const CriteriaValues: Record<string, 'Absolute' | 'Percentage'> = {
   Absolute: 'Absolute',
   Percentage: 'Percentage'
 }
 
-export const FailFastActionValues = {
+export const FailFastActionValues: Record<
+  string,
+  'FailImmediately' | 'FailAfterOccurrence' | 'FailAfterConsecutiveOccurrence'
+> = {
   FailImmediately: 'FailImmediately',
-  FailAfterOccurrences: 'FailAfterOccurrences',
-  FailAfterConsecutiveOccurrences: 'FailAfterConsecutiveOccurrences'
+  FailAfterOccurrences: 'FailAfterOccurrence',
+  FailAfterConsecutiveOccurrences: 'FailAfterConsecutiveOccurrence'
 }
 
 export const PercentageCriteriaDropdownValues = {
@@ -30,10 +34,10 @@ export const CustomMetricDropdownOption: SelectItem = {
   value: MetricTypeValues.Custom
 }
 
-export const NewDefaultVauesForIgnoreThreshold = {
-  metricType: null,
-  groupName: null,
-  metricName: null,
+export const NewDefaultVauesForIgnoreThreshold: MetricThresholdType = {
+  metricType: undefined,
+  groupName: undefined,
+  metricName: undefined,
   type: ThresholdTypes.IgnoreThreshold,
   spec: {
     action: IgnoreThresholdType
@@ -44,10 +48,10 @@ export const NewDefaultVauesForIgnoreThreshold = {
   }
 }
 
-export const NewDefaultVauesForFailFastThreshold = {
-  metricType: null,
-  groupName: null,
-  metricName: null,
+export const NewDefaultVauesForFailFastThreshold: MetricThresholdType = {
+  metricType: undefined,
+  groupName: undefined,
+  metricName: undefined,
   type: ThresholdTypes.FailImmediately,
   spec: {
     action: FailFastActionValues.FailImmediately,

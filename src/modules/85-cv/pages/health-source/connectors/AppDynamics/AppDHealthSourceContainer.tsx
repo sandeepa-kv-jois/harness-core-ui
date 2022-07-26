@@ -22,9 +22,13 @@ export default function AppDHealthSourceContainer(props: AppDynamicsHealthSource
   const { data: sourceData, onSubmit, isTemplate, expressions } = props
   const { onPrevious } = useContext(SetupSourceTabsContext)
 
+  // FEATURE FOR METRIC THRESHOLD
+  // const isMetricThresholdEnabled = useFeatureFlag(FeatureFlag.CVNG_METRIC_THRESHOLD)
+  const isMetricThresholdEnabled = true
+
   const handleSubmit = useCallback(
     async (value: UpdatedHealthSource) => {
-      const appDynamicsPayload = createAppDynamicsPayload(value)
+      const appDynamicsPayload = createAppDynamicsPayload(value, isMetricThresholdEnabled)
       appDynamicsPayload && (await onSubmit(sourceData, appDynamicsPayload))
     },
     [sourceData]

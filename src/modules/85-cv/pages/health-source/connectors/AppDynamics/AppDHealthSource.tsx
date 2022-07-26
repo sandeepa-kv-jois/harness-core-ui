@@ -64,6 +64,145 @@ import AppDynamicsTier from './Components/AppDynamicsTier/AppDynamicsTier'
 import AppDMetricThreshold from './Components/AppDMetricThreshold/AppDMetricThreshold'
 import css from './AppDHealthSource.module.scss'
 
+const appDynamicsDataFull = {
+  name: 'appd',
+  identifier: 'appd',
+  type: 'AppDynamics',
+  spec: {
+    applicationName: 'QA',
+    tierName: 'manager',
+    metricData: {
+      Performance: true,
+      Errors: true
+    },
+    metricDefinitions: [
+      {
+        identifier: 'appdMetric',
+        metricName: 'appdMetric',
+        baseFolder: 'Overall Application Performance',
+        metricPath: 'Calls per Minute',
+        completeMetricPath: 'Overall Application Performance|manager|Calls per Minute',
+        groupName: 'g1',
+        sli: {
+          enabled: true
+        },
+        analysis: {
+          riskProfile: {
+            category: 'Performance',
+            metricType: 'THROUGHPUT',
+            thresholdTypes: ['ACT_WHEN_HIGHER']
+          },
+          liveMonitoring: {
+            enabled: true
+          },
+          deploymentVerification: {
+            enabled: true,
+            serviceInstanceMetricPath: 'Individual Nodes|*|Calls per Minute'
+          }
+        }
+      }
+    ],
+    feature: 'Application Monitoring',
+    connectorRef: 'org.appdprod',
+    metricPacks: [
+      {
+        identifier: 'Performance',
+        metricThresholds: [
+          {
+            metricType: 'Performance',
+            groupName: 'testP2',
+            metricName: 'average_wait_time_ms',
+            type: 'IgnoreThreshold',
+            spec: {
+              action: 'Ignore'
+            },
+            criteria: {
+              type: 'Percentage',
+              spec: {
+                lessThan: 1
+              },
+              criteriaPercentageType: 'lessThan'
+            }
+          },
+          {
+            metricType: 'Performance',
+            groupName: 'testP',
+            metricName: 'stall_count',
+            type: 'IgnoreThreshold',
+            spec: {
+              action: 'Ignore'
+            },
+            criteria: {
+              type: 'Percentage',
+              spec: {
+                greaterThan: 12
+              },
+              criteriaPercentageType: 'greaterThan'
+            }
+          },
+          {
+            metricType: 'Performance',
+            groupName: 'testPE',
+            metricName: 'average_response_time_ms',
+            type: 'FailImmediately',
+            spec: {
+              action: 'FailAfterOccurrence',
+              spec: {
+                count: 2
+              }
+            },
+            criteria: {
+              type: 'Percentage',
+              spec: {
+                greaterThan: 22
+              },
+              criteriaPercentageType: 'greaterThan'
+            }
+          }
+        ]
+      },
+      {
+        identifier: 'Errors',
+        metricThresholds: [
+          {
+            metricType: 'Errors',
+            groupName: 'testE',
+            metricName: 'number_of_errors',
+            type: 'IgnoreThreshold',
+            spec: {
+              action: 'Ignore'
+            },
+            criteria: {
+              type: 'Absolute',
+              spec: {
+                greaterThan: 13,
+                lessThan: 2
+              }
+            }
+          },
+          {
+            metricType: 'Errors',
+            groupName: 'testFE',
+            metricName: 'number_of_errors',
+            type: 'FailImmediately',
+            spec: {
+              action: 'FailImmediately',
+              spec: {}
+            },
+            criteria: {
+              type: 'Absolute',
+              spec: {
+                greaterThan: 12,
+                lessThan: 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+
 export default function AppDMonitoredSource({
   data: appDynamicsData,
   onSubmit,
@@ -227,12 +366,14 @@ export default function AppDMonitoredSource({
     mappedServicesAndEnvs: showCustomMetric ? appDynamicsData?.mappedServicesAndEnvs : new Map()
   })
 
-  const [nonCustomFeilds, setNonCustomFeilds] = useState(initializeNonCustomFields(appDynamicsData))
+  const [nonCustomFeilds, setNonCustomFeilds] = useState(() =>
+    initializeNonCustomFields(appDynamicsData, isMetricThresholdEnabled)
+  )
 
   const initPayload = useMemo(
     () =>
       createAppDFormData(appDynamicsData, mappedMetrics, selectedMetric, nonCustomFeilds, showCustomMetric, isTemplate),
-    [appDynamicsData, mappedMetrics, selectedMetric, nonCustomFeilds, showCustomMetric]
+    [appDynamicsData, mappedMetrics, selectedMetric, nonCustomFeilds, showCustomMetric, isTemplate]
   )
 
   useEffect(() => {

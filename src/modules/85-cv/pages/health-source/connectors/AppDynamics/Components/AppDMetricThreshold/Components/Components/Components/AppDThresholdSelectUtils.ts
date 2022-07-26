@@ -109,11 +109,11 @@ function getMetricsNameOptionsFromGroupName(
 export function getMetricItems(
   metricPacks: MetricPackDTO[],
   selectedMetricType: string,
-  selectedGroup: string,
-  groupedCreatedMetrics: GroupedCreatedMetrics
+  selectedGroup?: string,
+  groupedCreatedMetrics?: GroupedCreatedMetrics
 ): SelectItem[] {
   if (selectedMetricType === MetricTypeValues.Custom) {
-    if (!selectedGroup) {
+    if (!selectedGroup || !groupedCreatedMetrics) {
       return []
     }
     return getMetricsNameOptionsFromGroupName(selectedGroup, groupedCreatedMetrics)
