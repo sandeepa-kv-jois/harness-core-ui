@@ -1,10 +1,24 @@
-import React, { useEffect, useState } from 'react'
-import { Container } from '@harness/uicore'
-import { Column, RenderCostCell, RenderNameCell, RenderPercentageCell } from '@ce/components/PerspectiveGrid/Columns'
-import GridWithChartVisualiser from './GridWithChartVisualiser'
-import { getStaticSchedulePeriodTime } from '@ce/utils/momentUtils'
+/*
+ * Copyright 2022 Harness Inc. All rights reserved.
+ * Use of this source code is governed by the PolyForm Shield 1.0.0 license
+ * that can be found in the licenses directory at the root of this repository, also available at
+ * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
+ */
 
-export const DEFAULT_COLS: Column[] = [
+import React, { useEffect, useState } from 'react'
+import type { Column } from 'react-table'
+import { Container } from '@harness/uicore'
+import {
+  Column as GridColumn,
+  RenderCostCell,
+  RenderNameCell,
+  RenderPercentageCell
+} from '@ce/components/PerspectiveGrid/Columns'
+import { getStaticSchedulePeriodTime } from '@ce/utils/momentUtils'
+import { CCM_CHART_TYPES } from '@ce/constants'
+import GridWithChartVisualiser from './GridWithChartVisualiser'
+
+export const DEFAULT_COLS: GridColumn[] = [
   {
     Header: 'Name',
     accessor: 'name',
@@ -36,10 +50,23 @@ export const DEFAULT_COLS: Column[] = [
   }
 ]
 
+interface UtilisationGridData {
+  compute_spend: number
+  utilization: number
+  percentage: number
+  name: string
+}
+
+interface ChartSeriesData {
+  name: string
+  data: UtilisationGridData[]
+  keys: string[]
+}
+
 const Utilisation: React.FC = () => {
   const [cols] = useState(DEFAULT_COLS)
-  const [data, setData] = useState([])
-  const [chart, setChart] = useState()
+  const [data, setData] = useState<UtilisationGridData[]>([])
+  const [chart, setChart] = useState<ChartSeriesData[]>()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -53,8 +80,8 @@ const Utilisation: React.FC = () => {
     )
       .then(res => res.json())
       .then((res: Record<string, any>) => {
-        const columnsData: Column[] = []
-        const chartData = []
+        const columnsData: UtilisationGridData[] = []
+        const chartData: ChartSeriesData[] = []
         Object.entries(res.response).forEach(([key, value]) => {
           columnsData.push({
             name: key,
@@ -81,13 +108,33 @@ const Utilisation: React.FC = () => {
 
   return (
     <Container>
-      <GridWithChartVisualiser
-        columns={cols}
+      <GridWithChartVisualiser<UtilisationGridData>
+        columns={cols as Column<UtilisationGridData>[]}
         data={data}
         chartData={chart}
         chartLoading={loading}
         dataLoading={loading}
         chartOptions={{
+          chart: {
+            height: 300,
+            type: CCM_CHART_TYPES.SPLINE,
+            spacingTop: 40
+          },
+          plotOptions: {
+            spline: {
+              lineWidth: 4,
+              states: {
+                hover: {
+                  lineWidth: 5
+                }
+              },
+              marker: {
+                enabled: false
+              }
+              // pointInterval: 3600000, // one hour
+              // pointStart: Date.UTC(2018, 1, 13, 0, 0, 0)
+            }
+          },
           yAxis: {
             endOnTick: true,
             min: 0,
@@ -104,25 +151,6 @@ const Utilisation: React.FC = () => {
           } as Highcharts.YAxisOptions
         }}
       />
-      {/* <Layout.Horizontal> */}
-      {/* <Text font={{ variation: FontVariation.BODY }}>Group by</Text> */}
-      {/* <Tabs id={'groups'} onChange={id => setGroupBy(id as GROUP_BY)}>
-          <Tab
-            id={GROUP_BY.COMMITMENT_TYPE}
-            title={'Commitment type'}
-            panel={<GridWithChartVisualiser columns={cols} data={data} />}
-          />
-          <Tab
-            id={GROUP_BY.INSTANCE_FAMILY}
-            title={'Instance Family'}
-            panel={<GridWithChartVisualiser columns={cols} data={data} />}
-          />
-          <Tab id={GROUP_BY.REGIONS} title={'Regions'} panel={<GridWithChartVisualiser columns={cols} data={data} />} />
-        </Tabs> */}
-      {/* <Layout.Horizontal>
-        </Layout.Horizontal> */}
-      {/* <Select items={[]} /> */}
-      {/* </Layout.Horizontal> */}
     </Container>
   )
 }

@@ -7,12 +7,15 @@
  **/
 // this is an auto-generated file, do not update this manually
 declare const styles: {
+  readonly activeOption: string
   readonly activeTab: string
   readonly bodyWidgetsContainer: string
   readonly commitmentBody: string
+  readonly componentWrapper: string
   readonly dataVisualisationContainer: string
   readonly enableBanner: string
   readonly filterPanel: string
+  readonly groupByOption: string
   readonly highlightTab: string
   readonly infoContainer: string
   readonly largeContainer: string

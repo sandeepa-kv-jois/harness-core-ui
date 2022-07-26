@@ -80,5 +80,19 @@
         transition: all 0.15s ease-in-out;
       }
     }
+
+    .componentWrapper {
+      @extend .infoContainer;
+      margin-top: var(--spacing-medium) !important;
+      margin-left: 0;
+    }
+
+    .groupByOption {
+      padding-bottom: var(--spacing-small);
+      cursor: pointer;
+      &.activeOption {
+        border-bottom: 2px solid var(--primary-7);
+      }
+    }
   }
 }

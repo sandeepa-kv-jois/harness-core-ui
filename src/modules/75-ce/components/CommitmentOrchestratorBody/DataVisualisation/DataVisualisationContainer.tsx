@@ -8,9 +8,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import cx from 'classnames'
 import { Container, FontVariation, Layout, Text } from '@harness/uicore'
-import ComputeCoverage from './ComputeCoverage'
-import css from '../CommitmentOrchestrationBody.module.scss'
+import Savings from './Savings'
 import Utilisation from './Utilisation'
+import css from '../CommitmentOrchestrationBody.module.scss'
 
 interface DataVisualisationContainerProps {
   data?: any
@@ -37,7 +37,7 @@ const DataVisualisationContainer: React.FC<DataVisualisationContainerProps> = ()
       },
       {
         title: 'Savings',
-        component: <ComputeCoverage />
+        component: <Savings />
       },
       {
         title: 'Commitment Utilisation',
@@ -109,7 +109,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ tabs, commonProps, classN
           )}
         </Layout.Horizontal>
       </Layout.Horizontal>
-      <Container className={css.infoContainer}>
+      <Container className={css.componentWrapper}>
         {React.cloneElement((tabs[activeTab]?.component || <div />) as React.ReactElement, { ...commonProps })}
       </Container>
     </Container>
