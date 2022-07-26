@@ -193,6 +193,7 @@ getStartedWithCI:
   fieldIsMissing: '{{field}} is missing'
   startProvisioning: Start Provisioning
   provisioningHelpText: Provision the '{{ $.ci.getStartedWithCI.hostedByHarness }}' Infrastructure (~2 mins)
+  settingUpCIPipeline: Just a moment while we set up a CI pipeline for you...
   carousel:
     labels:
       harnessCIFeatures: Harness CI

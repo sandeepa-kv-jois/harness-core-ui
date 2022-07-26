@@ -491,7 +491,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
           disabled={disableBtn}
         />
       </Layout.Horizontal>
-      {showPageLoader ? <PageSpinner /> : null}
+      {showPageLoader ? <PageSpinner message={getString('ci.getStartedWithCI.settingUpCIPipeline')} /> : null}
     </Layout.Vertical>
   ) : null
 }
