@@ -2732,6 +2732,7 @@ export interface StringsMap {
   'pipeline.artifactTriggerConfigPanel.artifact': string
   'pipeline.artifactTriggerConfigPanel.artifactReferenceUnique': string
   'pipeline.artifactTriggerConfigPanel.artifactRepository': string
+  'pipeline.artifactTriggerConfigPanel.artifactTagSetting': string
   'pipeline.artifactTriggerConfigPanel.buildTagArtifactPath': string
   'pipeline.artifactTriggerConfigPanel.chartVersionRuntimeInput': string
   'pipeline.artifactTriggerConfigPanel.configureArtifactRuntimeInputs': string
@@ -2742,6 +2743,7 @@ export interface StringsMap {
   'pipeline.artifactTriggerConfigPanel.locationRepoPath': string
   'pipeline.artifactTriggerConfigPanel.noArtifacts': string
   'pipeline.artifactTriggerConfigPanel.noSelectableArtifactsFound': string
+  'pipeline.artifactTriggerConfigPanel.noSelectableRuntimeArtifactsFound': string
   'pipeline.artifactTriggerConfigPanel.plusSelect': string
   'pipeline.artifactTriggerConfigPanel.runtimeInput': string
   'pipeline.artifactTriggerConfigPanel.selectAManifest': string
@@ -2895,6 +2897,8 @@ export interface StringsMap {
   'pipeline.dashboardDeploymentsWidget.runningPipeline.singular': string
   'pipeline.dashboards.activeBuilds': string
   'pipeline.dashboards.activeDeployments': string
+  'pipeline.dashboards.baselineActivityComingSoon': string
+  'pipeline.dashboards.baselineTargets': string
   'pipeline.dashboards.buildExecutions': string
   'pipeline.dashboards.buildHealth': string
   'pipeline.dashboards.executionsLabel': string
@@ -3221,10 +3225,13 @@ export interface StringsMap {
   'pipeline.logs.sectionName': string
   'pipeline.loopingStrategy.deleteModal.content': string
   'pipeline.loopingStrategy.deleteModal.title': string
-  'pipeline.loopingStrategy.helperText.for': string
-  'pipeline.loopingStrategy.helperText.matrix': string
-  'pipeline.loopingStrategy.helperText.parallelism': string
   'pipeline.loopingStrategy.learnMore': string
+  'pipeline.loopingStrategy.matrix.helperText': string
+  'pipeline.loopingStrategy.matrix.label': string
+  'pipeline.loopingStrategy.parallelism.helperText': string
+  'pipeline.loopingStrategy.parallelism.label': string
+  'pipeline.loopingStrategy.repeat.helperText': string
+  'pipeline.loopingStrategy.repeat.label': string
   'pipeline.loopingStrategy.subTitle': string
   'pipeline.loopingStrategy.title': string
   'pipeline.loopingStrategy.toggleTypeModal.content': string
@@ -3508,11 +3515,13 @@ export interface StringsMap {
   'pipeline.stagetoRetryFrom': string
   'pipeline.startTime': string
   'pipeline.startedOn': string
-  'pipeline.startupScript.fileDetails': string
-  'pipeline.startupScript.fileSource': string
-  'pipeline.startupScript.name': string
-  'pipeline.startupScript.scriptFilePath': string
-  'pipeline.startupScript.subtitle': string
+  'pipeline.startupCommand.fileDetails': string
+  'pipeline.startupCommand.fileSource': string
+  'pipeline.startupCommand.fileValidation': string
+  'pipeline.startupCommand.name': string
+  'pipeline.startupCommand.plainText': string
+  'pipeline.startupCommand.scriptFilePath': string
+  'pipeline.startupCommand.subtitle': string
   'pipeline.stepCommonFields.ifNotPresent': string
   'pipeline.stepCommonFields.runAsUser': string
   'pipeline.stepCommonFields.validation.invalidLimitCPU': string
@@ -3648,6 +3657,7 @@ export interface StringsMap {
   'pipeline.timeRemainingSuffix': string
   'pipeline.totalCount': string
   'pipeline.traffic': string
+  'pipeline.triggerInfo': string
   'pipeline.uniqueIdentifier': string
   'pipeline.uniqueName': string
   'pipeline.unsupportedImagesWarning': string
@@ -4112,6 +4122,7 @@ export interface StringsMap {
   'cd.serviceDashboard.deployedAt': string
   'cd.serviceDashboard.deployedBy': string
   'cd.serviceDashboard.deploymentDetails': string
+  'cd.serviceDashboard.deploymentSlot': string
   'cd.serviceDashboard.envName': string
   'cd.serviceDashboard.executionId': string
   'cd.serviceDashboard.frequency': string
@@ -4126,6 +4137,7 @@ export interface StringsMap {
   'cd.serviceDashboard.helmChartDetails': string
   'cd.serviceDashboard.helmChartName': string
   'cd.serviceDashboard.helmRopoUrl': string
+  'cd.serviceDashboard.host': string
   'cd.serviceDashboard.in': string
   'cd.serviceDashboard.instanceCountHistory': string
   'cd.serviceDashboard.instanceDetails': string
@@ -4153,6 +4165,7 @@ export interface StringsMap {
   'cd.serviceDashboard.totalPipelines': string
   'cd.serviceDashboard.totalServices': string
   'cd.serviceDashboard.unitDay': string
+  'cd.serviceDashboard.webApp': string
   'cd.serviceList.noIdentifier': string
   'cd.serviceOverrides.deleted': string
   'cd.serviceOverrides.deletedOneVariable': string
@@ -4947,6 +4960,7 @@ export interface StringsMap {
   'ce.perspectives.confirmDeletePerspectiveTitle': string
   'ce.perspectives.cost': string
   'ce.perspectives.costTrend': string
+  'ce.perspectives.createPerspective.budgetsReportsAlerts': string
   'ce.perspectives.createPerspective.createCustomField': string
   'ce.perspectives.createPerspective.filters.addRuleText': string
   'ce.perspectives.createPerspective.filters.chooseOperand': string
@@ -6483,6 +6497,7 @@ export interface StringsMap {
   'cv.notifications.serviceHealthDescription': string
   'cv.notifications.sloDescription': string
   'cv.notifications.thresholdBelow': string
+  'cv.notifications.validations.conditionIsRequired': string
   'cv.objectiveValue': string
   'cv.onboarding.activitySources.addMoreSources': string
   'cv.onboarding.activitySources.addedStatus': string
@@ -6626,6 +6641,7 @@ export interface StringsMap {
   'cv.slos.latencySLI': string
   'cv.slos.monitoredServiceText': string
   'cv.slos.noData': string
+  'cv.slos.noDataMS': string
   'cv.slos.noMatchingData': string
   'cv.slos.noSLOsStateMessage': string
   'cv.slos.pickMetricsSLI': string
@@ -6719,6 +6735,7 @@ export interface StringsMap {
   'stoSteps.securityReview': string
   'stoSteps.securityStage.description': string
   'stoSteps.stepDescription.ZeroNorth': string
+  'stoSteps.stoExemption': string
   'stoSteps.targets.testTargets': string
   'stoSteps.zeroNorthImagePlaceholder': string
   /**
