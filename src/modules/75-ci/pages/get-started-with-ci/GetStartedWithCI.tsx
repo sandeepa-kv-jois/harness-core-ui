@@ -97,9 +97,9 @@ export default function GetStartedWithCI(): React.ReactElement {
                 })
                   .then((secretResponse: ResponseSecretResponseWrapper) => {
                     setIsFetchingSecret(false)
-                    const { status, data } = secretResponse
-                    if (status === Status.SUCCESS && data?.secret) {
-                      setSecretForPreSelectedConnector(data?.secret)
+                    const { status: fetchSecretStatus, data: secretResponseData } = secretResponse
+                    if (fetchSecretStatus === Status.SUCCESS && secretResponseData?.secret) {
+                      setSecretForPreSelectedConnector(secretResponseData?.secret)
                     }
                   })
                   .catch(_e => {
