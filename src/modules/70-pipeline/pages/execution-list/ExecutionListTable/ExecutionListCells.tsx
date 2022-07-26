@@ -51,6 +51,7 @@ import { useFeatureFlag } from '@common/hooks/useFeatureFlag'
 import css from './ExecutionListTable.module.scss'
 
 type CellType = Renderer<CellProps<PipelineExecutionSummary>>
+type ColumnWithActions = { isPipelineInvalid: boolean; onViewCompiledYaml: () => void }
 
 export const RowSelectCell: CellType = ({ row }) => {
   const data = row.original
@@ -199,6 +200,7 @@ export const DurationCell: CellType = ({ row }) => {
 }
 
 export const MenuCell: CellType = ({ row, column }) => {
+  const { onViewCompiledYaml, isPipelineInvalid } = column as unknown as ColumnWithActions
   const data = row.original
   const { projectIdentifier, orgIdentifier, accountId, module, pipelineIdentifier } =
     useParams<PipelineType<PipelinePathProps>>()
@@ -239,9 +241,9 @@ export const MenuCell: CellType = ({ row, column }) => {
           stagesExecuted: data.stagesExecuted,
           storeType: data.storeType as StoreType
         }}
-        isPipelineInvalid={column?.isPipelineInvalid}
+        isPipelineInvalid={isPipelineInvalid}
         canEdit={canEdit}
-        onViewCompiledYaml={column?.onViewCompiledYaml}
+        onViewCompiledYaml={onViewCompiledYaml}
         onCompareExecutions={() => addToCompare(data)}
         source={source}
         canExecute={canExecute}
@@ -254,35 +256,35 @@ export const MenuCell: CellType = ({ row, column }) => {
 
 export const TriggerInfoCell: CellType = ({ row }) => {
   const data = row.original
-
-  const HAS_CD = hasCDStage(data)
   const IS_SERVICEDETAIL = hasServiceDetail(data)
   const IS_OVERVIEWPAGE = hasOverviewDetail(data)
-  const HAS_STO = hasSTOStage(data)
   const cdInfo = executionFactory.getCardInfo(StageType.DEPLOY)
   const ciInfo = executionFactory.getCardInfo(StageType.BUILD)
   const stoInfo = executionFactory.getCardInfo(StageType.SECURITY)
   const variant = CardVariant.Default
   const SECURITY = useFeatureFlag(FeatureFlag.SECURITY)
 
-  const showCI = ciInfo && hasCIStage(data)
-  const showCD = cdInfo && hasCDStage(data)
+  const showCI = !!(ciInfo && hasCIStage(data))
+  const showCD = !!(cdInfo && hasCDStage(data))
+  const showSTO = !!(SECURITY && stoInfo && hasSTOStage(data))
 
   return (
     <Layout.Vertical spacing="small" className={css.triggerInfoCell}>
       {showCI && (
         <div className={css.ci}>
-          {React.createElement<ExecutionCardInfoProps>(ciInfo.component, {
-            data: defaultTo(data?.moduleInfo?.ci, {}),
-            nodeMap: defaultTo(data?.layoutNodeMap, {}),
-            startingNodeId: defaultTo(data?.startingNodeId, ''),
-            variant
-          })}
+          {ciInfo?.component &&
+            React.createElement<ExecutionCardInfoProps>(ciInfo.component, {
+              data: defaultTo(data?.moduleInfo?.ci, {}),
+              nodeMap: defaultTo(data?.layoutNodeMap, {}),
+              startingNodeId: defaultTo(data?.startingNodeId, ''),
+              variant
+            })}
         </div>
       )}
       {!showCI &&
         showCD &&
         (!(IS_SERVICEDETAIL || IS_OVERVIEWPAGE) ? (
+          cdInfo?.component &&
           React.createElement<ExecutionCardInfoProps>(cdInfo.component, {
             data: defaultTo(data?.moduleInfo?.cd, {}),
             nodeMap: defaultTo(data?.layoutNodeMap, {}),
@@ -296,6 +298,15 @@ export const TriggerInfoCell: CellType = ({ row }) => {
             caller={IS_SERVICEDETAIL ? DashboardSelected.SERVICEDETAIL : DashboardSelected.OVERVIEW}
           />
         ))}
+
+      {showSTO &&
+        stoInfo?.component &&
+        React.createElement<ExecutionCardInfoProps<PipelineExecutionSummary>>(stoInfo.component, {
+          data: defaultTo(data, {}),
+          nodeMap: defaultTo(data?.layoutNodeMap, {}),
+          startingNodeId: defaultTo(data?.startingNodeId, ''),
+          variant
+        })}
     </Layout.Vertical>
   )
 }

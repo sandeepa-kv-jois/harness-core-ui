@@ -32,7 +32,7 @@ import {
 } from './ExecutionListFilterContext/ExecutionListFilterContext'
 import { ExecutionListSubHeader } from './ExecutionListSubHeader/ExecutionListSubHeader'
 import { ExecutionListTable } from './ExecutionListTable/ExecutionListTable'
-import { ExecutionListCards } from './ExecutionListTable/ExecutionListCards'
+import { ExecutionListCards } from './ExecutionListCards/ExecutionListCards'
 import css from './ExecutionList.module.scss'
 
 export interface ExecutionListProps {

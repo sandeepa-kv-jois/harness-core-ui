@@ -1206,7 +1206,7 @@ fieldPlaceholders:
 traffic: Traffic
 viewPipeline: View Pipeline
 codeSource: 'Code Source'
-recentExecutions: 'Recent Executions'
+recentTenExecutions: 'Recent 10 Executions'
 lastExecution: 'Last Execution'
 lastModified: 'Last Modified'
 executionId: Execution Id

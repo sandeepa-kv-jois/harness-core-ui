@@ -11,15 +11,13 @@ import type { Row } from 'react-table'
 import { processLayoutNodeMapV1 } from '@pipeline/utils/executionUtils'
 import type { PipelineExecutionSummary } from 'services/pipeline-ng'
 import { ExecutionStage } from './ExecutionStage'
-import css from './ExecutionListTable.module.scss'
 
 export function ExecutionStageList({ row }: { row: Row<PipelineExecutionSummary> }): ReactElement {
   const data = row.original
-
   const elements = processLayoutNodeMapV1(data)
 
   return (
-    <div className={css.stageList} role="list">
+    <div role="list">
       {elements?.map(stage => {
         return (
           <Fragment key={stage.identifier}>

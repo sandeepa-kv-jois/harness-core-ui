@@ -8,11 +8,12 @@
 // this is an auto-generated file, do not update this manually
 declare const styles: {
   readonly ci: string
+  readonly executionStageSummary: string
+  readonly failureMessage: string
   readonly menu: string
   readonly stage: string
-  readonly stageName: string
-  readonly status: string
   readonly table: string
+  readonly tags: string
   readonly triggerInfo: string
   readonly triggerInfoCell: string
   readonly triggerType: string

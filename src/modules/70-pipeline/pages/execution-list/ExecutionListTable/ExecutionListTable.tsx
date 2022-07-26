@@ -86,7 +86,7 @@ export function ExecutionListTable({
         Cell: StatusCell
       },
       {
-        Header: getString('pipeline.triggerInfo').toUpperCase(),
+        Header: '',
         accessor: 'moduleInfo',
         width: '45%',
         Cell: TriggerInfoCell
@@ -124,12 +124,12 @@ export function ExecutionListTable({
       pagination={
         totalElements > size
           ? {
-            itemCount: totalElements,
-            pageSize: size,
-            pageCount: totalPages,
-            pageIndex: number,
-            gotoPage: pageNumber => updateQueryParams({ page: pageNumber + 1 })
-          }
+              itemCount: totalElements,
+              pageSize: size,
+              pageCount: totalPages,
+              pageIndex: number,
+              gotoPage: pageNumber => updateQueryParams({ page: pageNumber + 1 })
+            }
           : undefined
       }
       renderRowSubComponent={renderRowSubComponent}

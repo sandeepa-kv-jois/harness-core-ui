@@ -15,28 +15,28 @@ import ExecutionStatusLabel from '../ExecutionStatusLabel/ExecutionStatusLabel'
 import css from './ExecutionStatusIcon.module.scss'
 
 export const iconMap: Record<ExecutionStatus, IconProps> = {
-  ApprovalRejected: { name: 'x', size: 12 },
-  NotStarted: { name: 'play-outline', size: 12 },
-  Skipped: { name: 'skipped', size: 12 },
-  Success: { name: 'tick-circle', size: 13 },
-  IgnoreFailed: { name: 'tick-circle', size: 13 },
-  Failed: { name: 'warning-sign', size: 13 },
-  Errored: { name: 'warning-sign', size: 13 },
-  InterventionWaiting: { name: 'time', size: 13 },
-  ResourceWaiting: { name: 'time', size: 13 },
-  ApprovalWaiting: { name: 'time', size: 13 },
-  Aborted: { name: 'circle-stop', size: 13 },
-  Discontinuing: { name: 'circle-stop', size: 13 },
-  Expired: { name: 'expired', size: 13 },
-  Suspended: { name: 'banned', size: 13 },
+  ApprovalRejected: { name: 'x', size: 14 },
+  NotStarted: { name: 'play-outline', size: 14 },
+  Skipped: { name: 'skipped', size: 14 },
+  Success: { name: 'tick-circle', size: 14 },
+  IgnoreFailed: { name: 'tick-circle', size: 14 },
+  Failed: { name: 'warning-sign', size: 14 },
+  Errored: { name: 'warning-sign', size: 14 },
+  InterventionWaiting: { name: 'time', size: 14 },
+  ResourceWaiting: { name: 'time', size: 14 },
+  ApprovalWaiting: { name: 'time', size: 14 },
+  Aborted: { name: 'circle-stop', size: 14 },
+  Discontinuing: { name: 'circle-stop', size: 14 },
+  Expired: { name: 'expired', size: 14 },
+  Suspended: { name: 'banned', size: 14 },
   AsyncWaiting: { name: 'loading', size: 14 },
   TaskWaiting: { name: 'loading', size: 14 },
   TimedWaiting: { name: 'loading', size: 14 },
   Running: { name: 'loading', size: 14 },
   Queued: { name: 'queued', size: 14 },
   InputWaiting: { name: 'loading', size: 14 },
-  Paused: { name: 'pause', size: 16 },
-  Pausing: { name: 'pause', size: 16 }
+  Paused: { name: 'pause', size: 14 },
+  Pausing: { name: 'pause', size: 14 }
 }
 
 export interface ExecutionStatusIconProps {
