@@ -11,15 +11,26 @@ import {
 import type { SettingRendererProps } from '@default-settings/factories/DefaultSettingsFactory'
 import { InputTypes, setFieldValue } from '@common/utils/JestFormHelper'
 import type { StringsMap } from 'framework/strings/StringsContext'
+import type { SettingDTO } from 'services/cd-ng'
 describe('Reusable Components', () => {
+  const settingValue = {
+    value: 'abcd',
+    allowOverrides: true,
+    category: 'CD',
+    groupIdentifier: '',
+    identifier: 'abcd',
+    isSettingEditable: true,
+    name: 'abcd',
+    valueType: 'String',
+    allowedValues: ['abcd', 'bcd']
+  }
   const props: SettingRendererProps = {
     setFieldValue: jest.fn(),
     allSettings: new Map(),
     identifier: 'abcd',
     onRestore: jest.fn(),
     onSettingSelectionChange: jest.fn(),
-    settingValue: 'abcd',
-    allowedValues: ['abcd', 'bcd']
+    settingValue: settingValue
   }
 
   test('text box', () => {
@@ -63,7 +74,13 @@ describe('Reusable Components', () => {
     expect(container).toMatchSnapshot()
   })
   test('no DefaultSettingStringDropDown', () => {
-    const renderObj = render(<DefaultSettingStringDropDown {...props} identifier="drpdown" allowedValues={undefined} />)
+    const renderObj = render(
+      <DefaultSettingStringDropDown
+        {...props}
+        settingValue={{ ...(settingValue as SettingDTO), allowedValues: undefined }}
+        identifier="drpdown"
+      />
+    )
 
     const { container } = renderObj
     expect(container).toMatchSnapshot()
