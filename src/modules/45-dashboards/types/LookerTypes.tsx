@@ -32,3 +32,5 @@ export interface PageChangedEvent extends BaseLookerEvent {
     url?: string
   }
 }
+
+export type LookerEvent = DashboardFiltersChangedEvent | PageChangedEvent

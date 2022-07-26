@@ -11,6 +11,7 @@ import { TestWrapper } from '@common/utils/testUtils'
 import routes from '@common/RouteDefinitions'
 import { accountPathProps } from '@common/utils/routeUtils'
 import { useDashboardsContext } from '@dashboards/pages/DashboardsContext'
+import * as hooks from '@common/hooks/useQueryParamsState'
 import * as sharedService from 'services/custom-dashboards'
 import DashboardViewPage from '../DashboardView'
 
@@ -39,20 +40,24 @@ const generateMockSignedUrl = (mockUrl = ''): Promise<sharedService.SignedUrlRes
     resolve({ resource: mockUrl })
   })
 }
+jest.mock('@common/hooks/useQueryParamsState')
 
 describe('DashboardView', () => {
   const useCreateSignedUrlMock = jest.spyOn(sharedService, 'useCreateSignedUrl')
   const useGetDashboardDetailMock = jest.spyOn(sharedService, 'useGetDashboardDetail')
   const useGetFolderDetailMock = jest.spyOn(sharedService, 'useGetFolderDetail')
+  const useQueryParamsStateMock = jest.spyOn(hooks, 'useQueryParamsState')
 
   const includeBreadcrumbs = jest.fn()
   const fetchFolderDetailMock = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
+
     useGetFolderDetailMock.mockReturnValue({ data: { resource: 'folder name' }, refetch: fetchFolderDetailMock } as any)
     useGetDashboardDetailMock.mockReturnValue({ resource: true, title: 'dashboard name' } as any)
     useDashboardsContextMock.mockReturnValue({ includeBreadcrumbs: includeBreadcrumbs, breadcrumbs: [] })
+    useQueryParamsStateMock.mockReturnValue([undefined, jest.fn()])
     useCreateSignedUrlMock.mockReturnValue({
       mutate: generateMockSignedUrl,
       loading: true,
@@ -63,7 +68,7 @@ describe('DashboardView', () => {
   test('it should display loading message before dashboard request completes', async () => {
     renderComponent()
 
-    expect(screen.getByText('Loading, please wait...')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('Loading, please wait...')).toBeInTheDocument())
   })
 
   test('it should display Dashboard iframe when dashboard URL returned', async () => {
@@ -87,7 +92,7 @@ describe('DashboardView', () => {
 
     renderComponent()
 
-    expect(screen.getByText('Dashboard not available')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('Dashboard not available')).toBeInTheDocument())
   })
 
   test('it should display an error message when dashboard request fails', async () => {
@@ -100,16 +105,18 @@ describe('DashboardView', () => {
 
     renderComponent()
 
-    expect(screen.getByText(testErrorMessage)).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText(testErrorMessage)).toBeInTheDocument())
   })
 
   test('it should include a folder link in breadcrumbs when using a named folder', async () => {
     renderComponent()
 
-    expect(includeBreadcrumbs).toBeCalledWith([
-      { label: 'dashboards.homePage.folders', url: `/account/${accountId}/dashboards/folders` },
-      { label: 'folder name', url: `/account/${accountId}/dashboards/folder/${folderId}` }
-    ])
+    await waitFor(() =>
+      expect(includeBreadcrumbs).toBeCalledWith([
+        { label: 'dashboards.homePage.folders', url: `/account/${accountId}/dashboards/folders` },
+        { label: 'folder name', url: `/account/${accountId}/dashboards/folder/${folderId}` }
+      ])
+    )
   })
 
   test('it should include a dashboard in breadcrumbs when a dashboard details has been retrieved', async () => {
@@ -141,12 +148,12 @@ describe('DashboardView', () => {
 
     renderComponent('shared')
 
-    expect(includeBreadcrumbs).toBeCalledWith([])
+    await waitFor(() => expect(includeBreadcrumbs).toBeCalledWith([]))
   })
 
   test('it should not call the folder detail endpoint when using the shared folder', async () => {
     renderComponent('shared')
 
-    expect(fetchFolderDetailMock).not.toHaveBeenCalled()
+    await waitFor(() => expect(fetchFolderDetailMock).not.toHaveBeenCalled())
   })
 })

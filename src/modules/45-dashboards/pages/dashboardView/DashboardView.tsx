@@ -14,9 +14,10 @@ import { useQueryParamsState } from '@common/hooks/useQueryParamsState'
 import type { AccountPathProps } from '@common/interfaces/RouteInterfaces'
 import { useStrings } from 'framework/strings'
 import { useDashboardsContext } from '@dashboards/pages/DashboardsContext'
+import LookerEmbeddedDashboard from '@dashboards/components/LookerEmbeddedDashboard/LookerEmbeddedDashboard'
 import { SHARED_FOLDER_ID } from '@dashboards/constants'
 import { LookerEventType } from '@dashboards/constants/LookerEventType'
-import type { DashboardFiltersChangedEvent, PageChangedEvent } from '@dashboards/types/LookerTypes'
+import type { DashboardFiltersChangedEvent, LookerEvent, PageChangedEvent } from '@dashboards/types/LookerTypes'
 import {
   ErrorResponse,
   useCreateSignedUrl,
@@ -25,7 +26,6 @@ import {
 } from 'services/custom-dashboards'
 import css from './DashboardView.module.scss'
 
-const DASHBOARDS_ORIGIN = 'https://dashboards.harness.io'
 const DashboardViewPage: React.FC = () => {
   const { getString } = useStrings()
   const { includeBreadcrumbs } = useDashboardsContext()
@@ -33,7 +33,6 @@ const DashboardViewPage: React.FC = () => {
   const { accountId, viewId, folderId } = useParams<AccountPathProps & { viewId: string; folderId: string }>()
   const [embedUrl, setEmbedUrl] = React.useState<string>()
   const [dashboardFilters, setDashboardFilters] = useQueryParamsState<string | undefined>('filters', undefined)
-  const [iframeState] = React.useState(0)
   const history = useHistory()
 
   const signedQueryUrl: string = useMemo(() => {
@@ -49,14 +48,16 @@ const DashboardViewPage: React.FC = () => {
 
   const responseMessages = useMemo(() => (error?.data as ErrorResponse)?.responseMessages, [error])
 
-  React.useEffect(() => {
-    const generateSignedUrl = async (): Promise<void> => {
-      const { resource } = (await createSignedUrl()) || {}
-      setEmbedUrl(resource)
+  const onLookerAction = (lookerEvent: LookerEvent): void => {
+    switch (lookerEvent.type) {
+      case LookerEventType.PAGE_CHANGED:
+        lookerPageChangedEvent(lookerEvent as PageChangedEvent)
+        break
+      case LookerEventType.DASHBOARD_FILTERS_CHANGED:
+        lookerDashboardFilterChangedEvent(lookerEvent as DashboardFiltersChangedEvent)
+        break
     }
-
-    generateSignedUrl()
-  }, [viewId])
+  }
 
   const lookerDashboardFilterChangedEvent = (eventData: DashboardFiltersChangedEvent): void => {
     setDashboardFilters(new URLSearchParams(eventData.dashboard.dashboard_filters).toString())
@@ -69,27 +70,15 @@ const DashboardViewPage: React.FC = () => {
   }
 
   React.useEffect(() => {
-    const lookerEventHandler = (event: MessageEvent<string>): void => {
-      if (event.origin === DASHBOARDS_ORIGIN) {
-        const eventType = JSON.parse(event.data)
-        switch (eventType.type) {
-          case LookerEventType.PAGE_CHANGED:
-            lookerPageChangedEvent(eventType as PageChangedEvent)
-            break
-          case LookerEventType.DASHBOARD_FILTERS_CHANGED:
-            lookerDashboardFilterChangedEvent(eventType as DashboardFiltersChangedEvent)
-            break
-        }
-      }
+    const generateSignedUrl = async (): Promise<void> => {
+      const { resource } = (await createSignedUrl()) || {}
+      setEmbedUrl(resource)
     }
 
-    window.addEventListener('message', lookerEventHandler)
+    generateSignedUrl()
 
-    return () => {
-      window.removeEventListener('message', lookerEventHandler)
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history, viewId])
+  }, [viewId])
 
   const { data: folderDetail, refetch: fetchFolderDetail } = useGetFolderDetail({
     lazy: true,
@@ -138,15 +127,7 @@ const DashboardViewPage: React.FC = () => {
       }}
     >
       <Layout.Vertical className={css.frame}>
-        <iframe
-          src={embedUrl}
-          key={iframeState}
-          height="100%"
-          width="100%"
-          frameBorder="0"
-          id="looker-dashboard"
-          data-testid="dashboard-iframe"
-        />
+        {embedUrl && <LookerEmbeddedDashboard embedUrl={embedUrl} onLookerAction={onLookerAction} />}
       </Layout.Vertical>
     </Page.Body>
   )
