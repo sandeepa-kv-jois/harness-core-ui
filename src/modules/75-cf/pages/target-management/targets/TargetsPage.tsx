@@ -108,7 +108,6 @@ export const TargetsPage: React.FC = () => {
     <>
       <Layout.Horizontal spacing="medium">
         <NewTargets
-          existingTargets={targetsData?.targets}
           accountIdentifier={accountIdentifier}
           orgIdentifier={orgIdentifier}
           projectIdentifier={projectIdentifier}

@@ -30,8 +30,7 @@ export const NewTargets: React.FC<NewTargetsProps> = ({
   accountIdentifier,
   orgIdentifier,
   projectIdentifier,
-  onCreated,
-  existingTargets
+  onCreated
 }) => {
   const { showError, clear } = useToaster()
   const [loadingBulk, setLoadingBulk] = useState<boolean>(false)
@@ -126,10 +125,12 @@ export const NewTargets: React.FC<NewTargetsProps> = ({
 
   return (
     <CreateTargetModal
+      accountIdentifier={accountIdentifier}
+      orgIdentifier={orgIdentifier}
+      projectIdentifier={projectIdentifier}
       loading={loadingCreateTarget || loadingBulk || loadingUploadTarget}
       onSubmitTargets={handleTargetCreation}
       onSubmitTargetFile={handleTargetFileCreation}
-      existingTargets={existingTargets}
     />
   )
 }
