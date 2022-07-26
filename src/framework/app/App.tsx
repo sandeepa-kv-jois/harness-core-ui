@@ -5,7 +5,7 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React, { useEffect, useState, Suspense } from 'react'
+import React, { useEffect, useState, Suspense, useRef } from 'react'
 
 import { useHistory, useParams } from 'react-router-dom'
 import { RestfulProvider } from 'restful-react'
@@ -83,6 +83,7 @@ export function AppWithAuthentication(props: AppProps): React.ReactElement {
   // if user lands on /, they'll first get redirected to a path with accountId
   const { accountId } = useParams<AccountPathProps>()
   const history = useHistory()
+  const redirecting = useRef(false)
 
   const getQueryParams = React.useCallback(() => {
     return {
@@ -132,28 +133,13 @@ export function AppWithAuthentication(props: AppProps): React.ReactElement {
   Harness.openTooltipEditor = () => setShowTooltipEditor(true)
 
   const globalResponseHandler = (response: Response): void => {
-    const token = SessionToken.getToken()
     if (!response.ok) {
       switch (response.status) {
         case 401: {
-          if (token) {
-            const lastTokenSetTime = SessionToken.getLastTokenSetTime() as number
-            window.bugsnagClient?.notify?.(
-              new Error('Logout with token'),
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              function (event: any) {
-                event.severity = 'error'
-                event.setUser(username)
-                event.addMetadata('401 Details', {
-                  url: response.url,
-                  status: response.status,
-                  accountId,
-                  lastTokenSetTime
-                })
-              }
-            )
+          if (!redirecting.current) {
+            redirecting.current = true
+            global401HandlerUtils(history)
           }
-          global401HandlerUtils(history)
           return
         }
         case 400: {
