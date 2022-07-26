@@ -313,12 +313,14 @@ const K8sClustersTab: React.FC = () => {
     }
   })
 
-  const getK8sConnectors = async () => {
+  const getK8sConnectors = async (): Promise<void> => {
     const { data: connectorRes } = await fetchConnectors({ filterType: 'Connector' })
 
     const ccmK8sConnectorId = getSuccesfullCCMConnectorIds(connectorRes)
 
     const { data: k8sMetadataRes } = await fetchK8sMetadata({ ccmK8sConnectorId })
+
+    // setCache(`CcmK8sMetaInfo-${+new Date()}`, k8sMetadataRes)
 
     const res = mapCCMK8sMetadataToConnector(connectorRes, k8sMetadataRes)
 

@@ -20,7 +20,8 @@ import {
   ccmK8sListResponse,
   ccmK8sMetaResponse,
   listV2Response,
-  testConnectionResponse
+  testConnectionResponse,
+  permissionsYamlMock
 } from './mocks'
 
 const params = {
@@ -39,6 +40,14 @@ jest.mock('services/cd-ng', () => ({
   useGetTestConnectionResult: jest.fn().mockImplementation(() => ({
     loading: false,
     mutate: async () => testConnectionResponse
+  })),
+  useCreateConnector: jest.fn().mockImplementation(() => ({
+    mutate: async () => ({ status: 'SUCCESS' }),
+    loading: false
+  })),
+  useUpdateConnector: jest.fn().mockImplementation(() => ({
+    mutate: async () => ({ status: 'SUCCESS' }),
+    loading: false
   }))
 }))
 
@@ -49,16 +58,23 @@ jest.mock('services/ce', () => ({
   }))
 }))
 
+jest.mock('@common/hooks', () => ({
+  ...(jest.requireActual('@common/hooks') as any),
+  useMutateAsGet: jest.fn().mockImplementation(() => {
+    return { data: permissionsYamlMock, loading: false }
+  })
+}))
+
 describe('Test Cases for Cloud Integration Page', () => {
-  test('Should be able to render the page', async () => {
-    const responseState = {
-      executeQuery: ({ query }: { query: DocumentNode }) => {
-        if (query === FetchCcmMetaDataDocument) {
-          return fromValue(ccmMetadataResponse)
-        }
+  const responseState = {
+    executeQuery: ({ query }: { query: DocumentNode }) => {
+      if (query === FetchCcmMetaDataDocument) {
+        return fromValue(ccmMetadataResponse)
       }
     }
+  }
 
+  test('Should be able to render the page', async () => {
     const { container } = render(
       <TestWrapper pathParams={params}>
         <Provider value={responseState as any}>
@@ -74,14 +90,6 @@ describe('Test Cases for Cloud Integration Page', () => {
   })
 
   test('Should be able to open new connector dialog', async () => {
-    const responseState = {
-      executeQuery: ({ query }: { query: DocumentNode }) => {
-        if (query === FetchCcmMetaDataDocument) {
-          return fromValue(ccmMetadataResponse)
-        }
-      }
-    }
-
     const { container } = render(
       <TestWrapper pathParams={params}>
         <Provider value={responseState as any}>
@@ -93,6 +101,68 @@ describe('Test Cases for Cloud Integration Page', () => {
     fireEvent.click(getAllByText(container, 'newConnector')[0])
     const dialog = findDialogContainer()
 
-    waitFor(() => expect(getByText(dialog!, 'overview')).toBeDefined())
+    await waitFor(() => expect(getAllByText(dialog!, 'overview').length).toBe(2))
+  })
+
+  test('Should be able to open Enable Reporting', async () => {
+    const { container } = render(
+      <TestWrapper pathParams={params}>
+        <Provider value={responseState as any}>
+          <CloudIntegrationPage />
+        </Provider>
+      </TestWrapper>
+    )
+
+    await waitFor(() => expect(getAllByText(container, 'ce.cloudIntegration.enableCloudCosts')[0]).toBeDefined())
+    fireEvent.click(getAllByText(container, 'ce.cloudIntegration.enableCloudCosts')[0])
+
+    const reportingDialog = findDialogContainer() as HTMLElement
+    await waitFor(() => {
+      expect(getAllByText(reportingDialog, 'ce.cloudIntegration.costVisibilityDialog.step1.title')).toBeDefined()
+    })
+    fireEvent.click(getByText(reportingDialog, 'ce.cloudIntegration.enableAutoStopping'))
+    fireEvent.click(getByText(reportingDialog, 'continue'))
+    fireEvent.click(getByText(reportingDialog, 'continue'))
+    fireEvent.click(getByText(reportingDialog, 'finish'))
+  })
+
+  test('Should be able to open Enable AutoStopping', async () => {
+    const { container } = render(
+      <TestWrapper pathParams={params}>
+        <Provider value={responseState as any}>
+          <CloudIntegrationPage />
+        </Provider>
+      </TestWrapper>
+    )
+
+    await waitFor(() => expect(getAllByText(container, 'common.ce.autostopping')[0]).toBeDefined())
+    fireEvent.click(getAllByText(container, 'common.ce.autostopping')[0])
+
+    const autoStoppingDialog = findDialogContainer()
+    await waitFor(() => {
+      expect(getByText(autoStoppingDialog!, 'i. secrets.createSecret')).toBeDefined()
+    })
+    fireEvent.click(getByText(autoStoppingDialog!, 'continue'))
+    expect(
+      getByText(autoStoppingDialog!, 'ce.cloudIntegration.autoStoppingModal.installComponents.title')
+    ).toBeDefined()
+    fireEvent.click(getByText(autoStoppingDialog!, 'continue'))
+    expect(getByText(autoStoppingDialog!, 'ce.cloudIntegration.autoStoppingModal.testComponents.title')).toBeDefined()
+    fireEvent.click(getByText(autoStoppingDialog!, 'finish'))
+  })
+
+  test('Should be able to navigate to connector list page', async () => {
+    const { container, getByTestId } = render(
+      <TestWrapper path="/account/:accountId/ce/cloud-integration" pathParams={params}>
+        <Provider value={responseState as any}>
+          <CloudIntegrationPage />
+        </Provider>
+      </TestWrapper>
+    )
+
+    fireEvent.click(getAllByText(container, 'newConnector')[1])
+
+    await waitFor(() => getByTestId('location'))
+    expect(getByTestId('location')).toHaveTextContent('/account/TEST_ACC/settings/resources/connectors')
   })
 })
