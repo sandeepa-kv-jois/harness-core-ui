@@ -36,6 +36,8 @@ import css from '../../ConfigureNotificationsModal.module.scss'
 
 interface EmailTestConfigData {
   to: string
+  subject: string
+  body: string
 }
 
 interface ConfigureEmailNotificationsProps {
@@ -65,16 +67,22 @@ export const TestEmailConfig: React.FC<TestEmailConfigProps> = props => {
         onSubmit={handleSubmit}
         formName="configureTestEmailNotifications"
         validationSchema={Yup.object().shape({
-          to: EmailSchema()
+          to: EmailSchema(),
+          subject: Yup.string().trim().required(getString('common.smtp.validationSubject')),
+          body: Yup.string().trim().required(getString('common.smtp.validationBody'))
         })}
         initialValues={{
-          to: ''
+          to: '',
+          subject: '',
+          body: ''
         }}
       >
         {formik => {
           return (
             <FormikForm>
               <FormInput.Text name={'to'} label={getString('common.smtp.labelTo')} />
+              <FormInput.Text name={'subject'} label={getString('common.smtp.labelSubject')} />
+              <FormInput.Text name={'body'} label={getString('common.smtp.labelBody')} />
               <Button
                 text={getString('notifications.buttonSend')}
                 onClick={event => {
@@ -109,7 +117,9 @@ export const TestEmailNotifications: React.FC<{ onClick?: () => void; buttonProp
         accountId,
         type: 'EMAIL',
         recipient: testData.to,
-        notificationId: 'asd'
+        notificationId: 'asd',
+        subject: testData.subject,
+        body: testData.body
       } as EmailSettingDTO)
       if (resp.status === 'SUCCESS' && resp.data) {
         showSuccess(getString('notifications.emailTestSuccess'))
