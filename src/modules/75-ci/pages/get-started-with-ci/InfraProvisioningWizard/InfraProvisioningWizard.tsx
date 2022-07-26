@@ -66,12 +66,9 @@ import { getPRTriggerActions } from '../../../utils/HostedBuildsUtils'
 import css from './InfraProvisioningWizard.module.scss'
 
 export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = props => {
-  const {
-    lastConfiguredWizardStepId = InfraProvisiongWizardStepId.SelectGitProvider,
-    preSelectedConnector,
-    connectorsEligibleForPreSelection,
-    secretForPreSelectedConnector
-  } = props
+  const { lastConfiguredWizardStepId = InfraProvisiongWizardStepId.SelectGitProvider, precursorData } = props
+  const { preSelectedGitConnector, connectorsEligibleForPreSelection, secretForPreSelectedConnector } =
+    precursorData || {}
   const { getString } = useStrings()
   const [disableBtn, setDisableBtn] = useState<boolean>(false)
   const [currentWizardStepId, setCurrentWizardStepId] =
@@ -93,10 +90,10 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
   useEffect(() => {
     if (selectGitProviderRef.current?.validatedConnector) {
       setConfiguredGitConnector(selectGitProviderRef.current?.validatedConnector)
-    } else if (preSelectedConnector) {
-      setConfiguredGitConnector(preSelectedConnector)
+    } else if (preSelectedGitConnector) {
+      setConfiguredGitConnector(preSelectedGitConnector)
     }
-  }, [selectGitProviderRef.current?.validatedConnector, preSelectedConnector])
+  }, [selectGitProviderRef.current?.validatedConnector, preSelectedGitConnector])
 
   const { mutate: createTrigger } = useCreateTrigger({
     queryParams: {
@@ -390,7 +387,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
                   'spec.authentication.spec.spec.username',
                   get(configuredGitConnector, 'spec.authentication.spec.spec.username') ?? OAUTH2_USER_NAME
                 ),
-                secret: preSelectedConnector
+                secret: preSelectedGitConnector
                   ? secretForPreSelectedConnector
                   : selectGitProviderRef?.current?.validatedSecret
               })
@@ -447,10 +444,10 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
 
   const showBackButton = useMemo((): boolean => {
     return !(
-      (preSelectedConnector && currentWizardStepId === InfraProvisiongWizardStepId.SelectRepository) ||
+      (preSelectedGitConnector && currentWizardStepId === InfraProvisiongWizardStepId.SelectRepository) ||
       currentWizardStepId === InfraProvisiongWizardStepId.SelectGitProvider
     )
-  }, [currentWizardStepId, preSelectedConnector])
+  }, [currentWizardStepId, preSelectedGitConnector])
 
   return stepRender ? (
     <Layout.Vertical

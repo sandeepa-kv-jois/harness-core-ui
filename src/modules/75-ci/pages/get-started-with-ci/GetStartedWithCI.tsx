@@ -211,9 +211,11 @@ export default function GetStartedWithCI(): React.ReactElement {
       {showPageLoader ? <PageSpinner /> : <></>}
       {!showPageLoader && showWizard ? (
         <InfraProvisioningWizard
-          preSelectedConnector={preSelectedGitConnector}
-          connectorsEligibleForPreSelection={connectorsEligibleForPreSelection}
-          secretForPreSelectedConnector={secretForPreSelectedConnector}
+          precursorData={{
+            preSelectedGitConnector,
+            connectorsEligibleForPreSelection,
+            secretForPreSelectedConnector
+          }}
           lastConfiguredWizardStepId={
             preSelectedGitConnector
               ? InfraProvisiongWizardStepId.SelectRepository

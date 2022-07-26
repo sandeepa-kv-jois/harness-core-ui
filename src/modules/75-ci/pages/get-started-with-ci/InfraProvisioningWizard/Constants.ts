@@ -13,9 +13,11 @@ import { Connectors } from '@connectors/constants'
 import type { SelectBuildLocationForwardRef } from './SelectBuildLocation'
 
 export interface InfraProvisioningWizardProps {
-  preSelectedConnector?: ConnectorInfoDTO
-  connectorsEligibleForPreSelection?: ConnectorInfoDTO[]
-  secretForPreSelectedConnector?: SecretDTOV2
+  precursorData?: {
+    preSelectedGitConnector?: ConnectorInfoDTO
+    connectorsEligibleForPreSelection?: ConnectorInfoDTO[]
+    secretForPreSelectedConnector?: SecretDTOV2
+  }
   lastConfiguredWizardStepId?: InfraProvisiongWizardStepId
 }
 
