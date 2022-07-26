@@ -783,7 +783,7 @@ function StageBuilder(): JSX.Element {
     switch (sectionIdPassed) {
       case 'SERVICE':
         return 'ServicePipelineStudio'
-      case 'INFRASTRUCTURE':
+      case 'ENVIRONMENT':
         return 'InfrastructurePipelineStudio'
       case 'EXECUTION':
         return 'ExecutionPipelineStudio'
