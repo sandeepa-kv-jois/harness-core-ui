@@ -7,7 +7,7 @@
 
 import { Container, PageSpinner } from '@wings-software/uicore'
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { matchPath, useLocation, useParams } from 'react-router-dom'
 import { HelpPanel, HelpPanelType } from '@harness/help-panel'
 import { Page } from '@common/exports'
 import { useMutateAsGet } from '@common/hooks'
@@ -23,6 +23,7 @@ import { useAppStore } from 'framework/AppStore/AppStoreContext'
 import { GitSyncStoreProvider } from 'framework/GitRepoStore/GitSyncStoreContext'
 import { PipelineExecutionSummary, useGetListOfExecutions } from 'services/pipeline-ng'
 import useTabVisible from '@common/hooks/useTabVisible'
+import routes from '@common/RouteDefinitions'
 import { ExecutionListEmpty } from './ExecutionListEmpty/ExecutionListEmpty'
 import { OverviewExecutionListEmpty } from './ExecutionListEmpty/OverviewExecutionListEmpty'
 import {
@@ -31,6 +32,7 @@ import {
 } from './ExecutionListFilterContext/ExecutionListFilterContext'
 import { ExecutionListSubHeader } from './ExecutionListSubHeader/ExecutionListSubHeader'
 import { ExecutionListTable } from './ExecutionListTable/ExecutionListTable'
+import { ExecutionListCards } from './ExecutionListTable/ExecutionListCards'
 import css from './ExecutionList.module.scss'
 
 export interface ExecutionListProps {
@@ -58,6 +60,11 @@ function ExecutionListInternal(props: ExecutionListProps): React.ReactElement {
   const { isGitSyncEnabled } = useAppStore()
   const { module = 'cd' } = useModuleInfo()
   const [viewCompiledYaml, setViewCompiledYaml] = React.useState<PipelineExecutionSummary | undefined>(undefined)
+
+  const location = useLocation()
+  const isExecutionListPage = !!matchPath(location.pathname, {
+    path: routes.toExecutions({ projectIdentifier, orgIdentifier, accountId, module })
+  })
 
   const {
     data,
@@ -118,7 +125,11 @@ function ExecutionListInternal(props: ExecutionListProps): React.ReactElement {
         {initLoading ? (
           <PageSpinner />
         ) : hasExecutions ? (
-          <ExecutionListTable executionList={executionList} onViewCompiledYaml={setViewCompiledYaml} {...rest} />
+          isExecutionListPage ? (
+            <ExecutionListTable executionList={executionList} onViewCompiledYaml={setViewCompiledYaml} {...rest} />
+          ) : (
+            <ExecutionListCards executionList={executionList} onViewCompiledYaml={setViewCompiledYaml} {...rest} />
+          )
         ) : (
           <ExecutionListEmpty {...rest} />
         )}

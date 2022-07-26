@@ -7,14 +7,7 @@
  **/
 // this is an auto-generated file, do not update this manually
 declare const styles: {
-  readonly ci: string
-  readonly menu: string
-  readonly stage: string
-  readonly stageName: string
-  readonly status: string
-  readonly table: string
-  readonly triggerInfo: string
-  readonly triggerInfoCell: string
-  readonly triggerType: string
+  readonly main: string
+  readonly pagination: string
 }
 export default styles

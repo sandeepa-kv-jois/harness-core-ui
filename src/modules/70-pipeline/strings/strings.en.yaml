@@ -1206,7 +1206,7 @@ fieldPlaceholders:
 traffic: Traffic
 viewPipeline: View Pipeline
 codeSource: 'Code Source'
-recentTenExecutions: 'Recent 10 Executions'
+recentExecutions: 'Recent Executions'
 lastExecution: 'Last Execution'
 lastModified: 'Last Modified'
 executionId: Execution Id
@@ -1237,3 +1237,4 @@ startupCommand:
   scriptFilePath: 'Script File Path'
   fileValidation: 'file is required'
   plainText: 'Plain Text'
+triggerInfo: 'Trigger Info'

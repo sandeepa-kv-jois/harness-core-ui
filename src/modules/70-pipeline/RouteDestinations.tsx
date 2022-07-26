@@ -320,6 +320,16 @@ export function PipelineRouteDestinations({
         licenseRedirectData={licenseRedirectData}
         sidebarProps={sidebarProps}
         path={routes.toDeployments({ ...accountPathProps, ...projectPathProps, ...moduleParams })}
+        pageName={PAGE_NAME.DeploymentsList}
+      >
+        <ExecutionListPage />
+      </RouteWithLayout>
+      <RouteWithLayout
+        exact
+        licenseRedirectData={licenseRedirectData}
+        sidebarProps={sidebarProps}
+        path={routes.toExecutions({ ...accountPathProps, ...projectPathProps, ...moduleParams })}
+        pageName={PAGE_NAME.ExecutionList}
       >
         <ExecutionListPage />
       </RouteWithLayout>
