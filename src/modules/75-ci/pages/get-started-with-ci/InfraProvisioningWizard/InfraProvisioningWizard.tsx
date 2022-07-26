@@ -356,7 +356,7 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
           <SelectRepository
             ref={selectRepositoryRef}
             showError={showError}
-            validatedConnectorRef={configuredGitConnector?.identifier}
+            validatedConnector={configuredGitConnector}
             connectorsEligibleForPreSelection={connectorsEligibleForPreSelection}
             onConnectorSelect={(connector: ConnectorInfoDTO) => {
               setConfiguredGitConnector(connector)

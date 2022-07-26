@@ -46,7 +46,7 @@ export type SelectRepositoryForwardRef =
 interface SelectRepositoryProps {
   selectedRepository?: UserRepoResponse
   showError?: boolean
-  validatedConnectorRef?: string
+  validatedConnector?: ConnectorInfoDTO
   connectorsEligibleForPreSelection?: ConnectorInfoDTO[]
   onConnectorSelect?: (connector: ConnectorInfoDTO) => void
   disableNextBtn: () => void
@@ -60,7 +60,7 @@ const SelectRepositoryRef = (
   const {
     selectedRepository,
     showError,
-    validatedConnectorRef,
+    validatedConnector,
     disableNextBtn,
     enableNextBtn,
     connectorsEligibleForPreSelection,
@@ -101,31 +101,37 @@ const SelectRepositoryRef = (
   }, [])
 
   const ConnectorSelectionItems = useMemo((): SelectOption[] => {
-    return connectorsEligibleForPreSelection?.map((item: ConnectorInfoDTO) => {
+    let items = connectorsEligibleForPreSelection
+    if (!connectorsEligibleForPreSelection) {
+      items = validatedConnector ? [validatedConnector] : []
+    }
+    return items?.map((item: ConnectorInfoDTO) => {
       const { type, name, identifier } = item
       return {
         icon: { name: getIcon(type), className: css.listIcon } as IconProps,
         label: name,
         value: identifier
-      } as SelectOption
+      }
     }) as SelectOption[]
-  }, [connectorsEligibleForPreSelection])
+  }, [connectorsEligibleForPreSelection, validatedConnector])
 
   useEffect(() => {
-    if (validatedConnectorRef && ConnectorSelectionItems.length > 0) {
+    if (validatedConnector && ConnectorSelectionItems.length > 0) {
       setSelectedConnectorOption(
-        ConnectorSelectionItems.filter((item: SelectOption) => item.value === validatedConnectorRef)?.[0]
+        ConnectorSelectionItems.filter((item: SelectOption) => item.value === validatedConnector.identifier)?.[0]
       )
     }
-  }, [ConnectorSelectionItems, validatedConnectorRef])
+  }, [ConnectorSelectionItems, validatedConnector])
 
   useEffect(() => {
-    const matchingConnector = connectorsEligibleForPreSelection?.filter(
-      (item: ConnectorInfoDTO) => item.identifier === selectedConnectorOption?.value
-    )?.[0]
-    if (matchingConnector) {
+    if (selectedConnectorOption) {
+      const matchingConnector = connectorsEligibleForPreSelection?.filter(
+        (item: ConnectorInfoDTO) => item.identifier === selectedConnectorOption?.value
+      )?.[0]
+      if (matchingConnector) {
+        onConnectorSelect?.(matchingConnector)
+      }
       setRepository(undefined)
-      onConnectorSelect?.(matchingConnector)
       const connectorRefForReposFetch = selectedConnectorOption?.value as string
       if (connectorRefForReposFetch) {
         cancelRepositoriesFetch()
@@ -139,7 +145,7 @@ const SelectRepositoryRef = (
         })
       }
     }
-  }, [selectedConnectorOption])
+  }, [selectedConnectorOption, connectorsEligibleForPreSelection])
 
   useEffect(() => {
     setRepositories(repoData?.data)
