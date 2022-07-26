@@ -58,7 +58,7 @@ const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
     <Container className={css.bodyWidgetsContainer}>
       <Layout.Horizontal flex={{ alignItems: 'stretch' }}>
         <Layout.Vertical spacing={'small'} className={cx(css.infoContainer, css.semiLargeContainer)}>
-          <Text font={{ variation: FontVariation.BODY2 }} color={Color.GREY_600}>
+          <Text font={{ variation: FontVariation.H6 }} color={Color.GREY_600}>
             {'Compute spend'}
           </Text>
           <Text font={{ variation: FontVariation.H3 }}>
@@ -68,9 +68,9 @@ const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
         </Layout.Vertical>
         <Layout.Horizontal
           className={cx(css.infoContainer, css.largeContainer)}
-          flex={{ alignItems: 'center', justifyContent: 'flex-start' }}
+          flex={{ alignItems: 'flex-start', justifyContent: 'flex-start' }}
         >
-          <Container>
+          <Layout.Horizontal flex>
             <CEChart
               options={{
                 ...getRadialChartOptions(
@@ -101,40 +101,44 @@ const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
                 }
               }}
             />
-          </Container>
-          <Layout.Vertical>
-            <Text font={{ variation: FontVariation.BODY2 }} color={Color.GREY_600}>
+          </Layout.Horizontal>
+          <Layout.Vertical margin={{ left: 'small' }} spacing="small">
+            <Text font={{ variation: FontVariation.H6 }} color={Color.GREY_600}>
               {'Compute coverage'}
             </Text>
-            {computeCoverageItems.map(item => (
-              <Layout.Horizontal flex={{ justifyContent: 'flex-start' }} key={item.label}>
-                <div style={{ backgroundColor: item.color, height: 10, width: 10, marginRight: 10 }} />
-                <Text font={{ variation: FontVariation.BODY }}>{item.label}</Text>
-              </Layout.Horizontal>
-            ))}
+            <Container>
+              {computeCoverageItems.map(item => (
+                <Layout.Horizontal flex={{ justifyContent: 'flex-start' }} key={item.label}>
+                  <div style={{ backgroundColor: item.color, height: 10, width: 10, marginRight: 10 }} />
+                  <Text font={{ variation: FontVariation.BODY }}>{item.label}</Text>
+                </Layout.Horizontal>
+              ))}
+            </Container>
           </Layout.Vertical>
         </Layout.Horizontal>
-        <Layout.Vertical className={cx(css.infoContainer, css.largeContainer)}>
-          <Text font={{ variation: FontVariation.BODY2 }} color={Color.GREY_600}>
+        <Layout.Vertical className={cx(css.infoContainer, css.largeContainer)} spacing="small">
+          <Text font={{ variation: FontVariation.H6 }} color={Color.GREY_600}>
             {'Commitment Utilisation'}
           </Text>
-          <SimpleBar
-            widthInPercentage={Number(get(summaryData, 'utilization_percentage.savings_plan', 43.1).toFixed(2))}
-            primaryColor={Color.TEAL_600}
-            secondaryColor={Color.TEAL_50}
-            description={'Savings Plans'}
-          />
-          <SimpleBar
-            widthInPercentage={Number(get(summaryData, 'utilization_percentage.reserved_instances', 79.4).toFixed(2))}
-            primaryColor={Color.PURPLE_600}
-            secondaryColor={Color.PURPLE_50}
-            description={'Reserved Instances'}
-            descriptionDirection="bottom"
-          />
+          <Container>
+            <SimpleBar
+              widthInPercentage={Number(get(summaryData, 'utilization_percentage.savings_plan', 43.1).toFixed(2))}
+              primaryColor={Color.TEAL_600}
+              secondaryColor={Color.TEAL_50}
+              description={'Savings Plans'}
+            />
+            <SimpleBar
+              widthInPercentage={Number(get(summaryData, 'utilization_percentage.reserved_instances', 79.4).toFixed(2))}
+              primaryColor={Color.PURPLE_600}
+              secondaryColor={Color.PURPLE_50}
+              description={'Reserved Instances'}
+              descriptionDirection="bottom"
+            />
+          </Container>
         </Layout.Vertical>
         <Layout.Horizontal
           className={cx(css.infoContainer, css.largeContainer)}
-          flex={{ alignItems: 'center', justifyContent: 'flex-start' }}
+          flex={{ alignItems: 'flex-start', justifyContent: 'flex-start' }}
         >
           <Container>
             <CEChart
@@ -161,8 +165,8 @@ const ComputedDataWidgetsRow: React.FC<ComputedDataWidgetsRowProps> = () => {
               }}
             />
           </Container>
-          <Layout.Vertical>
-            <Text font={{ variation: FontVariation.BODY2 }} color={Color.GREY_600}>
+          <Layout.Vertical spacing={'medium'}>
+            <Text font={{ variation: FontVariation.H6 }} color={Color.GREY_600}>
               {'Savings till date'}
             </Text>
             <Text font={{ variation: FontVariation.H3 }}>

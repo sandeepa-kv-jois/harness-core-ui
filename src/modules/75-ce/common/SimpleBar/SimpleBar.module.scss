@@ -8,6 +8,7 @@
 .simpleBar {
   $barHeight: 8px;
   $borderRadius: 5px;
+  margin-top: var(--spacing-xsmall) !important;
   .barContainer {
     width: 100%;
     height: $barHeight;

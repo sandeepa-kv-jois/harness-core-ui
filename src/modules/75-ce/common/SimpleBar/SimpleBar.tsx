@@ -26,8 +26,12 @@ const SimpleBar: React.FC<SimpleBarProps> = ({
   secondaryColor = Color.GREY_200
 }) => {
   return (
-    <Layout.Vertical className={css.simpleBar}>
-      <Layout.Horizontal flex className={descriptionDirection === 'bottom' ? css.reverseDirection : ''}>
+    <Layout.Vertical
+      className={cx(css.simpleBar, {
+        [css.reverseDirection]: descriptionDirection === 'bottom'
+      })}
+    >
+      <Layout.Horizontal flex>
         <Text font={{ variation: FontVariation.SMALL }}>{description}</Text>
         <Text color={primaryColor} font={{ variation: FontVariation.BODY2_SEMI }}>
           {widthInPercentage + '%'}
