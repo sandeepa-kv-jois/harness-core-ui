@@ -358,7 +358,10 @@ export const InfraProvisioningWizard: React.FC<InfraProvisioningWizardProps> = p
             showError={showError}
             validatedConnectorRef={configuredGitConnector?.identifier}
             connectorsEligibleForPreSelection={connectorsEligibleForPreSelection}
-            onConnectorSelect={(connector: ConnectorInfoDTO) => setConfiguredGitConnector(connector)}
+            onConnectorSelect={(connector: ConnectorInfoDTO) => {
+              setConfiguredGitConnector(connector)
+              setShowError(false)
+            }}
             disableNextBtn={() => setDisableBtn(true)}
             enableNextBtn={() => setDisableBtn(false)}
           />
