@@ -191,7 +191,7 @@ describe('STOExecutionCardSummary', () => {
         />
       </TestWrapper>
     )
-    expect(screen.getByText('stoSteps.noSecurityTests'))
+    expect(screen.getByText('stoSteps.noSecurityResults'))
   })
 
   test('shows no security tests message on pipeline failure', () => {
@@ -212,7 +212,7 @@ describe('STOExecutionCardSummary', () => {
         />
       </TestWrapper>
     )
-    expect(screen.getByText('stoSteps.noSecurityTests'))
+    expect(screen.getByText('stoSteps.noSecurityResults'))
   })
 
   test('shows no issues message', () => {
