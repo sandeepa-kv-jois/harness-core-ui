@@ -46,8 +46,7 @@ interface AzureInfrastructureUI extends Omit<SshWinRmAzureInfrastructure, 'subsc
 export const AzureInfrastructureSpecForm: React.FC<AzureInfrastructureSpecEditableProps> = ({
   initialValues,
   onUpdate,
-  readonly,
-  allowableTypes
+  readonly
 }): JSX.Element => {
   const { accountId, projectIdentifier, orgIdentifier } = useParams<{
     projectIdentifier: string
@@ -61,8 +60,10 @@ export const AzureInfrastructureSpecForm: React.FC<AzureInfrastructureSpecEditab
   const [isSubsLoading, setIsSubsLoading] = useState(false)
 
   const [resourceGroups, setResourceGroups] = useState<SelectOption[]>([])
+  const [isResGroupLoading, setIsResGroupLoading] = useState(false)
 
   const [azureTags, setAzureTags] = useState([])
+  const [isTagsLoading, setIsTagsLoading] = useState(false)
 
   const delayedOnUpdate = useRef(debounce(onUpdate || noop, 300)).current
   const { getString } = useStrings()
@@ -127,7 +128,6 @@ export const AzureInfrastructureSpecForm: React.FC<AzureInfrastructureSpecEditab
   }
 
   const fetchResourceGroups = async (connectorRef: string, subscriptionId: string) => {
-    setIsResGroupLoading(true)
     try {
       const response = await getAzureResourceGroupsBySubscriptionPromise({
         queryParams: {
@@ -158,6 +158,7 @@ export const AzureInfrastructureSpecForm: React.FC<AzureInfrastructureSpecEditab
   }
 
   useEffect(() => {
+    debugger
     if (initialValues.connectorRef) {
       const { connectorRef } = initialValues
       fetchSubscriptions(connectorRef)
@@ -186,6 +187,7 @@ export const AzureInfrastructureSpecForm: React.FC<AzureInfrastructureSpecEditab
   }, [])
 
   const getInitialValues = (): AzureInfrastructureUI => {
+    debugger
     const currentValues: AzureInfrastructureUI = {
       ...initialValues,
       tags: Object.values(initialValues.tags || {})
@@ -307,17 +309,6 @@ export const AzureInfrastructureSpecForm: React.FC<AzureInfrastructureSpecEditab
                   }}
                   gitScope={{ repo: repoIdentifier || '', branch, getDefaultFromOtherRepo: true }}
                 />
-                <FormInput.MultiSelectTypeInput
-                  label={getString(subscriptionLabel)}
-                  name="subscriptionId"
-                  selectItems={subscriptions}
-                  placeholder={
-                    isSubsLoading ? getString('loading') : getString('cd.steps.azureInfraStep.subscriptionPlaceholder')
-                  }
-                  multiSelectTypeInputProps={{
-                    allowableTypes
-                  }}
-                />
                 <FormInput.Select
                   name="subscriptionId"
                   className={`subscriptionId-select ${css.inputWidth}`}
@@ -342,7 +333,11 @@ export const AzureInfrastructureSpecForm: React.FC<AzureInfrastructureSpecEditab
                   name="resourceGroup"
                   className={`resourceGroup-select ${css.inputWidth}`}
                   items={resourceGroups}
-                  placeholder={getString('cd.steps.azureInfraStep.resourceGroupPlaceholder')}
+                  placeholder={
+                    isResGroupLoading
+                      ? getString('loading')
+                      : getString('cd.steps.azureInfraStep.resourceGroupPlaceholder')
+                  }
                   onChange={value => {
                     formik.setFieldValue('resourceGroup', value)
                   }}
@@ -352,7 +347,8 @@ export const AzureInfrastructureSpecForm: React.FC<AzureInfrastructureSpecEditab
                   name="tags"
                   label={getString('tagLabel')}
                   items={azureTags}
-                  className={css.inputWidth}
+                  placeholder={isTagsLoading ? getString('loading') : undefined}
+                  className={`${css.inputWidth} ${css.tagsSelect}`}
                 />
                 <FormInput.CheckBox
                   className={css.simultaneousDeployment}

@@ -15,5 +15,6 @@ declare const styles: {
   readonly lastRow: string
   readonly marginTop: string
   readonly simultaneousDeployment: string
+  readonly tagsSelect: string
 }
 export default styles

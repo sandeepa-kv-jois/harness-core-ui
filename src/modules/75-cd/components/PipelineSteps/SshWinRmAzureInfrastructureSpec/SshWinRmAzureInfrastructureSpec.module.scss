@@ -45,3 +45,9 @@
 .simultaneousDeployment {
   display: inline-flex !important;
 }
+
+.tagsSelect {
+  :global(.bp3-menu) {
+    height: 200px;
+  }
+}
